@@ -1,0 +1,71 @@
+/* ===== משתנים: צבעים, פונטים וריווחים (מהפיגמה) ===== */
+:root {
+  /* צבעים */
+  --color-background: #000336; /* כחול כהה של הרקע */
+  --color-text: #d6d6d6;       /* אפור בהיר של הטקסט */
+
+  /* פונטים */
+  --font-main: "Masada", "Arial Hebrew", Arial, sans-serif;
+
+  /* מידות: בפיגמה הטקסט ברוחב 938px והפונט בגודל 96px */
+  --content-width: min(938px, 90vw);
+  --title-size: min(96px, 9.2vw);
+
+  /* ריווחים */
+  --space-page: 16px;
+}
+
+/* ===== פונט Masada (נטען מהמחשב אם הוא מותקן) ===== */
+@font-face {
+  font-family: "Masada";
+  src: local("Masada Medium"), local("Masada-Medium");
+  font-weight: 500;
+}
+
+/* ===== בסיס ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-main);
+}
+
+/* ===== עמוד "בקרוב": מסך אחד, התוכן באמצע ===== */
+.coming-soon {
+  min-height: 100vh;
+  min-height: 100dvh; /* גובה המסך האמיתי בטלפונים */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-page);
+  overflow: hidden;
+}
+
+/* הקופסה שמחזיקה את הטקסט ואת הדבורה */
+.coming-soon__content {
+  position: relative;
+  width: var(--content-width);
+}
+
+/* הכותרת: השם והמשפט */
+.coming-soon__title {
+  position: relative; /* כדי שהטקסט יופיע מעל הדבורה, כמו בפיגמה */
+  margin: 0;
+  font-size: var(--title-size);
+  font-weight: 500;
+  line-height: normal;
+  text-align: center;
+}
+
+/* הדבורה: יושבת מימין למטה וחופפת קצת לטקסט, כמו בפיגמה */
+.coming-soon__bee {
+  position: absolute;
+  left: 76.3%;  /* 716px מתוך 938px */
+  top: 50%;     /* 194px מתוך 388px */
+  width: 38.3%; /* 359px מתוך 938px */
+  height: auto;
+}
