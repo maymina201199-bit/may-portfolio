@@ -40,10 +40,9 @@
   </header>
 
   <!--
-    הפרויקטים מסודרים בשורות של שלושה ריבועים (<section class="home-row">).
+    הפרויקטים מסודרים בשורות של שלושה (<section class="home-row">). כל שורה כוללת
+    את שלושת הריבועים ומתחתם את שלושת השמות, באותו סדר משמאל לימין.
     כדי להוסיף שורה: מעתיקים <section class="home-row"> שלם ומחליפים דימויים ושמות.
-    בהתחלה רואים רק מסגרת ובאמצעה את שם הפרויקט (home-gallery__name).
-    כשהעכבר על ריבוע: הדימוי מופיע, והשם והמסגרת נעלמים. הדימוי נשאר גם אחרי שהעכבר יוצא.
 
     בכל ריבוע יכולים להיות כמה דימויים (class="home-gallery__slide").
     הראשון מסומן is-active ומופיע קודם. לחיצה בחצי הימני: הבא, בחצי השמאלי: הקודם.
@@ -61,22 +60,25 @@
           <video class="home-gallery__slide is-active" src="images/home-manyone.mp4" poster="images/home-manyone-poster.jpg" autoplay muted loop playsinline aria-label="Manyone"></video>
           <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
           <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
-          <p class="home-gallery__name">manyone TLV / SOCIAL MEDIA</p>
         </div>
 
         <div class="home-gallery__item" data-project-url="">
           <img class="home-gallery__slide home-gallery__slide--face is-active" src="images/home-photo-face.jpg" alt="פורטרט בשחור לבן">
           <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
           <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
-          <p class="home-gallery__name">Portrait /PHOTOGRAPHY</p>
         </div>
 
         <div class="home-gallery__item" data-project-url="">
           <img class="home-gallery__slide is-active" src="images/home-photo-cactus.jpg" alt="צילום בגן קקטוסים">
           <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
           <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
-          <p class="home-gallery__name">Sabra /BRANDING</p>
         </div>
+      </div>
+
+      <div class="home-titles">
+        <p class="home-titles__name">manyone TLV / SOCIAL MEDIA</p>
+        <p class="home-titles__name">Portrait /PHOTOGRAPHY</p>
+        <p class="home-titles__name">Sabra /BRANDING</p>
       </div>
     </section>
 
@@ -87,14 +89,12 @@
           <img class="home-gallery__slide is-active" src="images/home-row2-portrait.jpg" alt="צעיר יושב על הרצפה">
           <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
           <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
-          <p class="home-gallery__name">manyone TLV / SOCIAL MEDIA</p>
         </div>
 
         <div class="home-gallery__item" data-project-url="">
           <img class="home-gallery__slide is-active" src="images/home-row2-booklet.jpg" alt="חוברת פתוחה ביד">
           <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
           <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
-          <p class="home-gallery__name">Portrait /PHOTOGRAPHY</p>
         </div>
 
         <!-- סרטון שמתנגן בלולאה, בלי סאונד -->
@@ -102,8 +102,13 @@
           <video class="home-gallery__slide home-gallery__slide--stone is-active" src="images/home-row2-stone.mp4" poster="images/home-row2-stone-poster.jpg" autoplay muted loop playsinline aria-label="כתובת יוונית חרוטה באבן"></video>
           <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
           <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
-          <p class="home-gallery__name">Sabra /BRANDING</p>
         </div>
+      </div>
+
+      <div class="home-titles">
+        <p class="home-titles__name">manyone TLV / SOCIAL MEDIA</p>
+        <p class="home-titles__name">Portrait /PHOTOGRAPHY</p>
+        <p class="home-titles__name">Sabra /BRANDING</p>
       </div>
     </section>
 
@@ -153,7 +158,6 @@
       function hideIntro() {
         intro.classList.add("is-hidden");
         setTimeout(() => intro.remove(), FADE_DURATION);
-        buildFrames(); // המסגרות של הפרויקטים מתחילות להיבנות כשמסך הפתיחה נעלם
       }
 
       // מי שביקש במחשב פחות אנימציות: בלי אותיות מתחלפות
@@ -292,33 +296,13 @@
     // כמה זמן מחכים אחרי שהעכבר יצא, עד שהדימוי נעלם והמסגרת חזרה (קצת יותר מ--reveal-duration ב-styles.css)
     const HIDE_DURATION = 600;
 
-    // ===== המסגרות שנבנות בפתיחה =====
-    // כל מסגרת עשויה מ-4 קווים. בהתחלה הם באורך 0, וכשמסך הפתיחה נעלם הם "נמתחים"
-    // למקום. כל מסגרת מתחילה מפינה אחרת (מוגדר ב-styles.css)
-    function addFrame(item, index) {
-      const frame = document.createElement("span");
-      frame.className = "home-gallery__frame";
-      frame.style.setProperty("--frame-index", index); // כל מסגרת מתחילה קצת אחרי הקודמת
-      frame.innerHTML = '<i class="line line--top"></i><i class="line line--right"></i>' +
-                        '<i class="line line--bottom"></i><i class="line line--left"></i>';
-      // השם עובר לתוך המסגרת, כדי שייעלם איתה כשהעכבר על הריבוע
-      const name = item.querySelector(".home-gallery__name");
-      if (name) frame.appendChild(name);
-      item.appendChild(frame);
-    }
-
-    function buildFrames() {
-      document.querySelector(".home-projects").classList.add("is-built");
-    }
-
     // ===== חיבור הכול לכל ריבוע בגלריה =====
-    document.querySelectorAll(".home-gallery__item").forEach(function (item, itemIndex) {
-      // מוסיפים לכל ריבוע את המספור ואת המסגרת שלו
+    document.querySelectorAll(".home-gallery__item").forEach(function (item) {
+      // מוסיפים לכל ריבוע את המספור שלו
       const counter = document.createElement("p");
       counter.className = "home-gallery__counter";
       item.appendChild(counter);
       updateCounter(item, 0);
-      addFrame(item, itemIndex);
 
       let resetTimer; // הטיימר של החזרה לדימוי הראשון
 
@@ -328,7 +312,6 @@
         mouseX = labelX = event.clientX;
         mouseY = labelY = event.clientY;
         label.classList.add("is-visible");
-        item.classList.add("is-revealed"); // מעכשיו הדימוי של הריבוע הזה נשאר גלוי
       });
 
       item.addEventListener("mousemove", function (event) {

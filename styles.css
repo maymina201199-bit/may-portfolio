@@ -19,7 +19,9 @@
   --contact-size: 15px; /* פרטי הקשר בעמוד הבית */
   --contact-drop: 0.18em; /* כמה פרטי הקשר יורדים כדי לשבת על הקו של הדימויים */
   --counter-size: 18px; /* המספור 01 | 02 | 03 על דימוי פתוח */
-  --project-name-size: 15px; /* השם של הפרויקט באמצע המסגרת */
+  --project-name-size: 15px; /* השמות של הפרויקטים מתחת לדימויים */
+  --space-titles-top: 3px;   /* בין הדימויים לשמות */
+  --home-titles-height: 54px; /* פס השמות: מהדימויים של שורה אחת עד הדימויים של השורה הבאה */
   --process-link-size: 14px; /* העיגול שמוביל לעמוד התהליך */
   --intro-letter-size: 100px; /* האות במסך הפתיחה */
   --cursor-label-size: 11px; /* התווית [ NEXT ] שליד העכבר */
@@ -55,10 +57,6 @@
   /* תנועה: משך ואופן ההאטה של פתיחת דימויים */
   --zoom-duration: 600ms;
   --zoom-easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --reveal-duration: 400ms;   /* הדימוי מופיע והמסגרת נעלמת */
-  --frame-duration: 1100ms;   /* כמה זמן לוקח לכל מסגרת להיבנות */
-  --frame-stagger: 150ms;     /* כל מסגרת מתחילה קצת אחרי הקודמת */
-  --frame-easing: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 /* ===== פונטים ===== */
@@ -196,7 +194,7 @@ body {
   left: calc(100% * 1315 / 1440);
 }
 
-/* שלושת הדימויים: כל אחד שליש מהרוחב, 480 על 586 בפיגמה */
+/* שלושת הדימויים: כל אחד שליש מהרוחב, 480 על 590 בפיגמה */
 .home-gallery {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -205,7 +203,7 @@ body {
 /* ריבוע אחד בגלריה. בתוכו יש כמה דימויים (שקופיות), ורואים רק אחד בכל פעם */
 .home-gallery__item {
   position: relative;
-  aspect-ratio: 480 / 586;
+  aspect-ratio: 480 / 590;
   overflow: hidden;
   cursor: pointer;
 }
@@ -273,108 +271,23 @@ body {
   }
 }
 
-/* ===== המסגרות: מה שרואים לפני שהעכבר על ריבוע ===== */
-/* רק במחשב (כשיש עכבר) ובמסך רחב. בטלפון רואים ישר את הדימויים */
-@media (hover: hover) and (min-width: 701px) {
-  /* הדימויים מוסתרים עד שהעכבר על הריבוע */
-  .home-gallery__slide {
-    opacity: 0;
-    transition:
-      object-position var(--zoom-duration) var(--zoom-easing),
-      opacity var(--reveal-duration) ease;
-  }
-
-  /* is-revealed: ריבוע שהעכבר כבר עבר עליו. הדימוי נשאר גלוי גם אחרי שהעכבר יצא */
-  .home-gallery__item:hover .home-gallery__slide,
-  .home-gallery__item.is-revealed .home-gallery__slide {
-    opacity: 1;
-  }
-
-  /* המסגרת (והשם שבתוכה) נעלמת כשהעכבר על הריבוע */
-  .home-gallery__frame {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    transition: opacity var(--reveal-duration) ease;
-  }
-
-  .home-gallery__item:hover .home-gallery__frame,
-  .home-gallery__item.is-revealed .home-gallery__frame {
-    opacity: 0;
-  }
-
-  /* 4 הקווים של המסגרת. בהתחלה באורך 0 */
-  .line {
-    position: absolute;
-    background-color: var(--color-home-text);
-    transition: transform var(--frame-duration) var(--frame-easing);
-    transition-delay: calc(var(--frame-index) * var(--frame-stagger));
-  }
-
-  .line--top,
-  .line--bottom {
-    left: 0;
-    width: 100%;
-    height: var(--line-width);
-    transform: scaleX(0);
-    transform-origin: var(--from-x) center;
-  }
-
-  .line--left,
-  .line--right {
-    top: 0;
-    width: var(--line-width);
-    height: 100%;
-    transform: scaleY(0);
-    transform-origin: center var(--from-y);
-  }
-
-  .line--top    { top: 0; }
-  .line--bottom { bottom: 0; }
-  .line--left   { left: 0; }
-  .line--right  { right: 0; }
-
-  /* כל ריבוע בשורה נבנה מכיוון אחר:
-     הראשון מהפינה השמאלית העליונה, השני מהאמצע החוצה, השלישי מהפינה הימנית התחתונה */
-  .home-gallery__item:nth-child(1) { --from-x: left;   --from-y: top; }
-  .home-gallery__item:nth-child(2) { --from-x: center; --from-y: center; }
-  .home-gallery__item:nth-child(3) { --from-x: right;  --from-y: bottom; }
-
-  /* כשמסך הפתיחה נעלם: הקווים נמתחים למקום */
-  .is-built .line {
-    transform: none;
-  }
-
-  /* שם הפרויקט באמצע המסגרת. מופיע אחרי שהמסגרת שלו נבנתה */
-  .home-gallery__name {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    font-size: var(--project-name-size);
-    opacity: 0;
-  }
-
-  .is-built .home-gallery__name {
-    animation: name-fade-in var(--reveal-duration) ease forwards;
-    animation-delay: calc(var(--frame-index) * var(--frame-stagger) + var(--frame-duration) * 0.7);
-  }
+/* ===== השמות של הפרויקטים, מתחת לדימויים ===== */
+.home-titles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: var(--home-titles-height);
+  padding-top: var(--space-titles-top);
 }
 
-/* בטלפון ובמסכי מגע אין שמות על הריבועים, רואים ישר את הדימויים */
-@media (hover: none), (max-width: 700px) {
-  .home-gallery__name {
-    display: none;
-  }
+.home-titles__name {
+  margin: 0;
+  font-size: var(--project-name-size);
 }
 
-@keyframes name-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+/* כל שם זז קצת פנימה מתחילת העמודה שלו, כמו בפיגמה (18px, 26px, 10px) */
+.home-titles__name:nth-child(1) { padding-left: calc(100% * 18 / 480); }
+.home-titles__name:nth-child(2) { padding-left: calc(100% * 26 / 480); }
+.home-titles__name:nth-child(3) { padding-left: calc(100% * 10 / 480); }
 
 /* ===== התווית [ NEXT ] / [ PREV ] שעוקבת אחרי העכבר ===== */
 .cursor-label {
@@ -449,15 +362,8 @@ body {
 /* מי שביקש במחשב פחות אנימציות: נפתח בלי תנועה */
 @media (prefers-reduced-motion: reduce) {
   .home-gallery__item,
-  .home-gallery__slide,
-  .home-gallery__frame,
-  .line {
+  .home-gallery__slide {
     transition: none;
-  }
-
-  .is-built .home-gallery__name {
-    animation-duration: 0s;
-    animation-delay: 0s;
   }
 }
 
@@ -477,8 +383,28 @@ body {
     position: static;
   }
 
-  .home-gallery {
+  /* כל שם מופיע מיד מתחת לדימוי שלו:
+     הדימויים והשמות מסתדרים יחד ברשת אחת, לפי הסדר דימוי, שם, דימוי, שם... */
+  .home-row {
+    display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .home-gallery,
+  .home-titles {
+    display: contents;
+  }
+
+  .home-gallery__item:nth-child(1) { order: 1; }
+  .home-titles__name:nth-child(1)  { order: 2; }
+  .home-gallery__item:nth-child(2) { order: 3; }
+  .home-titles__name:nth-child(2)  { order: 4; }
+  .home-gallery__item:nth-child(3) { order: 5; }
+  .home-titles__name:nth-child(3)  { order: 6; }
+
+  .home-titles__name,
+  .home-titles__name:nth-child(n) {
+    padding: 15px var(--space-page) 32px;
   }
 }
 
