@@ -39,7 +39,7 @@
   --space-home-top: 17px;        /* מרחק השם והתפריט מלמעלה */
   --space-home-edge: 14px;       /* מרחק השם מהקצה השמאלי */
   /* עמוד פרויקט (המספרים מהפריים ברוחב 1440px) */
-  --space-project-edge: 28px;     /* מרחק הדימוי והשם מהקצה השמאלי */
+  --space-project-edge: var(--space-home-edge); /* הדימוי ושם הפרויקט מיושרים ל-"may mina ." */
   --space-project-top: calc(39px * var(--project-scale));  /* מהשורה של שם הפרויקט עד הדימוי */
   --space-project-gap: 22px;      /* בין הדימוי לטקסט */
   --project-button-width: calc(286px * var(--project-scale));
