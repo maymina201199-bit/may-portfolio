@@ -20,6 +20,7 @@
   --contact-drop: 0.18em; /* כמה פרטי הקשר יורדים כדי לשבת על הקו של הדימויים */
   --counter-size: 18px; /* המספור 01 | 02 | 03 על דימוי פתוח */
   --project-name-size: 15px; /* השם של הפרויקט באמצע המסגרת */
+  --process-link-size: 14px; /* העיגול שמוביל לעמוד התהליך */
   --intro-letter-size: 100px; /* האות במסך הפתיחה */
   --cursor-label-size: 11px; /* התווית [ NEXT ] שליד העכבר */
 
@@ -128,6 +129,23 @@ body {
   margin: 0;
   font-size: inherit;
   font-weight: normal;
+}
+
+/* הקישור לעמוד התהליך: עיגול לבן דק בפינה הימנית העליונה, מול "may mina ." */
+.home-process-link {
+  position: absolute;
+  top: var(--space-home-top);
+  right: var(--space-home-edge);
+  width: var(--process-link-size);
+  height: var(--process-link-size);
+  border: var(--line-width) solid var(--color-home-text);
+  border-radius: 50%;
+  transition: background-color 200ms ease;
+}
+
+/* כשהעכבר על העיגול הוא מתמלא */
+.home-process-link:hover {
+  background-color: var(--color-home-text);
 }
 
 /* התפריט מתחיל באמצע המסך, כמו בפיגמה */
