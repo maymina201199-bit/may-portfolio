@@ -23,6 +23,9 @@
   --space-titles-top: 3px;   /* בין הדימויים לשמות */
   --home-titles-height: 54px; /* פס השמות: מהדימויים של שורה אחת עד הדימויים של השורה הבאה */
   --process-link-size: 14px; /* העיגול שמוביל לעמוד התהליך */
+  --project-meta-size: 18px;   /* עמוד פרויקט: שם הפרויקט והתחום */
+  --project-text-size: 26px;   /* עמוד פרויקט: הטקסט והכפתור */
+  --menu-dim-opacity: 0.4;     /* עמוד פרויקט: התפריט שקוף יותר */
   --intro-letter-size: 100px; /* האות במסך הפתיחה */
   --cursor-label-size: 11px; /* התווית [ NEXT ] שליד העכבר */
 
@@ -32,6 +35,12 @@
   --home-header-height: 222px;   /* החלק השחור שמעל הדימויים */
   --space-home-top: 17px;        /* מרחק השם והתפריט מלמעלה */
   --space-home-edge: 14px;       /* מרחק השם מהקצה השמאלי */
+  /* עמוד פרויקט (המספרים מהפריים ברוחב 1440px) */
+  --space-project-edge: 28px;     /* מרחק הדימוי והשם מהקצה השמאלי */
+  --space-project-top: 39px;      /* מהשורה של שם הפרויקט עד הדימוי */
+  --space-project-gap: 22px;      /* בין הדימוי לטקסט */
+  --project-button-width: 286px;
+  --project-button-height: 78px;
   --space-counter-top: 9px;        /* המספור: מרחק מהקצה העליון של הדימוי */
   --cursor-label-gap: 10px;      /* רווח בין הסוגריים למילה ב-[ NEXT ] */
   /* עמוד התהליך (המספרים מהפריים ברוחב 1440px) */
@@ -127,6 +136,12 @@ body {
   margin: 0;
   font-size: inherit;
   font-weight: normal;
+}
+
+/* בעמודים אחרים השם הוא קישור לעמוד הבית, אבל נראה בדיוק אותו דבר */
+.home-name__link {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* הקישור לעמוד התהליך: עיגול לבן דק בפינה הימנית העליונה, מול "may mina ." */
@@ -405,6 +420,103 @@ body {
   .home-titles__name,
   .home-titles__name:nth-child(n) {
     padding: 15px var(--space-page) 32px;
+  }
+}
+
+/* ===== עמוד פרויקט ===== */
+/* התפריט שקוף יותר. "works" נשאר באפור שלו */
+.project-menu .home-menu__list {
+  opacity: var(--menu-dim-opacity);
+}
+
+/* שורת הפרויקט: שם הפרויקט משמאל, התחום באמצע, על הקו התחתון של החלק העליון */
+.project-meta {
+  position: absolute;
+  bottom: 0;
+  margin: 0;
+  font-size: var(--project-meta-size);
+  line-height: 1;
+}
+
+.project-meta--title {
+  left: var(--space-project-edge);
+}
+
+.project-meta--field {
+  left: calc(100% * 720 / 1440);
+}
+
+/* דימוי משמאל (856 על 589 בפיגמה) וטקסט מימין */
+.project-intro {
+  display: grid;
+  grid-template-columns: 856fr 472fr;
+  column-gap: var(--space-project-gap);
+  margin: var(--space-project-top) var(--space-edge-line) var(--space-edge) var(--space-project-edge);
+}
+
+.project-intro__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 856 / 589;
+  object-fit: cover;
+  object-position: left 24%; /* החיתוך כמו בפיגמה */
+}
+
+/* הטקסט למעלה, והכפתור בתחתית, בקו אחד עם התחתית של הדימוי */
+.project-intro__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.project-intro__description {
+  margin: 0;
+  font-size: var(--project-text-size);
+  line-height: normal;
+}
+
+/* הכפתור: מסגרת לבנה. כשהעכבר עליו הוא מתמלא בלבן והטקסט נהיה שחור */
+.project-button {
+  width: var(--project-button-width);
+  height: var(--project-button-height);
+  border: var(--line-width) solid var(--color-home-text);
+  background-color: transparent;
+  color: var(--color-home-text);
+  font-family: var(--font-home);
+  font-size: var(--project-text-size);
+  cursor: pointer;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.project-button:hover {
+  background-color: var(--color-home-text);
+  color: var(--color-home-background);
+}
+
+/* טלפון: הדימוי, ומתחתיו הטקסט והכפתור */
+@media (max-width: 700px) {
+  .project-meta {
+    position: static;
+    line-height: normal;
+  }
+
+  .project-intro {
+    grid-template-columns: 1fr;
+    row-gap: 24px;
+    margin: 24px var(--space-page) var(--space-page);
+  }
+
+  .project-intro__text {
+    gap: 32px;
+  }
+
+  .project-intro__description {
+    font-size: var(--home-text-size);
+  }
+
+  .project-intro__description br {
+    display: none; /* בטלפון השורות נשברות לבד */
   }
 }
 
