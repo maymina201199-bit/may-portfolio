@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>May Mina | Process</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="process-page">
+  <header class="process-header">
+    <h1>process</h1>
+  </header>
+
+  <!--
+    כל רשומה היא <article class="entry">: כותרת ודימוי.
+    הרשת ממלאת שמאל ואז ימין, שורה אחרי שורה.
+
+    לחיצה על דימוי שבתוך <button class="entry__open"> פותחת אותו, ולחיצה נוספת סוגרת.
+    data-open-mode אומר מה קורה לשאר העמוד כשהרשומה פתוחה:
+      "wide"  = הרשומה נפתחת לכל הרוחב, ושאר הרשומות יורדות מתחתיה
+      "alone" = הרשומה נפתחת לבד, ושאר הרשומות נעלמות עד שסוגרים
+  -->
+  <main class="process-list">
+
+    <!-- שורה 1, שמאל: COMING SOON -->
+    <article class="entry" data-open-mode="wide">
+      <h2 class="entry__title">coming soon</h2>
+      <button class="entry__open" type="button" aria-expanded="false" aria-label="הגדלת הדימוי">
+        <img class="entry__image entry__image--coming-soon" src="images/process-coming-soon.png" alt="עמוד הבית: בקרוב">
+      </button>
+    </article>
+
+    <!-- שורה 1, ימין: ריק, כמו בפיגמה -->
+    <div class="entry entry--empty" aria-hidden="true"></div>
+
+    <!-- שורה 2, שמאל: VISION 01 -->
+    <article class="entry entry--row-2" data-open-mode="alone">
+      <h2 class="entry__title">vision 01 || welcome</h2>
+      <button class="entry__open" type="button" aria-expanded="false" aria-label="הגדלת הדימוי">
+        <img class="entry__image entry__image--vision-01" src="images/process-vision-01.png" alt="VISION 01">
+      </button>
+
+      <!-- מופיע רק כש-VISION 01 פתוח -->
+      <div class="entry__more">
+        <h3 class="entry__title">vision 01 || project page</h3>
+        <img class="entry__image entry__image--project-1" src="images/process-vision-01-project-1.png" alt="VISION 01: עמוד פרויקט">
+        <img class="entry__image entry__image--project-2" src="images/process-vision-01-project-2.png" alt="VISION 01: עמוד פרויקט, המשך">
+      </div>
+    </article>
+
+    <!-- שורה 2, ימין: VISION 02 -->
+    <article class="entry entry--row-2 entry--right" data-open-mode="alone">
+      <h2 class="entry__title">vision 02|| welcome</h2>
+      <button class="entry__open" type="button" aria-expanded="false" aria-label="הגדלת הדימוי">
+        <img class="entry__image entry__image--vision-02" src="images/process-vision-02.png" alt="VISION 02">
+
+        <!-- מופיע רק כש-VISION 02 פתוח: הקלטת מסך שמתנגנת בלולאה, בלי סאונד -->
+        <video class="entry__video" src="images/process-vision-02-open.mp4" poster="images/process-vision-02-open-poster.png" muted loop playsinline preload="none"></video>
+      </button>
+    </article>
+
+  </main>
+
+  <script>
+    // פתיחה וסגירה של דימויים, עם תנועת זום רכה
+    const processList = document.querySelector(".process-list");
+    const allEntries = [...processList.querySelectorAll("article.entry")];
+
+    // משך התנועה ואופן ההאטה (מתחיל מהר ונעצר בעדינות)
+    const ZOOM_DURATION = 600;
+    const ZOOM_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+    // מי שביקש במחשב פחות אנימציות, יקבל פתיחה בלי תנועה
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    processList.querySelectorAll(".entry__open").forEach(function (openButton) {
+      const entry = openButton.closest(".entry");
+      const video = openButton.querySelector(".entry__video");
+      const openMode = entry.dataset.openMode;
+
+      // מה שזז: הכותרת והדימוי של הרשומה, ושאר הרשומות בעמוד
+      const otherEntries = allEntries.filter(other => other !== entry);
+      const movingParts = [entry.querySelector(".entry__title"), openButton, ...otherEntries];
+
+      openButton.addEventListener("click", function () {
+        // 1. מודדים איפה כל חלק נמצא לפני השינוי
+        const before = movingParts.map(part => part.getBoundingClientRect());
+
+        // 2. פותחים או סוגרים
+        const isOpen = entry.classList.toggle("entry--open");
+        processList.classList.toggle("process-list--" + openMode, isOpen);
+        openButton.setAttribute("aria-expanded", isOpen);
+        openButton.setAttribute("aria-label", isOpen ? "הקטנת הדימוי" : "הגדלת הדימוי");
+
+        // כשרשומה נפתחת לבד היא עולה לראש העמוד, אז גוללים למעלה.
+        // כשהיא נסגרת, גוללים אליה כדי לא לאבד אותה.
+        if (openMode === "alone") {
+          if (isOpen) {
+            window.scrollTo(0, 0);
+          } else {
+            entry.scrollIntoView({ block: "start" });
+          }
+        }
+
+        // אם יש סרטון: מתנגן כשפתוח, נעצר כשסוגרים
+        if (video) {
+          if (isOpen) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        }
+
+        if (reduceMotion) return;
+
+        // 3. כל חלק מתחיל מהמקום והגודל הקודם שלו, וזז בעדינות למקום החדש
+        movingParts.forEach((part, index) => {
+          const after = part.getBoundingClientRect();
+          const wasHidden = before[index].width === 0;
+          const isHidden = after.width === 0;
+          if (isHidden) return;
+
+          // חלק שהיה מוסתר ועכשיו מופיע: נכנס בהדרגה
+          if (wasHidden) {
+            part.animate([{ opacity: 0 }, { opacity: 1 }], { duration: ZOOM_DURATION, easing: ZOOM_EASING });
+            return;
+          }
+
+          const moveX = before[index].left - after.left;
+          const moveY = before[index].top - after.top;
+          const scale = part === openButton ? before[index].width / after.width : 1;
+
+          // כשדימוי מתחלף בסרטון, הסרטון גם נכנס בהדרגה
+          const fadeFrom = part === openButton && video ? 0.3 : 1;
+
+          part.animate(
+            [
+              { transformOrigin: "top left", transform: `translate(${moveX}px, ${moveY}px) scale(${scale})`, opacity: fadeFrom },
+              { transformOrigin: "top left", transform: "none", opacity: 1 }
+            ],
+            { duration: ZOOM_DURATION, easing: ZOOM_EASING }
+          );
+        });
+
+        // החלק הנוסף (עמוד הפרויקט) נכנס בהדרגה
+        const more = entry.querySelector(".entry__more");
+        if (more && isOpen) {
+          more.animate([{ opacity: 0 }, { opacity: 1 }], { duration: ZOOM_DURATION, easing: ZOOM_EASING });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,25 +1,76 @@
 /* ===== משתנים: צבעים, פונטים וריווחים (מהפיגמה) ===== */
 :root {
   /* צבעים */
-  --color-background: #000336; /* כחול כהה של הרקע */
-  --color-text: #d6d6d6;       /* אפור בהיר של הטקסט */
+  --color-home-background: #000000; /* רקע שחור של עמוד הבית */
+  --color-home-text: #ffffff;       /* טקסט לבן בעמוד הבית */
+  --color-home-muted: #5e5e5e;      /* אפור של "works" */
+  --color-home-contact: rgba(255, 255, 255, 0.8); /* פרטי הקשר */
+  --color-marker: #ebff12;          /* הסמן הצהוב עם החץ */
+  --color-paper: #ffffff;      /* רקע לבן של עמוד התהליך */
+  --color-ink: #000000;        /* טקסט וקווים שחורים בעמוד התהליך */
 
   /* פונטים */
-  --font-main: "Masada", "Arial Hebrew", Arial, sans-serif;
+  --font-home: "Polymath Display", Arial, sans-serif;
+  --font-label: "Compadre Narrow", "Arial Narrow", Arial, sans-serif;
 
-  /* מידות: בפיגמה הטקסט ברוחב 938px והפונט בגודל 96px */
-  --content-width: min(938px, 90vw);
-  --title-size: min(96px, 9.2vw);
+  /* גדלי טקסט */
+  --label-size: 18px;   /* הטקסט הרגיל בעמוד התהליך */
+  --home-text-size: 15px; /* השם והתפריט בעמוד הבית */
+  --contact-size: 15px; /* פרטי הקשר בעמוד הבית */
+  --contact-drop: 0.18em; /* כמה פרטי הקשר יורדים כדי לשבת על הקו של הדימויים */
+  --counter-size: 18px; /* המספור 01 | 02 | 03 על דימוי פתוח */
+  --project-name-size: 15px; /* השם של הפרויקט באמצע המסגרת */
+  --intro-letter-size: 100px; /* האות במסך הפתיחה */
+  --cursor-label-size: 11px; /* התווית [ NEXT ] שליד העכבר */
 
   /* ריווחים */
   --space-page: 16px;
+  /* עמוד הבית (המספרים מהפריים ברוחב 1440px) */
+  --home-header-height: 222px;   /* החלק השחור שמעל הדימויים */
+  --space-home-top: 17px;        /* מרחק השם והתפריט מלמעלה */
+  --space-home-edge: 14px;       /* מרחק השם מהקצה השמאלי */
+  --space-counter-top: 9px;        /* המספור: מרחק מהקצה העליון של הדימוי */
+  --cursor-label-gap: 10px;      /* רווח בין הסוגריים למילה ב-[ NEXT ] */
+  /* עמוד התהליך (המספרים מהפריים ברוחב 1440px) */
+  --space-edge: 50px;         /* מרחק מהקצה השמאלי */
+  --space-edge-line: 62px;    /* מרחק הקו העליון מהקצה הימני */
+  --space-edge-images: 22px;  /* מרחק הדימויים מהקצה הימני */
+  --space-line: 27px;         /* מרווח מעל ומתחת לקו העליון */
+  --space-title-indent: 34px; /* הכותרת בעמודה השמאלית זזה פנימה */
+  --space-title-indent-right: 43px; /* הכותרת בעמודה הימנית זזה פנימה */
+  --space-title-gap: 21px;    /* בין כותרת לדימוי בשורה 1 */
+  --space-title-gap-row-2: 45px; /* בין כותרת לדימוי בשורה 2 */
+  --space-column-gap: 74px;   /* בין שתי העמודות */
+  --space-row-gap: 124px;     /* בין שורה של רשומות לשורה הבאה */
+  --divider-height: 1037px;   /* אורך הקו האנכי */
+  --divider-height-row-2: 479px; /* החלק של הקו שליד שורה 2 */
+  --image-open-width: calc(100% * 1330 / 1368); /* COMING SOON פתוח: 1330px בפיגמה */
+  --space-project-top: 31px;   /* VISION 01 פתוח: רווח נוסף מעל "PROJECT PAGE" */
+  --space-project-title-gap: 24px; /* בין "PROJECT PAGE" לדימוי */
+  --space-project-image-gap: 62px; /* בין שני הדימויים של עמוד הפרויקט */
+  --space-video-top: 87px;     /* VISION 02 פתוח: רווח נוסף מעל הסרטון */
+  --line-width: 1px;
+
+  /* תנועה: משך ואופן ההאטה של פתיחת דימויים */
+  --zoom-duration: 600ms;
+  --zoom-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --reveal-duration: 400ms;   /* הדימוי מופיע והמסגרת נעלמת */
+  --frame-duration: 1100ms;   /* כמה זמן לוקח לכל מסגרת להיבנות */
+  --frame-stagger: 150ms;     /* כל מסגרת מתחילה קצת אחרי הקודמת */
+  --frame-easing: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* ===== פונט Masada (נטען מהמחשב אם הוא מותקן) ===== */
+/* ===== פונטים ===== */
+/* Polymath Display: נטען מתיקיית fonts של הפרויקט */
 @font-face {
-  font-family: "Masada";
-  src: local("Masada Medium"), local("Masada-Medium");
-  font-weight: 500;
+  font-family: "Polymath Display";
+  src: url("fonts/PolymathDispDemo-Regular.otf") format("opentype");
+}
+
+/* Compadre Narrow: נטען מתיקיית fonts של הפרויקט */
+@font-face {
+  font-family: "Compadre Narrow";
+  src: url("fonts/Compadre-Demo-Narrow.otf") format("opentype");
 }
 
 /* ===== בסיס ===== */
@@ -29,43 +80,628 @@
 
 body {
   margin: 0;
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: var(--font-main);
 }
 
-/* ===== עמוד "בקרוב": מסך אחד, התוכן באמצע ===== */
-.coming-soon {
-  min-height: 100vh;
-  min-height: 100dvh; /* גובה המסך האמיתי בטלפונים */
+/* ===== מסך הפתיחה: אות גדולה שמתחלפת באמצע המסך ===== */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100; /* מעל כל האתר */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-page);
-  overflow: hidden;
+  background-color: var(--color-home-background);
+  color: var(--color-home-text);
+  font-family: var(--font-home);
+  transition: opacity 500ms var(--zoom-easing);
 }
 
-/* הקופסה שמחזיקה את הטקסט ואת הדבורה */
-.coming-soon__content {
-  position: relative;
-  width: var(--content-width);
+.intro.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* הכותרת: השם והמשפט */
-.coming-soon__title {
-  position: relative; /* כדי שהטקסט יופיע מעל הדבורה, כמו בפיגמה */
-  margin: 0;
-  font-size: var(--title-size);
-  font-weight: 500;
+.intro__letter {
+  font-size: var(--intro-letter-size);
+  line-height: 1;
+}
+
+/* ===== עמוד הבית ===== */
+.home-page {
+  background-color: var(--color-home-background);
+  color: var(--color-home-text);
+  font-family: var(--font-home);
+  font-size: var(--home-text-size);
   line-height: normal;
-  text-align: center;
 }
 
-/* הדבורה: יושבת מימין למטה וחופפת קצת לטקסט, כמו בפיגמה */
-.coming-soon__bee {
+/* החלק העליון: שם, תפריט ופרטי קשר (328px בפיגמה) */
+.home-header {
+  position: relative;
+  height: var(--home-header-height);
+}
+
+.home-name {
   position: absolute;
-  left: 76.3%;  /* 716px מתוך 938px */
-  top: 50%;     /* 194px מתוך 388px */
-  width: 38.3%; /* 359px מתוך 938px */
-  height: auto;
+  top: var(--space-home-top);
+  left: var(--space-home-edge);
+  margin: 0;
+  font-size: inherit;
+  font-weight: normal;
+}
+
+/* התפריט מתחיל באמצע המסך, כמו בפיגמה */
+.home-menu {
+  position: absolute;
+  top: var(--space-home-top);
+  left: calc(100% * 729 / 1440);
+}
+
+.home-menu__label {
+  margin: 0 0 1lh; /* שורה ריקה מתחת ל-"works" */
+  color: var(--color-home-muted);
+  text-decoration: underline;
+}
+
+.home-menu__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* הפריט המסומן בתפריט (Graphic Design) */
+.home-menu__item--current {
+  text-decoration: underline;
+}
+
+/* פרטי הקשר: קטנים, באותיות גדולות */
+.home-contact {
+  position: absolute;
+  /* האותיות יושבות ממש על הקו העליון של הדימויים:
+     מורידים את הרווח הריק שמתחת לאותיות (המקום של אותיות כמו g ו-p) */
+  bottom: calc(-1 * var(--contact-drop));
+  margin: 0;
+  color: var(--color-home-contact);
+  font-family: var(--font-label);
+  font-size: var(--contact-size);
+  line-height: 1;
+  text-transform: uppercase;
+  z-index: 2;           /* מעל הדימויים */
+  pointer-events: none; /* כדי שהעכבר "יעבור דרכם" לדימוי שמתחת */
+}
+
+.home-contact--email {
+  left: calc(100% * 727 / 1440);
+}
+
+.home-contact--phone {
+  left: calc(100% * 1315 / 1440);
+}
+
+/* שלושת הדימויים: כל אחד שליש מהרוחב, 480 על 586 בפיגמה */
+.home-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ריבוע אחד בגלריה. בתוכו יש כמה דימויים (שקופיות), ורואים רק אחד בכל פעם */
+.home-gallery__item {
+  position: relative;
+  aspect-ratio: 480 / 586;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.home-gallery__slide {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  visibility: hidden;
+  transition: object-position var(--zoom-duration) var(--zoom-easing);
+}
+
+/* השקופית שרואים עכשיו */
+.home-gallery__slide.is-active {
+  visibility: visible;
+}
+
+/* בדימוי של הפנים רואים את הצד הימני, כמו בפיגמה */
+.home-gallery__slide--face {
+  object-position: right center;
+}
+
+/* בסרטון של האבן רואים קצת מתחת לאמצע, כמו בפיגמה */
+.home-gallery__slide--stone {
+  object-position: center 57%;
+}
+
+/* המספור 01 | 02 | 03 למעלה על הדימוי. מופיע רק כשהדימוי פתוח */
+.home-gallery__counter {
+  position: absolute;
+  top: var(--space-counter-top);
+  left: calc(100% * 728 / 1440);
+  z-index: 2; /* מעל הדימויים */
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-label);
+  font-size: var(--counter-size);
+  white-space: pre; /* שומר על הרווחים סביב הקווים */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+/* המספר של הדימוי שרואים עכשיו */
+.home-gallery__counter .is-current {
+  text-decoration: underline;
+}
+
+/* ===== מעבר עכבר על דימוי: המספור מופיע ===== */
+/* רק במחשב (כשיש עכבר) ובמסך רחב. הדימוי עצמו מופיע בתוך המסגרת (ראו "המסגרות" למטה) */
+@media (hover: hover) and (min-width: 701px) {
+  .home-gallery__item:hover .home-gallery__counter {
+    opacity: 1;
+  }
+}
+
+/* במסכי מגע אין "פתיחה", אז המספור מופיע תמיד */
+@media (hover: none), (max-width: 700px) {
+  .home-gallery__counter {
+    left: var(--space-page);
+    opacity: 1;
+  }
+}
+
+/* ===== המסגרות: מה שרואים לפני שהעכבר על ריבוע ===== */
+/* רק במחשב (כשיש עכבר) ובמסך רחב. בטלפון רואים ישר את הדימויים */
+@media (hover: hover) and (min-width: 701px) {
+  /* הדימויים מוסתרים עד שהעכבר על הריבוע */
+  .home-gallery__slide {
+    opacity: 0;
+    transition:
+      object-position var(--zoom-duration) var(--zoom-easing),
+      opacity var(--reveal-duration) ease;
+  }
+
+  /* is-revealed: ריבוע שהעכבר כבר עבר עליו. הדימוי נשאר גלוי גם אחרי שהעכבר יצא */
+  .home-gallery__item:hover .home-gallery__slide,
+  .home-gallery__item.is-revealed .home-gallery__slide {
+    opacity: 1;
+  }
+
+  /* המסגרת (והשם שבתוכה) נעלמת כשהעכבר על הריבוע */
+  .home-gallery__frame {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    transition: opacity var(--reveal-duration) ease;
+  }
+
+  .home-gallery__item:hover .home-gallery__frame,
+  .home-gallery__item.is-revealed .home-gallery__frame {
+    opacity: 0;
+  }
+
+  /* 4 הקווים של המסגרת. בהתחלה באורך 0 */
+  .line {
+    position: absolute;
+    background-color: var(--color-home-text);
+    transition: transform var(--frame-duration) var(--frame-easing);
+    transition-delay: calc(var(--frame-index) * var(--frame-stagger));
+  }
+
+  .line--top,
+  .line--bottom {
+    left: 0;
+    width: 100%;
+    height: var(--line-width);
+    transform: scaleX(0);
+    transform-origin: var(--from-x) center;
+  }
+
+  .line--left,
+  .line--right {
+    top: 0;
+    width: var(--line-width);
+    height: 100%;
+    transform: scaleY(0);
+    transform-origin: center var(--from-y);
+  }
+
+  .line--top    { top: 0; }
+  .line--bottom { bottom: 0; }
+  .line--left   { left: 0; }
+  .line--right  { right: 0; }
+
+  /* כל ריבוע בשורה נבנה מכיוון אחר:
+     הראשון מהפינה השמאלית העליונה, השני מהאמצע החוצה, השלישי מהפינה הימנית התחתונה */
+  .home-gallery__item:nth-child(1) { --from-x: left;   --from-y: top; }
+  .home-gallery__item:nth-child(2) { --from-x: center; --from-y: center; }
+  .home-gallery__item:nth-child(3) { --from-x: right;  --from-y: bottom; }
+
+  /* כשמסך הפתיחה נעלם: הקווים נמתחים למקום */
+  .is-built .line {
+    transform: none;
+  }
+
+  /* שם הפרויקט באמצע המסגרת. מופיע אחרי שהמסגרת שלו נבנתה */
+  .home-gallery__name {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    font-size: var(--project-name-size);
+    opacity: 0;
+  }
+
+  .is-built .home-gallery__name {
+    animation: name-fade-in var(--reveal-duration) ease forwards;
+    animation-delay: calc(var(--frame-index) * var(--frame-stagger) + var(--frame-duration) * 0.7);
+  }
+}
+
+/* בטלפון ובמסכי מגע אין שמות על הריבועים, רואים ישר את הדימויים */
+@media (hover: none), (max-width: 700px) {
+  .home-gallery__name {
+    display: none;
+  }
+}
+
+@keyframes name-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ===== התווית [ NEXT ] / [ PREV ] שעוקבת אחרי העכבר ===== */
+.cursor-label {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  gap: var(--cursor-label-gap);
+  color: var(--color-home-text);
+  font-family: var(--font-label);
+  font-size: var(--cursor-label-size);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none; /* כדי שהתווית לא תפריע ללחוץ על הדימוי */
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.cursor-label.is-visible {
+  opacity: 1;
+}
+
+/* הסמן הצהוב עם החץ (36 על 24 בפיגמה). מוסתר עד הדימוי האחרון */
+.cursor-label__arrow {
+  position: relative;
+  display: none;
+  width: 36px;
+  height: 24px;
+  background-color: var(--color-marker);
+}
+
+.cursor-label__arrow img {
+  position: absolute;
+  top: 3px;
+  left: 7px;
+  width: 17px;
+  height: 17px;
+}
+
+/* מלבן צהוב קטן שמסתיר את תחילת החץ, כמו בפיגמה */
+.cursor-label__arrow-cover {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  width: 6px;
+  height: 15px;
+  background-color: var(--color-marker);
+}
+
+/* בדימוי האחרון: הסמן הצהוב ו-"explore the project" במקום [ NEXT ] */
+.cursor-label.is-explore {
+  align-items: center;
+}
+
+.cursor-label.is-explore .cursor-label__arrow {
+  display: block;
+  order: -1; /* הסמן לפני הטקסט */
+}
+
+.cursor-label.is-explore .cursor-label__bracket {
+  display: none;
+}
+
+/* במסכי מגע אין עכבר, אז אין תווית */
+@media (hover: none) {
+  .cursor-label {
+    display: none;
+  }
+}
+
+/* מי שביקש במחשב פחות אנימציות: נפתח בלי תנועה */
+@media (prefers-reduced-motion: reduce) {
+  .home-gallery__item,
+  .home-gallery__slide,
+  .home-gallery__frame,
+  .line {
+    transition: none;
+  }
+
+  .is-built .home-gallery__name {
+    animation-duration: 0s;
+    animation-delay: 0s;
+  }
+}
+
+/* ===== טלפון: הכול בעמודה אחת ===== */
+@media (max-width: 700px) {
+  .home-header {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: var(--space-home-top) var(--space-page);
+  }
+
+  .home-name,
+  .home-menu,
+  .home-contact {
+    position: static;
+  }
+
+  .home-gallery {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== עמוד התהליך ===== */
+.process-page {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  line-height: normal;
+  text-transform: uppercase; /* בפיגמה כל הטקסט באותיות גדולות */
+}
+
+/* הכותרת העליונה "PROCESS" והקו שמתחתיה */
+.process-header {
+  margin: 0 var(--space-edge-line) 0 var(--space-edge);
+  padding: 45px 0 var(--space-line);
+  border-bottom: var(--line-width) solid var(--color-ink);
+}
+
+.process-header h1 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: normal;
+}
+
+/* הרשת של הרשומות: שתי עמודות (623px ו-671px בפיגמה) */
+.process-list {
+  position: relative;
+  display: grid;
+  grid-template-columns: 623fr 671fr;
+  column-gap: var(--space-column-gap);
+  row-gap: var(--space-row-gap);
+  margin: var(--space-line) var(--space-edge-images) var(--space-edge) var(--space-edge);
+}
+
+/* הקו האנכי שמפריד בין העמודות, באמצע הרווח ביניהן */
+.process-list::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: var(--divider-height);
+  left: calc((100% - var(--space-column-gap)) * 623 / 1294 + var(--space-column-gap) / 2);
+  border-left: var(--line-width) solid var(--color-ink);
+}
+
+/* רשומה אחת: כותרת ודימוי */
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-title-gap);
+}
+
+/* בשורה 2 הרווח בין הכותרת לדימוי גדול יותר, כמו בפיגמה */
+.entry--row-2 {
+  gap: var(--space-title-gap-row-2);
+}
+
+.entry__title {
+  margin: 0;
+  padding-left: var(--space-title-indent);
+  font-size: inherit;
+  font-weight: normal;
+}
+
+.entry--right .entry__title {
+  padding-left: var(--space-title-indent-right);
+}
+
+.entry__image {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* COMING SOON: 618 על 388, חתוך כמו בפיגמה */
+.entry__image--coming-soon {
+  width: calc(100% * 618 / 623);
+  aspect-ratio: 618 / 388;
+  object-position: 72% center;
+}
+
+/* VISION 01: 623 על 862, חתוך מלמטה כמו בפיגמה */
+.entry__image--vision-01 {
+  aspect-ratio: 623 / 862;
+  object-position: center top;
+}
+
+/* VISION 02: 671 על 849, עם מסגרת שחורה דקה */
+.entry__image--vision-02 {
+  aspect-ratio: 671 / 849;
+  border: var(--line-width) solid var(--color-ink);
+}
+
+/* תא ריק ברשת, כמו בפיגמה (מימין ל-COMING SOON) */
+.entry--empty {
+  visibility: hidden;
+}
+
+/* ===== דימויים שנפתחים בלחיצה ===== */
+/* כפתור שקוף סביב הדימוי, כדי שאפשר יהיה ללחוץ עליו */
+.entry__open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+/* כשהדימוי פתוח: הרשומה תופסת את שתי העמודות */
+.entry--open {
+  grid-column: 1 / -1;
+}
+
+.entry--open .entry__open {
+  cursor: zoom-out;
+}
+
+/* ===== COMING SOON: נפתח לכל הרוחב ===== */
+/* הדימוי הפתוח: 1330 על 837, כמו בפיגמה */
+.entry--open .entry__image--coming-soon {
+  width: var(--image-open-width);
+  aspect-ratio: 1330 / 837;
+}
+
+/* כשהדימוי פתוח, התא הריק לא צריך מקום */
+.process-list--wide .entry--empty {
+  display: none;
+}
+
+/* כשהדימוי פתוח, הקו האנכי נשאר רק ליד שורה 2, כמו קודם */
+.process-list--wide::before {
+  display: none;
+}
+
+.entry--right {
+  position: relative;
+}
+
+.process-list--wide .entry--right::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(var(--space-column-gap) / -2);
+  height: var(--divider-height-row-2);
+  border-left: var(--line-width) solid var(--color-ink);
+}
+
+/* ===== VISION 01: נפתח לבד ===== */
+/* כש-VISION 01 פתוח, שאר הרשומות והקו האנכי נעלמים */
+.process-list--alone > :not(.entry--open),
+.process-list--alone::before {
+  display: none;
+}
+
+/* הדימוי הפתוח: 1164 על 1684, כמו בפיגמה */
+.entry--open .entry__image--vision-01 {
+  width: calc(100% * 1164 / 1368);
+  aspect-ratio: 1164 / 1684;
+}
+
+/* עמוד הפרויקט: מוסתר עד שפותחים את VISION 01 */
+.entry__more {
+  display: none;
+}
+
+.entry--open .entry__more {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: var(--space-project-top);
+}
+
+.entry__more .entry__title {
+  margin-bottom: var(--space-project-title-gap);
+}
+
+/* שני הדימויים של עמוד הפרויקט, בגודל שלהם בפיגמה */
+.entry__image--project-1 {
+  width: calc(100% * 1157 / 1368);
+}
+
+.entry__image--project-2 {
+  width: calc(100% * 1158 / 1368);
+  margin-top: var(--space-project-image-gap);
+}
+
+/* ===== VISION 02: נפתח לבד, עם סרטון ===== */
+/* הסרטון מוסתר עד שפותחים */
+.entry__video {
+  display: none;
+}
+
+/* כשפתוח: הדימוי הקטן מתחלף בסרטון, 1327 על 868 עם מסגרת, כמו בפיגמה */
+.entry--open .entry__image--vision-02 {
+  display: none;
+}
+
+.entry--open .entry__video {
+  display: block;
+  width: calc(100% * 1327 / 1368);
+  aspect-ratio: 1327 / 868;
+  margin-top: var(--space-video-top);
+  border: var(--line-width) solid var(--color-ink);
+}
+
+/* ===== טלפון: עמודה אחת, בלי קו מפריד ובלי תאים ריקים ===== */
+@media (max-width: 700px) {
+  :root {
+    --space-edge: var(--space-page);
+    --space-edge-line: var(--space-page);
+    --space-edge-images: var(--space-page);
+    --space-row-gap: 64px;
+  }
+
+  .process-header {
+    padding-top: 24px;
+  }
+
+  .process-list {
+    grid-template-columns: 1fr;
+  }
+
+  .process-list::before,
+  .entry--empty,
+  .process-list--wide .entry--right::before {
+    display: none;
+  }
+
+  .entry__image--coming-soon,
+  .entry--open .entry__image--coming-soon,
+  .entry--open .entry__image--vision-01,
+  .entry__image--project-1,
+  .entry__image--project-2,
+  .entry--open .entry__video {
+    width: 100%;
+  }
+
+  .entry--open .entry__video {
+    margin-top: 0;
+  }
 }

@@ -1,24 +1,362 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>מאי מינה | בקרוב</title>
+  <title>May Mina</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- טוענים את הפונט של השם מוקדם, כדי שמסך הפתיחה יופיע ישר בפונט הנכון -->
+  <link rel="preload" href="fonts/PolymathDispDemo-Regular.otf" as="font" type="font/otf" crossorigin>
 </head>
-<body>
-  <!-- עמוד "בקרוב" במסך אחד -->
-  <main class="coming-soon">
-    <div class="coming-soon__content">
-      <!-- הדבורה מופיעה קודם בקוד, כדי שהטקסט יהיה מעליה -->
-      <img class="coming-soon__bee" src="images/bee.png" alt="">
+<body class="home-page">
+  <!-- מסך הפתיחה: האותיות של "may mina" מתחלפות אחת אחרי השנייה באמצע המסך.
+       מופיע בכל פעם שהעמוד נטען או מתרענן -->
 
-      <h1 class="coming-soon__title">
-        מאי מינה אתר חדש לקורס עם טלי<br>
-        יעודכן בהמשך<br>
-        coming soon///
-      </h1>
-    </div>
+  <div class="intro" aria-hidden="true">
+    <span class="intro__letter">m</span>
+  </div>
+
+  <!-- החלק העליון: שם, תפריט ופרטי קשר -->
+  <header class="home-header">
+    <h1 class="home-name">may mina .</h1>
+
+    <!-- התפריט: בינתיים טקסט בלבד, יהפוך לקישורים כשהעמודים יהיו מוכנים -->
+    <nav class="home-menu">
+      <p class="home-menu__label">works</p>
+      <ul class="home-menu__list">
+        <li class="home-menu__item--current">graphic design</li>
+        <li>digital</li>
+        <li>photography</li>
+        <li>visual Identity</li>
+        <li>social media</li>
+      </ul>
+    </nav>
+
+    <p class="home-contact home-contact--email">email: maymina201199@gmail.com</p>
+    <p class="home-contact home-contact--phone">+972-54-9199429</p>
+  </header>
+
+  <!--
+    הפרויקטים מסודרים בשורות של שלושה ריבועים (<section class="home-row">).
+    כדי להוסיף שורה: מעתיקים <section class="home-row"> שלם ומחליפים דימויים ושמות.
+    בהתחלה רואים רק מסגרת ובאמצעה את שם הפרויקט (home-gallery__name).
+    כשהעכבר על ריבוע: הדימוי מופיע, והשם והמסגרת נעלמים. הדימוי נשאר גם אחרי שהעכבר יוצא.
+
+    בכל ריבוע יכולים להיות כמה דימויים (class="home-gallery__slide").
+    הראשון מסומן is-active ומופיע קודם. לחיצה בחצי הימני: הבא, בחצי השמאלי: הקודם.
+    בדימוי האחרון מופיע "explore the project", ולחיצה מובילה לכתובת שב-data-project-url
+    (כרגע ריק, עד שיהיו עמודי פרויקטים).
+    placeholder-1 ו-placeholder-2: תמונות זמניות, עד שיגיעו התיקיות.
+  -->
+  <main class="home-projects">
+
+    <!-- שורה 1 -->
+    <section class="home-row">
+      <div class="home-gallery">
+        <!-- Manyone: סרטון שמתנגן בלולאה, בלי סאונד -->
+        <div class="home-gallery__item" data-project-url="">
+          <video class="home-gallery__slide is-active" src="images/home-manyone.mp4" poster="images/home-manyone-poster.jpg" autoplay muted loop playsinline aria-label="Manyone"></video>
+          <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
+          <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
+          <p class="home-gallery__name">manyone TLV / SOCIAL MEDIA</p>
+        </div>
+
+        <div class="home-gallery__item" data-project-url="">
+          <img class="home-gallery__slide home-gallery__slide--face is-active" src="images/home-photo-face.jpg" alt="פורטרט בשחור לבן">
+          <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
+          <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
+          <p class="home-gallery__name">Portrait /PHOTOGRAPHY</p>
+        </div>
+
+        <div class="home-gallery__item" data-project-url="">
+          <img class="home-gallery__slide is-active" src="images/home-photo-cactus.jpg" alt="צילום בגן קקטוסים">
+          <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
+          <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
+          <p class="home-gallery__name">Sabra /BRANDING</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- שורה 2 (בפיגמה השמות כאן זהים לשורה 1) -->
+    <section class="home-row">
+      <div class="home-gallery">
+        <div class="home-gallery__item" data-project-url="">
+          <img class="home-gallery__slide is-active" src="images/home-row2-portrait.jpg" alt="צעיר יושב על הרצפה">
+          <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
+          <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
+          <p class="home-gallery__name">manyone TLV / SOCIAL MEDIA</p>
+        </div>
+
+        <div class="home-gallery__item" data-project-url="">
+          <img class="home-gallery__slide is-active" src="images/home-row2-booklet.jpg" alt="חוברת פתוחה ביד">
+          <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
+          <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
+          <p class="home-gallery__name">Portrait /PHOTOGRAPHY</p>
+        </div>
+
+        <!-- סרטון שמתנגן בלולאה, בלי סאונד -->
+        <div class="home-gallery__item" data-project-url="">
+          <video class="home-gallery__slide home-gallery__slide--stone is-active" src="images/home-row2-stone.mp4" poster="images/home-row2-stone-poster.jpg" autoplay muted loop playsinline aria-label="כתובת יוונית חרוטה באבן"></video>
+          <img class="home-gallery__slide" src="images/placeholder-1.jpg" alt="פורטרט בשחור לבן">
+          <img class="home-gallery__slide" src="images/placeholder-2.jpg" alt="פורטרט בשחור לבן">
+          <p class="home-gallery__name">Sabra /BRANDING</p>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <!-- התווית שעוקבת אחרי העכבר מעל הדימויים -->
+  <div class="cursor-label" aria-hidden="true">
+    <!-- [ NEXT ] / [ PREV ] -->
+    <span class="cursor-label__bracket">[</span><span class="cursor-label__text">next</span><span class="cursor-label__bracket">]</span>
+
+    <!-- הסמן הצהוב עם החץ: מופיע בדימוי האחרון, במקום NEXT -->
+    <span class="cursor-label__arrow">
+      <img src="images/arrow-right.png" alt="">
+      <span class="cursor-label__arrow-cover"></span>
+    </span>
+  </div>
+
+  <script>
+    // ===== מסך הפתיחה =====
+    const intro = document.querySelector(".intro");
+    if (intro) {
+      const introLetter = intro.querySelector(".intro__letter");
+      const LETTERS = ["m", "a", "y", "m", "i", "n", "a"];
+      const LETTER_SPEED = 100; // כל אות מופיעה 0.1 שנייה, כמו באתר של Bibliothèque
+      const MIN_ROUNDS = 2;     // כמה פעמים לפחות עוברים על כל האותיות
+      const FADE_DURATION = 500; // כמה זמן המסך נעלם בהדרגה
+
+      let letterIndex = 0;
+      let rounds = 0;
+      let pageLoaded = false;
+      window.addEventListener("load", () => { pageLoaded = true; });
+
+      function nextLetter() {
+        letterIndex = (letterIndex + 1) % LETTERS.length;
+        if (letterIndex === 0) rounds++;
+        introLetter.textContent = LETTERS[letterIndex];
+
+        // עוצרים על האות האחרונה, אחרי מספיק סיבובים וכשהעמוד סיים להיטען
+        const onLastLetter = letterIndex === LETTERS.length - 1;
+        if (onLastLetter && rounds >= MIN_ROUNDS - 1 && pageLoaded) {
+          setTimeout(hideIntro, LETTER_SPEED * 3);
+        } else {
+          setTimeout(nextLetter, LETTER_SPEED);
+        }
+      }
+
+      function hideIntro() {
+        intro.classList.add("is-hidden");
+        setTimeout(() => intro.remove(), FADE_DURATION);
+        buildFrames(); // המסגרות של הפרויקטים מתחילות להיבנות כשמסך הפתיחה נעלם
+      }
+
+      // מי שביקש במחשב פחות אנימציות: בלי אותיות מתחלפות
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        hideIntro();
+      } else {
+        // מתחילים אחרי שהפונט נטען, כדי שהאותיות לא יופיעו קודם בפונט אחר
+        document.fonts.ready.then(() => setTimeout(nextLetter, LETTER_SPEED));
+      }
+    }
+
+    // ===== סרטונים בלולאה =====
+    // לכל הסרטונים יש loop, וזו רשת ביטחון: אם סרטון בכל זאת נעצר בסוף, מתחילים אותו מחדש
+    document.querySelectorAll("video[loop]").forEach(function (video) {
+      video.addEventListener("ended", function () {
+        video.currentTime = 0;
+        video.play();
+      });
+    });
+
+    // ===== התווית [ NEXT ] / [ PREV ] שעוקבת אחרי העכבר =====
+    const label = document.querySelector(".cursor-label");
+    const labelText = document.querySelector(".cursor-label__text");
+
+    // התווית יושבת קצת מימין לעכבר
+    const LABEL_OFFSET_X = 18;
+    const LABEL_OFFSET_Y = -6;
+    // כמה מהר התווית משיגה את העכבר (מספר קטן = נגררת יותר לאט)
+    const LABEL_FOLLOW = 0.18;
+
+    let mouseX = 0, mouseY = 0; // איפה העכבר
+    let labelX = 0, labelY = 0; // איפה התווית
+
+    // בכל פריים התווית זזה קצת לכיוון העכבר, וכך היא נגררת אחריו ברכות
+    function moveLabel() {
+      labelX += (mouseX - labelX) * LABEL_FOLLOW;
+      labelY += (mouseY - labelY) * LABEL_FOLLOW;
+      label.style.transform = `translate(${labelX + LABEL_OFFSET_X}px, ${labelY + LABEL_OFFSET_Y}px)`;
+      requestAnimationFrame(moveLabel);
+    }
+    requestAnimationFrame(moveLabel);
+
+    // באיזה חצי של הריבוע העכבר נמצא: ימני = הבא, שמאלי = הקודם
+    function isRightHalf(item, x) {
+      const box = item.getBoundingClientRect();
+      return x > box.left + box.width / 2;
+    }
+
+    // האם רואים עכשיו את הדימוי האחרון בריבוע
+    function isLastSlide(item) {
+      const total = item.querySelectorAll(".home-gallery__slide").length;
+      return Number(item.dataset.current || 0) === total - 1;
+    }
+
+    // מה התווית אומרת: בדימוי האחרון, בחצי הימני, היא מזמינה לעמוד הפרויקט
+    function updateLabel(item, x) {
+      const explore = isRightHalf(item, x) && isLastSlide(item);
+      label.classList.toggle("is-explore", explore);
+      labelText.textContent = explore ? "explore the project" : (isRightHalf(item, x) ? "next" : "prev");
+    }
+
+    // ===== המספור 01 | 02 | 03 =====
+    // נבנה לבד לפי מספר הדימויים בריבוע, והמספר של הדימוי הנוכחי מסומן בקו תחתון
+    function updateCounter(item, currentIndex) {
+      const counter = item.querySelector(".home-gallery__counter");
+      const total = item.querySelectorAll(".home-gallery__slide").length;
+      const numbers = [];
+      for (let i = 0; i < total; i++) {
+        const number = String(i + 1).padStart(2, "0");
+        numbers.push(i === currentIndex ? `<span class="is-current">${number}</span>` : number);
+      }
+      counter.innerHTML = numbers.join(" | ");
+    }
+
+    // ===== מעבר בין דימויים בתוך ריבוע =====
+    const SLIDE_DURATION = 900;
+    const SLIDE_EASING = "cubic-bezier(0.76, 0, 0.24, 1)";
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function showSlide(item, direction) {
+      const slides = [...item.querySelectorAll(".home-gallery__slide")];
+      if (slides.length < 2 || item.dataset.moving) return; // אין לאן לעבור, או שעוד באמצע מעבר
+
+      const current = slides.findIndex(slide => slide.classList.contains("is-active"));
+      const next = (current + direction + slides.length) % slides.length;
+      const oldSlide = slides[current];
+      const newSlide = slides[next];
+
+      newSlide.classList.add("is-active");
+      if (newSlide.tagName === "VIDEO") newSlide.play();
+      updateCounter(item, next);
+      item.dataset.current = next; // זוכרים איזה דימוי מוצג עכשיו
+
+      function finish() {
+        oldSlide.classList.remove("is-active");
+        if (oldSlide.tagName === "VIDEO") oldSlide.pause();
+        newSlide.style.zIndex = "";
+        delete item.dataset.moving;
+      }
+
+      if (reduceMotion) return finish();
+      item.dataset.moving = "true";
+
+      // הדימוי החדש נחשף מלמעלה למטה (הבא) או מלמטה למעלה (הקודם),
+      // והישן זז קצת באותו כיוון מתחתיו
+      newSlide.style.zIndex = 1;
+      const hiddenEdge = direction > 0 ? "inset(0 0 100% 0)" : "inset(100% 0 0 0)";
+      const push = direction > 0 ? "10%" : "-10%";
+
+      newSlide.animate(
+        [{ clipPath: hiddenEdge }, { clipPath: "inset(0 0 0 0)" }],
+        { duration: SLIDE_DURATION, easing: SLIDE_EASING }
+      );
+      oldSlide.animate(
+        [{ transform: "translateY(0)" }, { transform: `translateY(${push})` }],
+        { duration: SLIDE_DURATION, easing: SLIDE_EASING }
+      ).onfinish = finish;
+    }
+
+    // ===== חזרה לדימוי הראשון =====
+    function resetToFirstSlide(item) {
+      const slides = [...item.querySelectorAll(".home-gallery__slide")];
+      slides.forEach(function (slide, index) {
+        slide.getAnimations().forEach(animation => animation.cancel()); // עוצרים מעבר שבאמצע
+        slide.style.zIndex = "";
+        slide.classList.toggle("is-active", index === 0);
+        if (slide.tagName === "VIDEO") {
+          if (index === 0) slide.play(); else slide.pause();
+        }
+      });
+      delete item.dataset.moving;
+      item.dataset.current = 0;
+      updateCounter(item, 0);
+    }
+
+    // כמה זמן מחכים אחרי שהעכבר יצא, עד שהדימוי נעלם והמסגרת חזרה (קצת יותר מ--reveal-duration ב-styles.css)
+    const HIDE_DURATION = 600;
+
+    // ===== המסגרות שנבנות בפתיחה =====
+    // כל מסגרת עשויה מ-4 קווים. בהתחלה הם באורך 0, וכשמסך הפתיחה נעלם הם "נמתחים"
+    // למקום. כל מסגרת מתחילה מפינה אחרת (מוגדר ב-styles.css)
+    function addFrame(item, index) {
+      const frame = document.createElement("span");
+      frame.className = "home-gallery__frame";
+      frame.style.setProperty("--frame-index", index); // כל מסגרת מתחילה קצת אחרי הקודמת
+      frame.innerHTML = '<i class="line line--top"></i><i class="line line--right"></i>' +
+                        '<i class="line line--bottom"></i><i class="line line--left"></i>';
+      // השם עובר לתוך המסגרת, כדי שייעלם איתה כשהעכבר על הריבוע
+      const name = item.querySelector(".home-gallery__name");
+      if (name) frame.appendChild(name);
+      item.appendChild(frame);
+    }
+
+    function buildFrames() {
+      document.querySelector(".home-projects").classList.add("is-built");
+    }
+
+    // ===== חיבור הכול לכל ריבוע בגלריה =====
+    document.querySelectorAll(".home-gallery__item").forEach(function (item, itemIndex) {
+      // מוסיפים לכל ריבוע את המספור ואת המסגרת שלו
+      const counter = document.createElement("p");
+      counter.className = "home-gallery__counter";
+      item.appendChild(counter);
+      updateCounter(item, 0);
+      addFrame(item, itemIndex);
+
+      let resetTimer; // הטיימר של החזרה לדימוי הראשון
+
+      item.addEventListener("mouseenter", function (event) {
+        clearTimeout(resetTimer); // חזרנו לפני שהספיק להתאפס: נשארים באותו דימוי
+        // התווית מתחילה מהמקום של העכבר, ולא עפה מהפינה
+        mouseX = labelX = event.clientX;
+        mouseY = labelY = event.clientY;
+        label.classList.add("is-visible");
+        item.classList.add("is-revealed"); // מעכשיו הדימוי של הריבוע הזה נשאר גלוי
+      });
+
+      item.addEventListener("mousemove", function (event) {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+        updateLabel(item, event.clientX);
+      });
+
+      item.addEventListener("mouseleave", function () {
+        label.classList.remove("is-visible");
+
+        // כשיוצאים מהדימוי הוא חוזר לדימוי הראשון,
+        // אחרי שהדימוי נעלם, כדי שההחלפה לא תיראה
+        resetTimer = setTimeout(function () {
+          resetToFirstSlide(item);
+        }, HIDE_DURATION);
+      });
+
+      item.addEventListener("click", function (event) {
+        const goingForward = isRightHalf(item, event.clientX);
+
+        // בדימוי האחרון, "הבא" מוביל לעמוד הפרויקט (הכתובת ב-data-project-url)
+        if (goingForward && isLastSlide(item)) {
+          if (item.dataset.projectUrl) window.location.href = item.dataset.projectUrl;
+          return;
+        }
+
+        showSlide(item, goingForward ? 1 : -1);
+        updateLabel(item, event.clientX);
+      });
+    });
+  </script>
 </body>
 </html>
