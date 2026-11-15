@@ -23,8 +23,11 @@
   --space-titles-top: 3px;   /* בין הדימויים לשמות */
   --home-titles-height: 54px; /* פס השמות: מהדימויים של שורה אחת עד הדימויים של השורה הבאה */
   --process-link-size: 14px; /* העיגול שמוביל לעמוד התהליך */
-  --project-meta-size: 18px;   /* עמוד פרויקט: שם הפרויקט והתחום */
-  --project-text-size: 26px;   /* עמוד פרויקט: הטקסט והכפתור */
+  /* עמוד פרויקט: בפיגמה הוא בנוי לפי "may mina ." בגודל 18px, ובאתר "may mina ." בגודל 15px.
+     לכן כל המידות של עמוד הפרויקט מוקטנות באותו יחס (15/18), כדי שהיחסים יישארו כמו בפיגמה */
+  --project-scale: calc(15 / 18);
+  --project-meta-size: var(--home-text-size);              /* שם הפרויקט והתחום: כמו "may mina ." */
+  --project-text-size: calc(26px * var(--project-scale));  /* הטקסט והכפתור (26px בפיגמה) */
   --menu-dim-opacity: 0.4;     /* עמוד פרויקט: התפריט שקוף יותר */
   --intro-letter-size: 100px; /* האות במסך הפתיחה */
   --cursor-label-size: 11px; /* התווית [ NEXT ] שליד העכבר */
@@ -37,10 +40,10 @@
   --space-home-edge: 14px;       /* מרחק השם מהקצה השמאלי */
   /* עמוד פרויקט (המספרים מהפריים ברוחב 1440px) */
   --space-project-edge: 28px;     /* מרחק הדימוי והשם מהקצה השמאלי */
-  --space-project-top: 39px;      /* מהשורה של שם הפרויקט עד הדימוי */
+  --space-project-top: calc(39px * var(--project-scale));  /* מהשורה של שם הפרויקט עד הדימוי */
   --space-project-gap: 22px;      /* בין הדימוי לטקסט */
-  --project-button-width: 286px;
-  --project-button-height: 78px;
+  --project-button-width: calc(286px * var(--project-scale));
+  --project-button-height: calc(78px * var(--project-scale));
   --space-counter-top: 9px;        /* המספור: מרחק מהקצה העליון של הדימוי */
   --cursor-label-gap: 10px;      /* רווח בין הסוגריים למילה ב-[ NEXT ] */
   /* עמוד התהליך (המספרים מהפריים ברוחב 1440px) */
