@@ -45,18 +45,15 @@
   --space-project-intro-top: calc(26px * var(--project-scale)); /* מהשורה של שם הפרויקט עד הדימוי */
   --space-project-images-gap: calc(15px * var(--project-scale)); /* בין הדימויים של הפרויקט */
   /* חלון הפרויקט שנפתח בלחיצה על פרויקט (המידות מהאתר crxtianhub.com) */
-  --pw-ratio: 1920 / 1286;         /* החלון: מלבן לרוחב, ביחס של צילום המסך (בערך 3:2) */
-  --pw-width: min(92vw, 86vh * 1920 / 1286); /* הכי גדול שנכנס במסך */
-  --pw-background: var(--color-paper);
-  --pw-item-size: 15cqw;           /* גודל כל דימוי: 15% מרוחב החלון, כמו באתר המקור */
+  --pw-item-size: 15cqw;           /* גודל כל דימוי: 15% מרוחב המסך, כמו באתר המקור */
   --pw-item-start: 1cqw;           /* הריבוע הקטן שממנו הדימוי מתחיל */
   --pw-entry-duration: 2600ms;     /* כל התנועה של דימוי אחד (כמו באתר המקור) */
   --pw-entry-stagger: 130ms;       /* כל דימוי מתחיל קצת אחרי הקודם */
   --pw-entry-delay: 240ms;
   --pw-number-duration: 800ms;
-  --pw-small-text: 12px;           /* המספרים 01_ ו-scroll down */
-  --pw-duration: 900ms;            /* הגריד נופל ונעלם */
-  --pw-leave-duration: 500ms;      /* גוללים למטה: החלון נעלם */
+  --pw-small-text: 12px;           /* המספרים 01_ */
+  --pw-hold: 500ms;                /* כמה זמן הדימויים נשארים במקום לפני שהמסך נעלם */
+  --pw-leave-duration: 600ms;      /* המסך נעלם וחושף את עמוד הפרויקט */
   --pw-easing: cubic-bezier(0.22, 0.65, 0.3, 1);
   --minimap-width: 160px;         /* המפה הקטנה של העמוד */
   --minimap-height: 285px;
@@ -333,59 +330,29 @@ body {
 .home-gallery__item[data-column="2"] .home-gallery__name { padding-left: calc(100% * 26 / 480); }
 .home-gallery__item[data-column="3"] .home-gallery__name { padding-left: calc(100% * 10 / 480); }
 
-/* ===== לחיצה על פרויקט: מלבן לבן עם 4 דימויים (כמו באתר crxtianhub.com) ===== */
-
-/* כשהחלון נפתח: החלק העליון נעלם, והגריד נופל למטה ונעלם */
-.home-header,
-.home-projects {
-  transition:
-    transform var(--pw-duration) var(--pw-easing),
-    opacity var(--pw-duration) var(--pw-easing);
-}
-
-.is-window-open .home-header {
-  opacity: 0;
-}
-
-.is-window-open .home-projects {
-  transform: translateY(100vh);
-  opacity: 0;
-}
-
-/* כשהחלון פתוח, העמוד שמאחוריו לא נגלל */
-.is-window-open {
-  overflow: hidden;
-}
-
-/* כל המסך: מאחורי החלון */
+/* ===== כניסה לעמוד פרויקט: 4 דימויים עולים על המסך (כמו באתר crxtianhub.com) ===== */
+/* מסך שחור מעל העמוד. 4 דימויים של הפרויקט עולים בו אחד אחרי השני, ואז הוא נעלם
+   וחושף את עמוד הפרויקט (project.js). לחיצה, גלילה או מקש מדלגים */
 .pw {
   position: fixed;
   inset: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  visibility: hidden;
+  z-index: 40;
+  overflow: hidden;
+  container-type: size; /* הדימויים ממוקמים ביחס למסך: cqw = אחוז מהרוחב, cqh = מהגובה */
+  background-color: var(--color-home-background);
+  color: var(--color-home-text);
+  cursor: pointer;
+  transition: opacity var(--pw-leave-duration) ease;
+}
+
+.pw.is-leaving {
+  opacity: 0;
   pointer-events: none;
 }
 
-.is-window-open .pw {
-  visibility: visible;
-  pointer-events: auto;
-}
-
-/* החלון: מלבן לבן לרוחב באמצע המסך.
-   הדימויים בתוכו ממוקמים ביחס לחלון (cqw = אחוז מרוחב החלון, cqh = אחוז מהגובה שלו) */
-.pw__box {
-  position: relative;
-  width: var(--pw-width);
-  aspect-ratio: var(--pw-ratio);
+/* כל עוד הכניסה מוצגת, העמוד שמאחוריה לא נגלל */
+.is-entering {
   overflow: hidden;
-  container-type: size;
-  background-color: var(--pw-background);
-  color: var(--color-ink);
-  cursor: pointer;
-  transition: opacity var(--pw-leave-duration) ease;
 }
 
 /* דימוי אחד. המיקום הוא האמצע שלו (כמו באתר המקור) */
@@ -451,33 +418,6 @@ body {
   to   { opacity: 1; filter: blur(0); }
 }
 
-/* גוללים למטה: החלון נעלם, ואז עוברים לעמוד הפרויקט */
-.is-window-leaving .pw__box {
-  opacity: 0;
-}
-
-/* "scroll down" ליד העכבר כשהחלון פתוח */
-.scroll-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 30;
-  margin: 14px 0 0 14px; /* קצת מימין ולמטה מהעכבר */
-  color: var(--color-home-text);
-  mix-blend-mode: difference; /* לבן על רקע שחור, שחור על רקע לבן */
-  font-size: var(--pw-small-text);
-  text-transform: uppercase;
-  white-space: nowrap;
-  pointer-events: none;
-  display: none;
-}
-
-/* מופיע רק אחרי שהדימויים סיימו לעלות (project-window.js) */
-.is-window-ready .scroll-cursor {
-  display: block;
-  animation: pw-number-in 400ms ease both;
-}
-
 /* ===== הסמן עם החץ: מחליף את העכבר כשהוא על פרויקט ===== */
 /* ריבוע שקוף עם קו דק, ובתוכו חץ. לבן על רקע כהה ושחור על רקע בהיר */
 .home-gallery__item[data-preview] {
@@ -498,8 +438,8 @@ body {
   display: none;
 }
 
-/* מופיע רק כשהעכבר על פרויקט, ולא כשהחלון פתוח */
-.is-over-project:not(.is-window-open) .explore-cursor {
+/* מופיע רק כשהעכבר על פרויקט */
+.is-over-project .explore-cursor {
   display: block;
 }
 
@@ -514,13 +454,8 @@ body {
   clip-path: inset(0 0 0 5px);
 }
 
-/* מי שביקש במחשב פחות אנימציות: החלון מופיע בלי תנועה */
+/* מי שביקש במחשב פחות אנימציות: בלי מסך כניסה (project.js מדלג עליו) */
 @media (prefers-reduced-motion: reduce) {
-  .home-header,
-  .home-projects {
-    transition: none;
-  }
-
   .pw__item,
   .pw__number {
     animation: none;

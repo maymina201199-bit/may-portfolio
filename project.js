@@ -1,3 +1,52 @@
+// ===== כניסה לעמוד: 4 דימויים של הפרויקט עולים על המסך (כמו באתר crxtianhub.com) =====
+// מסך שחור מעל העמוד. כל דימוי מתחיל כריבוע קטן בתחתית, עולה למקום שלו ונפתח,
+// אחד אחרי השני. אחרי שכולם עלו המסך נעלם וחושף את העמוד. לחיצה, גלילה או מקש מדלגים.
+// הדימויים: הדימוי הגדול של העמוד ו-3 הדימויים הראשונים שמתחתיו.
+(function () {
+  const projectPage = document.querySelector(".project-page");
+  if (!projectPage || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const sources = [...projectPage.querySelectorAll(".project-intro__image, .project-images__image")]
+    .map(img => img.getAttribute("src"))
+    .slice(0, 4);
+  if (sources.length === 0) return;
+
+  const entry = document.createElement("div");
+  entry.className = "pw";
+  entry.setAttribute("aria-hidden", "true");
+  sources.forEach(function (src, index) {
+    const item = document.createElement("figure");
+    item.className = "pw__item";
+    item.style.setProperty("--pw-index", index); // כל דימוי מתחיל קצת אחרי הקודם
+    item.innerHTML = `<span class="pw__number">${String(index + 1).padStart(2, "0")}_</span>` +
+                     `<img class="pw__image" src="${src}" alt="">`;
+    entry.appendChild(item);
+  });
+  document.body.appendChild(entry);
+  document.body.classList.add("is-entering");
+
+  // כמה זמן עד שהדימוי האחרון סיים לעלות (המספרים מ-styles.css), ועוד רגע של עצירה
+  const style = getComputedStyle(document.documentElement);
+  const ms = name => parseFloat(style.getPropertyValue(name));
+  const showFor = ms("--pw-entry-delay") + (sources.length - 1) * ms("--pw-entry-stagger") +
+                  ms("--pw-entry-duration") + ms("--pw-hold");
+
+  let done = false;
+  function finish() {
+    if (done) return;
+    done = true;
+    entry.classList.add("is-leaving");
+    document.body.classList.remove("is-entering");
+    setTimeout(() => entry.remove(), ms("--pw-leave-duration"));
+  }
+
+  const timer = setTimeout(finish, showFor);
+  const skip = () => { clearTimeout(timer); finish(); };
+  entry.addEventListener("click", skip);
+  window.addEventListener("wheel", skip, { once: true, passive: true });
+  window.addEventListener("keydown", skip, { once: true });
+})();
+
 // ===== מפה קטנה של העמוד (minimap) =====
 // בעמודי הפרויקטים: כשמתחילים לגלול, בפינה מופיעה גרסה קטנה של כל הדימויים בעמוד,
 // ומסגרת לבנה מסמנת את מה שרואים עכשיו על המסך. לחיצה על המפה קופצת לאותו מקום.
