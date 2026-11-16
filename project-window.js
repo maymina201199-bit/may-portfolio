@@ -83,6 +83,13 @@ document.addEventListener("keydown", function (event) {
   if (["ArrowDown", "PageDown", " "].includes(event.key)) goToProject();
 });
 
+// חוזרים לעמוד הבית בכפתור "חזור" של הדפדפן: הדפדפן משחזר את העמוד בדיוק כמו שעזבנו אותו
+// (עם החלון פתוח ונעלם), אז סוגרים את החלון ומחזירים את הגריד
+window.addEventListener("pageshow", function () {
+  document.body.classList.remove("is-window-leaving");
+  closeWindow();
+});
+
 // "scroll down" ליד העכבר כשהחלון פתוח
 document.addEventListener("mousemove", function (event) {
   scrollLabel.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
