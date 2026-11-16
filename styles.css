@@ -44,16 +44,9 @@
   --space-project-edge: var(--space-home-edge); /* הדימוי ושם הפרויקט מיושרים ל-"may mina ." */
   --space-project-intro-top: calc(26px * var(--project-scale)); /* מהשורה של שם הפרויקט עד הדימוי */
   --space-project-images-gap: calc(15px * var(--project-scale)); /* בין הדימויים של הפרויקט */
-  /* 4 הדימויים שעולים במעבר עכבר על פרויקט (המספרים מהאתר crxtianhub.com) */
-  --preview-size: 15vw;           /* גודל כל דימוי */
-  --preview-start-size: 1vw;      /* הריבוע הקטן שממנו הדימוי מתחיל */
-  --preview-duration: 2600ms;     /* כל התנועה של דימוי אחד */
-  --preview-stagger: 130ms;       /* כל דימוי מתחיל קצת אחרי הקודם */
-  --preview-delay: 240ms;         /* השהייה קטנה לפני שהראשון מתחיל */
-  --preview-easing: cubic-bezier(0.22, 0.65, 0.3, 1);
-  --preview-number-duration: 800ms;
-  --preview-number-size: 11px;    /* המספרים 01_ 02_ ... */
-  --preview-fade: 300ms;          /* שאר הדברים במסך נעלמים */
+  /* החלון שנפתח בלחיצה על פרויקט */
+  --window-width: 54vw;           /* רוחב החלון (כמו בצילום המסך) */
+  --window-duration: 500ms;       /* פתיחה וסגירה של החלון */
   --minimap-width: 160px;         /* המפה הקטנה של העמוד */
   --minimap-height: 285px;
   --minimap-right: calc(100% * 70 / 1440); /* מרחק מהקצה הימני, כמו בפיגמה */
@@ -332,88 +325,53 @@ body {
 .home-titles__name:nth-child(2) { padding-left: calc(100% * 26 / 480); }
 .home-titles__name:nth-child(3) { padding-left: calc(100% * 10 / 480); }
 
-/* ===== מעבר עכבר על פרויקט: 4 דימויים עולים על המסך (כמו ב-crxtianhub.com) ===== */
-/* כשמציגים את הדימויים, כל השאר נעלם. הריבועים נשארים במקום (שקופים),
-   כדי שהעכבר ימשיך "לעמוד" עליהם */
-.home-header,
-.home-titles,
-.home-gallery__slide {
-  transition: opacity var(--preview-fade) ease;
-}
-
-.is-previewing .home-header,
-.is-previewing .home-titles,
-.is-previewing .home-gallery__slide {
-  opacity: 0;
-}
-
-/* המקום של 4 הדימויים: כל המסך, מעל הכול, ולא תופס את העכבר */
-.preview {
+/* ===== לחיצה על פרויקט: חלון באמצע המסך ===== */
+/* רקע שחור על כל המסך, ובאמצע הדימוי של הפרויקט. גלילה למטה מעבירה לעמוד הפרויקט */
+.project-window {
   position: fixed;
   inset: 0;
   z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-home-background);
+  opacity: 0;
   pointer-events: none;
+  transition: opacity var(--window-duration) var(--zoom-easing);
 }
 
-/* דימוי אחד. המיקום הוא האמצע שלו (כמו באתר המקור, ביחידות של רוחב המסך) */
-.preview__item {
-  position: absolute;
-  margin: 0;
-  width: var(--preview-size);
-  height: var(--preview-size);
-  transform: translate(-50%, -50%);
-  animation: preview-entry var(--preview-duration) var(--preview-easing) both;
-  animation-delay: calc(var(--preview-delay) + var(--preview-index) * var(--preview-stagger));
+.is-window-open .project-window {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.preview__item:nth-child(1) { left: 26vw; top: 20vw; }
-.preview__item:nth-child(2) { left: 42vw; top: 27vw; }
-.preview__item:nth-child(3) { left: 66vw; top: 41vw; }
-.preview__item:nth-child(4) { left: 82vw; top: 35vw; }
+/* כשהחלון פתוח, העמוד שמאחוריו לא נגלל */
+.is-window-open {
+  overflow: hidden;
+}
 
-.preview__image {
+/* החלון: 54% מרוחב המסך, ביחס 16:9 (כמו בצילום המסך) */
+.project-window__image {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: var(--window-width);
+  max-height: 80vh;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
+  cursor: pointer;
+  transform: scale(0.94);
+  transition:
+    transform var(--window-duration) var(--zoom-easing),
+    opacity var(--window-duration) var(--zoom-easing);
 }
 
-/* המספר 01_ מעל הדימוי, מופיע מתוך טשטוש אחרי שהדימוי נפתח */
-.preview__number {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  padding-bottom: 4px;
-  font-size: var(--preview-number-size);
-  white-space: nowrap;
-  animation: preview-number-in var(--preview-number-duration) var(--preview-easing) both;
-  animation-delay: calc(var(--preview-delay) + var(--preview-duration) * 0.7 + var(--preview-index) * var(--preview-stagger));
+.is-window-open .project-window__image {
+  transform: none;
 }
 
-/* ריבוע קטן בתחתית המסך -> עולה למקום שלו -> נפתח לגודל מלא */
-@keyframes preview-entry {
-  0% {
-    width: var(--preview-start-size);
-    height: var(--preview-start-size);
-    transform: translate(-50%, -50%) translateY(104vh);
-    filter: blur(2px);
-  }
-  54% {
-    width: var(--preview-start-size);
-    height: var(--preview-start-size);
-    transform: translate(-50%, -50%);
-    filter: blur(0);
-  }
-  100% {
-    width: var(--preview-size);
-    height: var(--preview-size);
-    transform: translate(-50%, -50%);
-  }
-}
-
-@keyframes preview-number-in {
-  from { opacity: 0; filter: blur(3px); }
-  to   { opacity: 1; filter: blur(0); }
+/* גוללים למטה: החלון גדל ונעלם, ואז עוברים לעמוד הפרויקט */
+.is-window-leaving .project-window__image {
+  transform: scale(1.12);
+  opacity: 0;
 }
 
 /* ===== הסמן הצהוב עם החץ: מחליף את העכבר כשהוא על פרויקט ===== */
@@ -434,7 +392,8 @@ body {
   display: none;
 }
 
-.is-previewing .explore-cursor {
+/* מופיע רק כשהעכבר על פרויקט, ולא כשהחלון פתוח */
+.is-over-project:not(.is-window-open) .explore-cursor {
   display: block;
 }
 
@@ -456,11 +415,11 @@ body {
   background-color: var(--color-marker);
 }
 
-/* מי שביקש במחשב פחות אנימציות: הדימויים מופיעים מיד */
+/* מי שביקש במחשב פחות אנימציות: החלון מופיע בלי תנועה */
 @media (prefers-reduced-motion: reduce) {
-  .preview__item,
-  .preview__number {
-    animation: none;
+  .project-window,
+  .project-window__image {
+    transition: none;
   }
 }
 
