@@ -44,6 +44,16 @@
   --space-project-edge: var(--space-home-edge); /* הדימוי ושם הפרויקט מיושרים ל-"may mina ." */
   --space-project-intro-top: calc(26px * var(--project-scale)); /* מהשורה של שם הפרויקט עד הדימוי */
   --space-project-images-gap: calc(15px * var(--project-scale)); /* בין הדימויים של הפרויקט */
+  /* 4 הדימויים שעולים במעבר עכבר על פרויקט (המספרים מהאתר crxtianhub.com) */
+  --preview-size: 15vw;           /* גודל כל דימוי */
+  --preview-start-size: 1vw;      /* הריבוע הקטן שממנו הדימוי מתחיל */
+  --preview-duration: 2600ms;     /* כל התנועה של דימוי אחד */
+  --preview-stagger: 130ms;       /* כל דימוי מתחיל קצת אחרי הקודם */
+  --preview-delay: 240ms;         /* השהייה קטנה לפני שהראשון מתחיל */
+  --preview-easing: cubic-bezier(0.22, 0.65, 0.3, 1);
+  --preview-number-duration: 800ms;
+  --preview-number-size: 11px;    /* המספרים 01_ 02_ ... */
+  --preview-fade: 300ms;          /* שאר הדברים במסך נעלמים */
   --minimap-width: 160px;         /* המפה הקטנה של העמוד */
   --minimap-height: 285px;
   --minimap-right: calc(100% * 70 / 1440); /* מרחק מהקצה הימני, כמו בפיגמה */
@@ -321,6 +331,138 @@ body {
 .home-titles__name:nth-child(1) { padding-left: calc(100% * 18 / 480); }
 .home-titles__name:nth-child(2) { padding-left: calc(100% * 26 / 480); }
 .home-titles__name:nth-child(3) { padding-left: calc(100% * 10 / 480); }
+
+/* ===== מעבר עכבר על פרויקט: 4 דימויים עולים על המסך (כמו ב-crxtianhub.com) ===== */
+/* כשמציגים את הדימויים, כל השאר נעלם. הריבועים נשארים במקום (שקופים),
+   כדי שהעכבר ימשיך "לעמוד" עליהם */
+.home-header,
+.home-titles,
+.home-gallery__slide {
+  transition: opacity var(--preview-fade) ease;
+}
+
+.is-previewing .home-header,
+.is-previewing .home-titles,
+.is-previewing .home-gallery__slide {
+  opacity: 0;
+}
+
+/* המקום של 4 הדימויים: כל המסך, מעל הכול, ולא תופס את העכבר */
+.preview {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* דימוי אחד. המיקום הוא האמצע שלו (כמו באתר המקור, ביחידות של רוחב המסך) */
+.preview__item {
+  position: absolute;
+  margin: 0;
+  width: var(--preview-size);
+  height: var(--preview-size);
+  transform: translate(-50%, -50%);
+  animation: preview-entry var(--preview-duration) var(--preview-easing) both;
+  animation-delay: calc(var(--preview-delay) + var(--preview-index) * var(--preview-stagger));
+}
+
+.preview__item:nth-child(1) { left: 26vw; top: 20vw; }
+.preview__item:nth-child(2) { left: 42vw; top: 27vw; }
+.preview__item:nth-child(3) { left: 66vw; top: 41vw; }
+.preview__item:nth-child(4) { left: 82vw; top: 35vw; }
+
+.preview__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* המספר 01_ מעל הדימוי, מופיע מתוך טשטוש אחרי שהדימוי נפתח */
+.preview__number {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  padding-bottom: 4px;
+  font-size: var(--preview-number-size);
+  white-space: nowrap;
+  animation: preview-number-in var(--preview-number-duration) var(--preview-easing) both;
+  animation-delay: calc(var(--preview-delay) + var(--preview-duration) * 0.7 + var(--preview-index) * var(--preview-stagger));
+}
+
+/* ריבוע קטן בתחתית המסך -> עולה למקום שלו -> נפתח לגודל מלא */
+@keyframes preview-entry {
+  0% {
+    width: var(--preview-start-size);
+    height: var(--preview-start-size);
+    transform: translate(-50%, -50%) translateY(104vh);
+    filter: blur(2px);
+  }
+  54% {
+    width: var(--preview-start-size);
+    height: var(--preview-start-size);
+    transform: translate(-50%, -50%);
+    filter: blur(0);
+  }
+  100% {
+    width: var(--preview-size);
+    height: var(--preview-size);
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes preview-number-in {
+  from { opacity: 0; filter: blur(3px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+/* ===== הסמן הצהוב עם החץ: מחליף את העכבר כשהוא על פרויקט ===== */
+.home-gallery__item[data-preview] {
+  cursor: none;
+}
+
+.explore-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  width: 36px;
+  height: 24px;
+  margin: -12px 0 0 -18px; /* מרכז הסמן בדיוק על העכבר */
+  background-color: var(--color-marker);
+  pointer-events: none;
+  display: none;
+}
+
+.is-previewing .explore-cursor {
+  display: block;
+}
+
+.explore-cursor img {
+  position: absolute;
+  top: 3px;
+  left: 7px;
+  width: 17px;
+  height: 17px;
+}
+
+/* מלבן צהוב קטן שמסתיר את תחילת החץ, כמו בפיגמה */
+.explore-cursor__cover {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  width: 6px;
+  height: 15px;
+  background-color: var(--color-marker);
+}
+
+/* מי שביקש במחשב פחות אנימציות: הדימויים מופיעים מיד */
+@media (prefers-reduced-motion: reduce) {
+  .preview__item,
+  .preview__number {
+    animation: none;
+  }
+}
 
 /* ===== התווית [ NEXT ] / [ PREV ] שעוקבת אחרי העכבר ===== */
 .cursor-label {

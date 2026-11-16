@@ -39,6 +39,7 @@
     הפרויקטים מסודרים בשורות של שלושה (<section class="home-row">). כל שורה כוללת
     את שלושת הריבועים ומתחתם את שלושת השמות, באותו סדר משמאל לימין.
     כל ריבוע הוא קישור לעמוד של הפרויקט (ל-Manyone עוד אין עמוד).
+    data-preview: 4 הדימויים שעולים על המסך כשהעכבר על הריבוע (מופרדים בפסיקים).
     כדי להוסיף שורה: מעתיקים <section class="home-row"> שלם ומחליפים דימויים, קישורים ושמות.
   -->
   <main class="home-projects">
@@ -49,10 +50,10 @@
         <div class="home-gallery__item">
           <video class="home-gallery__slide is-active" src="images/home-manyone.mp4" poster="images/home-manyone-poster.jpg" autoplay muted loop playsinline aria-label="Manyone"></video>
         </div>
-        <a class="home-gallery__item" href="1984-2025.html">
+        <a class="home-gallery__item" href="1984-2025.html" data-preview="images/projects/1984-2025/00-cover.jpg, images/projects/1984-2025/01.jpg, images/projects/1984-2025/02.jpg, images/projects/1984-2025/03.jpg">
           <img class="home-gallery__slide is-active" src="images/home-row2-booklet.jpg" alt="1984 / 2025">
         </a>
-        <a class="home-gallery__item" href="hevel.html">
+        <a class="home-gallery__item" href="hevel.html" data-preview="images/projects/hevel/00-cover.jpg, images/projects/hevel/01.jpg, images/projects/hevel/02.jpg, images/projects/hevel/03.jpg">
           <img class="home-gallery__slide is-active" src="images/home-row2-portrait.jpg" alt="Hevel">
         </a>
       </div>
@@ -67,13 +68,13 @@
     <!-- שורה 2 -->
     <section class="home-row">
       <div class="home-gallery">
-        <a class="home-gallery__item" href="lifta.html">
+        <a class="home-gallery__item" href="lifta.html" data-preview="images/projects/lifta/00-cover.jpg, images/projects/lifta/01.jpg, images/projects/lifta/02.jpg, images/projects/lifta/03.jpg">
           <img class="home-gallery__slide is-active" src="images/projects/lifta/00-cover.jpg" alt="lifta">
         </a>
-        <a class="home-gallery__item" href="portrait.html">
+        <a class="home-gallery__item" href="portrait.html" data-preview="images/projects/portrait/00-cover.jpg, images/projects/portrait/01.jpg, images/projects/portrait/02.jpg, images/projects/portrait/03.jpg">
           <img class="home-gallery__slide home-gallery__slide--face is-active" src="images/home-photo-face.jpg" alt="Portrait">
         </a>
-        <a class="home-gallery__item" href="sabra.html">
+        <a class="home-gallery__item" href="sabra.html" data-preview="images/projects/sabra/00-cover.jpg, images/projects/sabra/01.jpg, images/projects/sabra/02.jpg, images/projects/sabra/03.jpg">
           <img class="home-gallery__slide is-active" src="images/home-photo-cactus.jpg" alt="Sabra">
         </a>
       </div>
@@ -88,13 +89,13 @@
     <!-- שורה 3 -->
     <section class="home-row">
       <div class="home-gallery">
-        <a class="home-gallery__item" href="sela.html">
+        <a class="home-gallery__item" href="sela.html" data-preview="images/projects/sela/00-cover.jpg, images/projects/sela/01.jpg, images/projects/sela/02.jpg, images/projects/sela/03.jpg">
           <video class="home-gallery__slide home-gallery__slide--stone is-active" src="images/home-row2-stone.mp4" poster="images/home-row2-stone-poster.jpg" autoplay muted loop playsinline aria-label="Sela"></video>
         </a>
-        <a class="home-gallery__item" href="posters.html">
+        <a class="home-gallery__item" href="posters.html" data-preview="images/projects/posters/00-cover.jpg, images/projects/posters/01.jpg, images/projects/posters/02.jpg, images/projects/posters/03.jpg">
           <img class="home-gallery__slide is-active" src="images/projects/posters/00-cover.jpg" alt="Posters">
         </a>
-        <a class="home-gallery__item" href="modern-warfare.html">
+        <a class="home-gallery__item" href="modern-warfare.html" data-preview="images/projects/modern-warfare/01.jpg, images/projects/modern-warfare/02.jpg, images/projects/modern-warfare/03.jpg, images/projects/modern-warfare/04.jpg">
           <img class="home-gallery__slide is-active" src="images/projects/modern-warfare/01.jpg" alt="Modern Warfare">
         </a>
       </div>
@@ -107,6 +108,15 @@
     </section>
 
   </main>
+
+  <!-- 4 הדימויים של הפרויקט שעולים על המסך כשהעכבר על ריבוע (נבנים ב-JavaScript) -->
+  <div class="preview" aria-hidden="true"></div>
+
+  <!-- הסמן הצהוב עם החץ: מחליף את העכבר כשהוא על פרויקט -->
+  <div class="explore-cursor" aria-hidden="true">
+    <img src="images/arrow-right.png" alt="">
+    <span class="explore-cursor__cover"></span>
+  </div>
 
   <script>
     // ===== מסך הפתיחה =====
@@ -150,6 +160,44 @@
         document.fonts.ready.then(() => setTimeout(nextLetter, LETTER_SPEED));
       }
     }
+
+    // ===== מעבר עכבר על פרויקט: 4 דימויים עולים על המסך =====
+    // כמו באתר crxtianhub.com: כל דימוי מתחיל כריבוע קטן בתחתית המסך, עולה למקום שלו
+    // ונפתח לגודל מלא, אחד אחרי השני. שאר הדברים במסך נעלמים, והעכבר הופך לסמן הצהוב.
+    const preview = document.querySelector(".preview");
+    const exploreCursor = document.querySelector(".explore-cursor");
+    const canHover = window.matchMedia("(hover: hover) and (min-width: 701px)");
+
+    function showPreview(item) {
+      const images = item.dataset.preview.split(",").map(src => src.trim());
+      preview.innerHTML = "";
+      images.slice(0, 4).forEach(function (src, index) {
+        const figure = document.createElement("figure");
+        figure.className = "preview__item";
+        figure.style.setProperty("--preview-index", index); // כל דימוי מתחיל קצת אחרי הקודם
+        figure.innerHTML = `<span class="preview__number">${String(index + 1).padStart(2, "0")}_</span>` +
+                           `<img class="preview__image" src="${src}" alt="">`;
+        preview.appendChild(figure);
+      });
+      document.body.classList.add("is-previewing");
+    }
+
+    function hidePreview() {
+      document.body.classList.remove("is-previewing");
+      preview.innerHTML = "";
+    }
+
+    document.querySelectorAll(".home-gallery__item[data-preview]").forEach(function (item) {
+      item.addEventListener("mouseenter", function () {
+        if (canHover.matches) showPreview(item);
+      });
+      item.addEventListener("mouseleave", hidePreview);
+    });
+
+    // הסמן הצהוב זז בדיוק עם העכבר
+    document.addEventListener("mousemove", function (event) {
+      exploreCursor.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
+    });
 
     // ===== סרטונים בלולאה =====
     // לכל הסרטונים יש loop, וזו רשת ביטחון: אם סרטון בכל זאת נעצר בסוף, מתחילים אותו מחדש
