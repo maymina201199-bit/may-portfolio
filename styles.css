@@ -262,7 +262,8 @@ body {
   color: var(--color-ink);
   font-family: var(--font-label);
   font-size: var(--counter-size);
-  white-space: pre; /* שומר על הרווחים סביב הקווים */
+  right: var(--space-home-edge); /* כשיש הרבה דימויים, המספור יורד שורה ולא יוצא מהריבוע */
+  white-space: pre-wrap; /* שומר על הרווחים סביב הקווים */
   pointer-events: none;
   opacity: 0;
   transition: opacity 300ms ease;
@@ -287,6 +288,11 @@ body {
     left: var(--space-page);
     opacity: 1;
   }
+}
+
+/* מילים בערבית: לפונט Polymath אין אותיות ערביות, אז הן מוצגות בפונט של המערכת */
+.text-arabic {
+  font-family: "Geeza Pro", "Noto Sans Arabic", Arial, sans-serif;
 }
 
 /* ===== השמות של הפרויקטים, מתחת לדימויים ===== */
