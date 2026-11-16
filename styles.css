@@ -216,13 +216,19 @@ body {
   cursor: pointer;
 }
 
+/* העיצוב כמו קודם: "works" באפור עם קו תחתון, ו-graphic design עם קו תחתון */
 .home-menu .home-menu__label {
-  color: var(--color-home-muted); /* "works" נשאר באפור שלו */
+  color: var(--color-home-muted);
+  text-decoration: underline;
 }
 
-/* הקטגוריה שבחרו (ובהתחלה "works") מסומנת בקו תחתון */
-.home-menu button.is-selected,
-.home-menu button:hover {
+.home-menu .home-menu__item--current {
+  text-decoration: underline;
+}
+
+/* כשהעכבר על קטגוריה: קו תחתון */
+.home-menu button:hover,
+.home-menu a:hover {
   text-decoration: underline;
 }
 
@@ -230,10 +236,6 @@ body {
 .home-menu a {
   color: inherit;
   text-decoration: none;
-}
-
-.home-menu a:hover {
-  text-decoration: underline;
 }
 
 /* פרטי הקשר: קטנים, באותיות גדולות */
