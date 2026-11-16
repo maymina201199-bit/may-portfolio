@@ -402,10 +402,12 @@ body {
   animation-delay: calc(var(--pw-entry-delay) + var(--pw-index) * var(--pw-entry-stagger));
 }
 
-.pw__item:nth-child(1) { left: 26cqw; top: 32cqh; }
-.pw__item:nth-child(2) { left: 42cqw; top: 43cqh; }
-.pw__item:nth-child(3) { left: 66cqw; top: 66cqh; }
-.pw__item:nth-child(4) { left: 82cqw; top: 56cqh; }
+/* הקומפוזיציה בדיוק כמו באתר המקור: המרחק של כל דימוי ממרכז המסך שם (ברוחב 1440),
+   ביחידות של רוחב החלון, כך שהיחסים בין הדימויים נשמרים בכל גודל ובכל צורה של חלון */
+.pw__item:nth-child(1) { left: calc(50cqw - 23.99cqw); top: calc(50cqh - 11.28cqw); }
+.pw__item:nth-child(2) { left: calc(50cqw - 8.02cqw);  top: calc(50cqh - 4.27cqw); }
+.pw__item:nth-child(3) { left: calc(50cqw + 16.01cqw); top: calc(50cqh + 9.76cqw); }
+.pw__item:nth-child(4) { left: calc(50cqw + 31.98cqw); top: calc(50cqh + 3.72cqw); }
 
 .pw__image {
   display: block;
@@ -473,8 +475,10 @@ body {
   display: none;
 }
 
-.is-window-open .scroll-cursor {
+/* מופיע רק אחרי שהדימויים סיימו לעלות (project-window.js) */
+.is-window-ready .scroll-cursor {
   display: block;
+  animation: pw-number-in 400ms ease both;
 }
 
 /* ===== הסמן הצהוב עם החץ: מחליף את העכבר כשהוא על פרויקט ===== */

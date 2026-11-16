@@ -1,7 +1,7 @@
 // ===== לחיצה על פרויקט בעמוד הבית: חלון עם 4 דימויים =====
 // בלחיצה נפתח מלבן לבן לרוחב באמצע המסך, ובתוכו 4 דימויים של הפרויקט עולים כמו באתר crxtianhub.com:
 // כל דימוי מתחיל כריבוע קטן בתחתית החלון, עולה למקום שלו ונפתח לגודל מלא, אחד אחרי השני.
-// ליד העכבר כתוב "scroll down", וגלילה למטה מעבירה לעמוד הפרויקט. Esc או לחיצה מחוץ לחלון סוגרים.
+// כשהדימויים סיימו לעלות, ליד העכבר כתוב "scroll down", וגלילה למטה מעבירה לעמוד הפרויקט. Esc או לחיצה מחוץ לחלון סוגרים.
 
 const projectLinks = [...document.querySelectorAll(".home-gallery__item[data-preview]")];
 const bigScreen = window.matchMedia("(hover: hover) and (min-width: 701px)");
@@ -12,6 +12,14 @@ const winBox = win.querySelector(".pw__box");
 const scrollLabel = document.querySelector(".scroll-cursor");
 
 let openUrl = null; // הכתובת של הפרויקט שפתוח בחלון, null = סגור
+let readyTimer;     // מתי הדימויים סיימו לעלות ו-"scroll down" מופיע
+
+// כמה זמן עד שהדימוי האחרון סיים לעלות (המספרים מ-styles.css)
+function entryTime(count) {
+  const style = getComputedStyle(document.documentElement);
+  const ms = name => parseFloat(style.getPropertyValue(name));
+  return ms("--pw-entry-delay") + (count - 1) * ms("--pw-entry-stagger") + ms("--pw-entry-duration");
+}
 
 // בונים את 4 הדימויים מחדש בכל פתיחה, כדי שהתנועה תתחיל מההתחלה
 function fillWindow(link) {
@@ -31,11 +39,16 @@ function openWindow(link) {
   fillWindow(link);
   openUrl = link.getAttribute("href");
   document.body.classList.add("is-window-open");
+  // "scroll down" ליד העכבר מופיע רק כשהדימויים סיימו לעלות
+  clearTimeout(readyTimer);
+  readyTimer = setTimeout(() => document.body.classList.add("is-window-ready"),
+                          entryTime(winBox.children.length));
 }
 
 function closeWindow() {
   openUrl = null;
-  document.body.classList.remove("is-window-open");
+  clearTimeout(readyTimer);
+  document.body.classList.remove("is-window-open", "is-window-ready");
   winBox.innerHTML = "";
 }
 
