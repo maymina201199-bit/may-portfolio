@@ -22,91 +22,92 @@
     <!-- קישור לעמוד התהליך: עיגול קטן בפינה הימנית העליונה -->
     <a class="home-process-link" href="process.html" aria-label="process" title="process"></a>
 
-    <!-- התפריט: בינתיים טקסט בלבד, יהפוך לקישורים כשהעמודים יהיו מוכנים -->
+    <!-- התפריט: לחיצה על קטגוריה מציגה רק את הפרויקטים שלה. "works" = כל העבודות (ברירת המחדל).
+         data-filter הוא שם הקטגוריה, כמו ב-data-categories של כל פרויקט -->
     <nav class="home-menu">
-      <p class="home-menu__label">works</p>
+      <button class="home-menu__label" type="button" data-filter="all">works</button>
       <ul class="home-menu__list">
-        <li class="home-menu__item--current">graphic design</li>
-        <li>digital</li>
-        <li>photography</li>
-        <li>visual Identity</li>
-        <li>social media</li>
+        <li><button type="button" data-filter="graphic-design">graphic design</button></li>
+        <li><button type="button" data-filter="digital">digital</button></li>
+        <li><button type="button" data-filter="photography">photography</button></li>
+        <li><button type="button" data-filter="visual-identity">visual Identity</button></li>
+        <li><button type="button" data-filter="social-media">social media</button></li>
       </ul>
     </nav>
   </header>
 
   <!--
-    הפרויקטים מסודרים בשורות של שלושה (<section class="home-row">). כל שורה כוללת
-    את שלושת הריבועים ומתחתם את שלושת השמות, באותו סדר משמאל לימין.
-    כל ריבוע הוא קישור לעמוד של הפרויקט (ל-Manyone עוד אין עמוד).
-    data-preview: הדימויים של הפרויקט (מופרדים בפסיקים). הם מופיעים בחלון שנפתח בלחיצה.
-    כדי להוסיף שורה: מעתיקים <section class="home-row"> שלם ומחליפים דימויים, קישורים ושמות.
+    הפרויקטים: כל פרויקט הוא בלוק אחד עם הדימוי והשם שלו, והרשת מסדרת אותם שלושה בשורה.
+    data-categories: הקטגוריות של הפרויקט (מופרדות ברווח), לסינון לפי התפריט.
+    data-preview: 4 הדימויים שעולים בחלון שנפתח בלחיצה (מופרדים בפסיקים).
+    כדי להוסיף פרויקט: מעתיקים בלוק שלם ומחליפים קישור, דימויים, קטגוריות ושם.
+    (ל-Manyone עוד אין עמוד, אז הוא לא קישור.)
   -->
   <main class="home-projects">
-
-    <!-- שורה 1 -->
-    <section class="home-row">
-      <div class="home-gallery">
-        <div class="home-gallery__item">
+    <div class="home-gallery">
+      <div class="home-gallery__item" data-categories="social-media">
+        <div class="home-gallery__media">
           <video class="home-gallery__slide is-active" src="images/home-manyone.mp4" poster="images/home-manyone-poster.jpg" autoplay muted loop playsinline aria-label="Manyone"></video>
         </div>
-        <a class="home-gallery__item" href="1984-2025.html" data-preview="images/projects/1984-2025/00-cover.jpg, images/projects/1984-2025/01.jpg, images/projects/1984-2025/02.jpg, images/projects/1984-2025/03.jpg">
+        <p class="home-gallery__name">manyone TLV / SOCIAL MEDIA</p>
+      </div>
+
+      <a class="home-gallery__item" href="1984-2025.html" data-categories="graphic-design" data-preview="images/projects/1984-2025/00-cover.jpg, images/projects/1984-2025/01.jpg, images/projects/1984-2025/02.jpg, images/projects/1984-2025/03.jpg">
+        <div class="home-gallery__media">
           <img class="home-gallery__slide is-active" src="images/home-row2-booklet.jpg" alt="1984 / 2025">
-        </a>
-        <a class="home-gallery__item" href="hevel.html" data-preview="images/projects/hevel/00-cover.jpg, images/projects/hevel/01.jpg, images/projects/hevel/02.jpg, images/projects/hevel/03.jpg">
+        </div>
+        <p class="home-gallery__name">1984 / 2025 /GRAPHIC &amp; TYPOGRAPHIC DESIGN</p>
+      </a>
+
+      <a class="home-gallery__item" href="hevel.html" data-categories="visual-identity" data-preview="images/projects/hevel/00-cover.jpg, images/projects/hevel/01.jpg, images/projects/hevel/02.jpg, images/projects/hevel/03.jpg">
+        <div class="home-gallery__media">
           <img class="home-gallery__slide is-active" src="images/home-row2-portrait.jpg" alt="Hevel">
-        </a>
-      </div>
+        </div>
+        <p class="home-gallery__name">Hevel /BRANDING</p>
+      </a>
 
-      <div class="home-titles">
-        <p class="home-titles__name">manyone TLV / SOCIAL MEDIA</p>
-        <p class="home-titles__name">1984 / 2025 /GRAPHIC &amp; TYPOGRAPHIC DESIGN</p>
-        <p class="home-titles__name">Hevel /BRANDING</p>
-      </div>
-    </section>
-
-    <!-- שורה 2 -->
-    <section class="home-row">
-      <div class="home-gallery">
-        <a class="home-gallery__item" href="lifta.html" data-preview="images/projects/lifta/00-cover.jpg, images/projects/lifta/01.jpg, images/projects/lifta/02.jpg, images/projects/lifta/03.jpg">
+      <a class="home-gallery__item" href="lifta.html" data-categories="visual-identity" data-preview="images/projects/lifta/00-cover.jpg, images/projects/lifta/01.jpg, images/projects/lifta/02.jpg, images/projects/lifta/03.jpg">
+        <div class="home-gallery__media">
           <img class="home-gallery__slide is-active" src="images/projects/lifta/00-cover.jpg" alt="lifta">
-        </a>
-        <a class="home-gallery__item" href="portrait.html" data-preview="images/projects/portrait/00-cover.jpg, images/projects/portrait/01.jpg, images/projects/portrait/02.jpg, images/projects/portrait/03.jpg">
+        </div>
+        <p class="home-gallery__name">lifta <span class="text-arabic" lang="ar">لفتا</span> /VISUAL IDENTITY</p>
+      </a>
+
+      <a class="home-gallery__item" href="portrait.html" data-categories="photography" data-preview="images/projects/portrait/00-cover.jpg, images/projects/portrait/01.jpg, images/projects/portrait/02.jpg, images/projects/portrait/03.jpg">
+        <div class="home-gallery__media">
           <img class="home-gallery__slide home-gallery__slide--face is-active" src="images/home-photo-face.jpg" alt="Portrait">
-        </a>
-        <a class="home-gallery__item" href="sabra.html" data-preview="images/projects/sabra/00-cover.jpg, images/projects/sabra/01.jpg, images/projects/sabra/02.jpg, images/projects/sabra/03.jpg">
+        </div>
+        <p class="home-gallery__name">Portrait /PHOTOGRAPHY</p>
+      </a>
+
+      <a class="home-gallery__item" href="sabra.html" data-categories="visual-identity photography" data-preview="images/projects/sabra/00-cover.jpg, images/projects/sabra/01.jpg, images/projects/sabra/02.jpg, images/projects/sabra/03.jpg">
+        <div class="home-gallery__media">
           <img class="home-gallery__slide is-active" src="images/home-photo-cactus.jpg" alt="Sabra">
-        </a>
-      </div>
+        </div>
+        <p class="home-gallery__name">Sabra /BRANDING</p>
+      </a>
 
-      <div class="home-titles">
-        <p class="home-titles__name">lifta <span class="text-arabic" lang="ar">لفتا</span> /VISUAL IDENTITY</p>
-        <p class="home-titles__name">Portrait /PHOTOGRAPHY</p>
-        <p class="home-titles__name">Sabra /BRANDING</p>
-      </div>
-    </section>
-
-    <!-- שורה 3 -->
-    <section class="home-row">
-      <div class="home-gallery">
-        <a class="home-gallery__item" href="sela.html" data-preview="images/projects/sela/00-cover.jpg, images/projects/sela/01.jpg, images/projects/sela/02.jpg, images/projects/sela/03.jpg">
+      <a class="home-gallery__item" href="sela.html" data-categories="digital" data-preview="images/projects/sela/00-cover.jpg, images/projects/sela/01.jpg, images/projects/sela/02.jpg, images/projects/sela/03.jpg">
+        <div class="home-gallery__media">
           <video class="home-gallery__slide home-gallery__slide--stone is-active" src="images/home-row2-stone.mp4" poster="images/home-row2-stone-poster.jpg" autoplay muted loop playsinline aria-label="Sela"></video>
-        </a>
-        <a class="home-gallery__item" href="posters.html" data-preview="images/projects/posters/00-cover.jpg, images/projects/posters/01.jpg, images/projects/posters/02.jpg, images/projects/posters/03.jpg">
+        </div>
+        <p class="home-gallery__name">Sela /UX/UI DESIGN</p>
+      </a>
+
+      <a class="home-gallery__item" href="posters.html" data-categories="graphic-design" data-preview="images/projects/posters/00-cover.jpg, images/projects/posters/01.jpg, images/projects/posters/02.jpg, images/projects/posters/03.jpg">
+        <div class="home-gallery__media">
           <img class="home-gallery__slide is-active" src="images/projects/posters/00-cover.jpg" alt="Posters">
-        </a>
-        <a class="home-gallery__item" href="modern-warfare.html" data-preview="images/projects/modern-warfare/01.jpg, images/projects/modern-warfare/02.jpg, images/projects/modern-warfare/03.jpg, images/projects/modern-warfare/04.jpg">
+        </div>
+        <p class="home-gallery__name">Posters /GRAPHIC DESIGN / IMAGEMAKING</p>
+      </a>
+
+      <a class="home-gallery__item" href="modern-warfare.html" data-categories="graphic-design" data-preview="images/projects/modern-warfare/01.jpg, images/projects/modern-warfare/02.jpg, images/projects/modern-warfare/03.jpg, images/projects/modern-warfare/04.jpg">
+        <div class="home-gallery__media">
           <img class="home-gallery__slide is-active" src="images/projects/modern-warfare/01.jpg" alt="Modern Warfare">
-        </a>
-      </div>
-
-      <div class="home-titles">
-        <p class="home-titles__name">Sela /UX/UI DESIGN</p>
-        <p class="home-titles__name">Posters /GRAPHIC DESIGN / IMAGEMAKING</p>
-        <p class="home-titles__name">Modern Warfare /GRAPHIC &amp; TYPOGRAPHIC DESIGN</p>
-      </div>
-    </section>
-
+        </div>
+        <p class="home-gallery__name">Modern Warfare /GRAPHIC &amp; TYPOGRAPHIC DESIGN</p>
+      </a>
+    </div>
   </main>
 
   <!-- החלון שנפתח בלחיצה על פרויקט: מלבן לבן לרוחב ובתוכו 4 דימויים (נבנים ב-project-window.js) -->
@@ -164,6 +165,30 @@
         document.fonts.ready.then(() => setTimeout(nextLetter, LETTER_SPEED));
       }
     }
+
+    // ===== סינון לפי קטגוריה =====
+    // לחיצה על קטגוריה בתפריט מציגה רק את הפרויקטים שלה. "works" מציג הכול.
+    // הקטגוריה נשמרת בכתובת (למשל index.html?category=photography), כך שאפשר לקשר אליה
+    const filterButtons = document.querySelectorAll("[data-filter]");
+    const galleryItems = document.querySelectorAll(".home-gallery__item");
+
+    function showCategory(category) {
+      filterButtons.forEach(b => b.classList.toggle("is-selected", b.dataset.filter === category));
+      let column = 0;
+      galleryItems.forEach(function (item) {
+        const show = category === "all" || item.dataset.categories.split(" ").includes(category);
+        item.hidden = !show;
+        // באיזו עמודה הפרויקט (1, 2 או 3): קובע כמה השם שלו זז פנימה, כמו בפיגמה
+        if (show) item.dataset.column = (column++ % 3) + 1;
+      });
+      history.replaceState(null, "", category === "all" ? "index.html" : "index.html?category=" + category);
+    }
+
+    filterButtons.forEach(function (button) {
+      button.addEventListener("click", () => showCategory(button.dataset.filter));
+    });
+
+    showCategory(new URLSearchParams(location.search).get("category") || "all");
 
     // ===== הסמן עם החץ: מחליף את העכבר כשהוא על פרויקט =====
     const exploreCursor = document.querySelector(".explore-cursor");

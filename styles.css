@@ -37,10 +37,7 @@
   --space-page: 16px;
   /* עמוד הבית (המספרים מהפריים ברוחב 1440px) */
   --home-header-height: 222px;   /* החלק העליון בעמודי הפרויקטים */
-  /* החלק העליון בעמוד הבית: הגובה מחושב כך שתחתית המסך חותכת בדיוק באמצע את השמות
-     של השורה הראשונה. גובה המסך, פחות גובה הדימויים (שליש מהרוחב, ביחס 480 על 590),
-     פחות 3px עד השמות ועוד חצי שורה של שם. לפחות 170px, כדי שלא יעלה על התפריט */
-  --home-header-height-compact: max(170px, calc(100vh - (100vw / 3) * 590 / 480 - 3px - 0.6em));
+  --home-header-height-compact: 170px; /* החלק העליון בעמוד הבית: הגריד מתחיל ממש מתחת לתפריט */
   --space-home-top: 17px;        /* מרחק השם והתפריט מלמעלה */
   --space-home-edge: 14px;       /* מרחק השם מהקצה השמאלי */
   /* עמוד פרויקט (המספרים מהפריים ברוחב 1440px) */
@@ -198,9 +195,9 @@ body {
 }
 
 .home-menu__label {
+  display: block;
   margin: 0 0 1lh; /* שורה ריקה מתחת ל-"works" */
   color: var(--color-home-muted);
-  text-decoration: underline;
 }
 
 .home-menu__list {
@@ -209,8 +206,33 @@ body {
   list-style: none;
 }
 
-/* הפריט המסומן בתפריט (Graphic Design) */
-.home-menu__item--current {
+/* הכפתורים בתפריט נראים כמו טקסט רגיל */
+.home-menu button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.home-menu .home-menu__label {
+  color: var(--color-home-muted); /* "works" נשאר באפור שלו */
+}
+
+/* הקטגוריה שבחרו (ובהתחלה "works") מסומנת בקו תחתון */
+.home-menu button.is-selected,
+.home-menu button:hover {
+  text-decoration: underline;
+}
+
+/* בעמודי הפרויקטים התפריט הוא קישורים לעמוד הבית, מסונן לפי הקטגוריה */
+.home-menu a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-menu a:hover {
   text-decoration: underline;
 }
 
@@ -244,12 +266,23 @@ body {
   grid-template-columns: repeat(3, 1fr);
 }
 
-/* ריבוע אחד בגלריה. בתוכו יש כמה דימויים (שקופיות), ורואים רק אחד בכל פעם */
+/* פרויקט אחד בגלריה: הדימוי ומתחתיו השם */
 .home-gallery__item {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* פרויקט שלא שייך לקטגוריה שבחרו */
+.home-gallery__item[hidden] {
+  display: none;
+}
+
+/* הדימוי: 480 על 590 בפיגמה */
+.home-gallery__media {
   position: relative;
   aspect-ratio: 480 / 590;
   overflow: hidden;
-  cursor: pointer;
 }
 
 .home-gallery__slide {
@@ -278,66 +311,25 @@ body {
   object-position: center 57%;
 }
 
-/* המספור 01 | 02 | 03 למעלה על הדימוי. מופיע רק כשהדימוי פתוח */
-.home-gallery__counter {
-  position: absolute;
-  top: var(--space-counter-top);
-  left: calc(100% * 728 / 1440);
-  z-index: 2; /* מעל הדימויים */
-  margin: 0;
-  color: var(--color-ink);
-  font-family: var(--font-label);
-  font-size: var(--counter-size);
-  right: var(--space-home-edge); /* כשיש הרבה דימויים, המספור יורד שורה ולא יוצא מהריבוע */
-  white-space: pre-wrap; /* שומר על הרווחים סביב הקווים */
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 300ms ease;
-}
-
-/* המספר של הדימוי שרואים עכשיו */
-.home-gallery__counter .is-current {
-  text-decoration: underline;
-}
-
-/* ===== מעבר עכבר על דימוי: המספור מופיע ===== */
-/* רק במחשב (כשיש עכבר) ובמסך רחב. הדימוי עצמו מופיע בתוך המסגרת (ראו "המסגרות" למטה) */
-@media (hover: hover) and (min-width: 701px) {
-  .home-gallery__item:hover .home-gallery__counter {
-    opacity: 1;
-  }
-}
-
-/* במסכי מגע אין "פתיחה", אז המספור מופיע תמיד */
-@media (hover: none), (max-width: 700px) {
-  .home-gallery__counter {
-    left: var(--space-page);
-    opacity: 1;
-  }
-}
-
 /* מילים בערבית: לפונט Polymath אין אותיות ערביות, אז הן מוצגות בפונט של המערכת */
 .text-arabic {
   font-family: "Geeza Pro", "Noto Sans Arabic", Arial, sans-serif;
 }
 
-/* ===== השמות של הפרויקטים, מתחת לדימויים ===== */
-.home-titles {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+/* ===== השם של כל פרויקט, מתחת לדימוי ===== */
+.home-gallery__name {
+  box-sizing: border-box;
   height: var(--home-titles-height);
-  padding-top: var(--space-titles-top);
-}
-
-.home-titles__name {
   margin: 0;
+  padding-top: var(--space-titles-top);
   font-size: var(--project-name-size);
 }
 
-/* כל שם זז קצת פנימה מתחילת העמודה שלו, כמו בפיגמה (18px, 26px, 10px) */
-.home-titles__name:nth-child(1) { padding-left: calc(100% * 18 / 480); }
-.home-titles__name:nth-child(2) { padding-left: calc(100% * 26 / 480); }
-.home-titles__name:nth-child(3) { padding-left: calc(100% * 10 / 480); }
+/* כל שם זז קצת פנימה מתחילת העמודה שלו, כמו בפיגמה (18px, 26px, 10px).
+   העמודה (1, 2 או 3) נקבעת ב-JavaScript, כי היא משתנה כשמסננים לפי קטגוריה */
+.home-gallery__item[data-column="1"] .home-gallery__name { padding-left: calc(100% * 18 / 480); }
+.home-gallery__item[data-column="2"] .home-gallery__name { padding-left: calc(100% * 26 / 480); }
+.home-gallery__item[data-column="3"] .home-gallery__name { padding-left: calc(100% * 10 / 480); }
 
 /* ===== לחיצה על פרויקט: מלבן לבן עם 4 דימויים (כמו באתר crxtianhub.com) ===== */
 
@@ -626,27 +618,13 @@ body {
     position: static;
   }
 
-  /* כל שם מופיע מיד מתחת לדימוי שלו:
-     הדימויים והשמות מסתדרים יחד ברשת אחת, לפי הסדר דימוי, שם, דימוי, שם... */
-  .home-row {
-    display: grid;
+  /* פרויקט אחד בשורה, והשם מתחת לדימוי */
+  .home-gallery {
     grid-template-columns: 1fr;
   }
 
-  .home-gallery,
-  .home-titles {
-    display: contents;
-  }
-
-  .home-gallery__item:nth-child(1) { order: 1; }
-  .home-titles__name:nth-child(1)  { order: 2; }
-  .home-gallery__item:nth-child(2) { order: 3; }
-  .home-titles__name:nth-child(2)  { order: 4; }
-  .home-gallery__item:nth-child(3) { order: 5; }
-  .home-titles__name:nth-child(3)  { order: 6; }
-
-  .home-titles__name,
-  .home-titles__name:nth-child(n) {
+  .home-gallery__item .home-gallery__name {
+    height: auto;
     padding: 15px var(--space-page) 32px;
   }
 }
