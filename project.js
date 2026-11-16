@@ -1,15 +1,17 @@
 // ===== כניסה לעמוד: 4 דימויים של הפרויקט עולים על המסך (כמו באתר crxtianhub.com) =====
 // מסך שחור מעל העמוד. כל דימוי מתחיל כריבוע קטן בתחתית, עולה למקום שלו ונפתח,
-// אחד אחרי השני. אחרי שכולם עלו המסך נעלם וחושף את העמוד. לחיצה, גלילה או מקש מדלגים.
+// אחד אחרי השני. אחרי שכולם עלו, כל דימוי עף למקום שלו בעמוד והרקע השחור נעלם.
+// לחיצה, גלילה או מקש מדלגים לשלב הזה.
 // הדימויים: הדימוי הגדול של העמוד ו-3 הדימויים הראשונים שמתחתיו.
 (function () {
   const projectPage = document.querySelector(".project-page");
   if (!projectPage || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const sources = [...projectPage.querySelectorAll(".project-intro__image, .project-images__image")]
-    .map(img => img.getAttribute("src"))
-    .slice(0, 4);
+  // הדימויים בעמוד שאליהם 4 הדימויים יעופו בסוף
+  const targets = [...projectPage.querySelectorAll(".project-intro__image, .project-images__image")].slice(0, 4);
+  const sources = targets.map(img => img.getAttribute("src"));
   if (sources.length === 0) return;
+  targets.forEach(img => img.removeAttribute("loading")); // שיהיו טעונים כשהדימויים מגיעים אליהם
 
   const entry = document.createElement("div");
   entry.className = "pw";
@@ -31,13 +33,29 @@
   const showFor = ms("--pw-entry-delay") + (sources.length - 1) * ms("--pw-entry-stagger") +
                   ms("--pw-entry-duration") + ms("--pw-hold");
 
+  // כל דימוי עף מהמקום שלו במסך הכניסה למקום שלו בעמוד, והרקע השחור נעלם
   let done = false;
   function finish() {
     if (done) return;
     done = true;
-    entry.classList.add("is-leaving");
+    window.scrollTo(0, 0);
     document.body.classList.remove("is-entering");
-    setTimeout(() => entry.remove(), ms("--pw-leave-duration"));
+    const items = [...entry.querySelectorAll(".pw__item")];
+    const from = items.map(item => item.querySelector(".pw__image").getBoundingClientRect());
+    items.forEach(function (item, i) {
+      item.classList.add("is-flying");
+      Object.assign(item.style, { left: from[i].left + "px", top: from[i].top + "px",
+                                  width: from[i].width + "px", height: from[i].height + "px" });
+    });
+    requestAnimationFrame(() => requestAnimationFrame(function () {
+      entry.classList.add("is-settling");
+      items.forEach(function (item, i) {
+        const to = targets[i].getBoundingClientRect();
+        Object.assign(item.style, { left: to.left + "px", top: to.top + "px",
+                                    width: to.width + "px", height: to.height + "px" });
+      });
+    }));
+    setTimeout(() => entry.remove(), ms("--pw-leave-duration") + 50);
   }
 
   const timer = setTimeout(finish, showFor);

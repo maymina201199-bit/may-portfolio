@@ -53,7 +53,7 @@
   --pw-number-duration: 800ms;
   --pw-small-text: 12px;           /* המספרים 01_ */
   --pw-hold: 500ms;                /* כמה זמן הדימויים נשארים במקום לפני שהמסך נעלם */
-  --pw-leave-duration: 600ms;      /* המסך נעלם וחושף את עמוד הפרויקט */
+  --pw-leave-duration: 1000ms;     /* הדימויים עפים למקום שלהם בעמוד והרקע השחור נעלם */
   --pw-easing: cubic-bezier(0.22, 0.65, 0.3, 1);
   --minimap-width: 160px;         /* המפה הקטנה של העמוד */
   --minimap-height: 285px;
@@ -342,12 +342,29 @@ body {
   background-color: var(--color-home-background);
   color: var(--color-home-text);
   cursor: pointer;
-  transition: opacity var(--pw-leave-duration) ease;
+  transition: background-color var(--pw-leave-duration) var(--pw-easing);
 }
 
-.pw.is-leaving {
-  opacity: 0;
+/* אחרי שהדימויים גדלו: הרקע השחור נעלם, וכל דימוי עף למקום שלו בעמוד הפרויקט */
+.pw.is-settling {
+  background-color: transparent;
   pointer-events: none;
+}
+
+.pw__item.is-flying {
+  transform: none;
+  animation: none;
+  transition:
+    left var(--pw-leave-duration) var(--pw-easing),
+    top var(--pw-leave-duration) var(--pw-easing),
+    width var(--pw-leave-duration) var(--pw-easing),
+    height var(--pw-leave-duration) var(--pw-easing);
+}
+
+.pw__item.is-flying .pw__number {
+  opacity: 0;
+  animation: none;
+  transition: opacity 200ms ease;
 }
 
 /* כל עוד הכניסה מוצגת, העמוד שמאחוריה לא נגלל */
