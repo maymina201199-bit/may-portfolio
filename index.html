@@ -149,7 +149,10 @@
 
       function hideIntro() {
         intro.classList.add("is-hidden");
-        setTimeout(() => intro.remove(), FADE_DURATION);
+        setTimeout(function () {
+          intro.remove();
+          enablePreviews(); // מעכשיו מעבר עכבר על פרויקט מעלה את הדימויים שלו
+        }, FADE_DURATION);
       }
 
       // מי שביקש במחשב פחות אנימציות: בלי אותיות מתחלפות
@@ -187,12 +190,31 @@
       preview.innerHTML = "";
     }
 
-    document.querySelectorAll(".home-gallery__item[data-preview]").forEach(function (item) {
-      item.addEventListener("mouseenter", function () {
-        if (canHover.matches) showPreview(item);
+    // הדימויים עולים רק אחרי שמסך הפתיחה נגמר, ורק כשהעכבר *נכנס* לפרויקט.
+    // אם העכבר כבר עמד על פרויקט כשהאתר נפתח, לא קורה כלום עד שיוצאים ממנו ונכנסים שוב.
+    let previewsReady = false;
+    const projectItems = document.querySelectorAll(".home-gallery__item[data-preview]");
+
+    function enablePreviews() {
+      previewsReady = true;
+      projectItems.forEach(function (item) {
+        if (item.matches(":hover")) item.dataset.waitForLeave = "true";
       });
-      item.addEventListener("mouseleave", hidePreview);
+    }
+
+    projectItems.forEach(function (item) {
+      item.addEventListener("mouseenter", function () {
+        if (!previewsReady || item.dataset.waitForLeave || !canHover.matches) return;
+        showPreview(item);
+      });
+      item.addEventListener("mouseleave", function () {
+        delete item.dataset.waitForLeave;
+        hidePreview();
+      });
     });
+
+    // בלי מסך פתיחה (למשל מי שביקש פחות אנימציות) אפשר להתחיל מיד
+    if (!document.querySelector(".intro")) enablePreviews();
 
     // הסמן הצהוב זז בדיוק עם העכבר
     document.addEventListener("mousemove", function (event) {
