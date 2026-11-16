@@ -477,7 +477,7 @@ body {
 }
 
 /* ===== הסמן עם החץ: מחליף את העכבר כשהוא על פרויקט ===== */
-/* ריבוע שקוף עם קו לבן דק, ובתוכו חץ לבן */
+/* ריבוע שקוף עם קו דק, ובתוכו חץ. לבן על רקע כהה ושחור על רקע בהיר */
 .home-gallery__item[data-preview] {
   cursor: none;
 }
@@ -491,6 +491,7 @@ body {
   height: 24px;
   margin: -12px 0 0 -18px; /* מרכז הסמן בדיוק על העכבר */
   border: var(--line-width) solid var(--color-home-text);
+  mix-blend-mode: difference; /* לבן על רקע כהה, שחור על רקע בהיר */
   pointer-events: none;
   display: none;
 }
