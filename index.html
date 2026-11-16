@@ -39,7 +39,7 @@
     הפרויקטים מסודרים בשורות של שלושה (<section class="home-row">). כל שורה כוללת
     את שלושת הריבועים ומתחתם את שלושת השמות, באותו סדר משמאל לימין.
     כל ריבוע הוא קישור לעמוד של הפרויקט (ל-Manyone עוד אין עמוד).
-    data-preview: הדימויים של הפרויקט (מופרדים בפסיקים). הראשון מופיע בחלון שנפתח בלחיצה.
+    data-preview: הדימויים של הפרויקט (מופרדים בפסיקים). הם מופיעים בחלון שנפתח בלחיצה.
     כדי להוסיף שורה: מעתיקים <section class="home-row"> שלם ומחליפים דימויים, קישורים ושמות.
   -->
   <main class="home-projects">
@@ -109,10 +109,21 @@
 
   </main>
 
-  <!-- החלון שנפתח באמצע המסך בלחיצה על פרויקט. גלילה למטה מעבירה לעמוד הפרויקט -->
-  <div class="project-window" aria-hidden="true">
-    <img class="project-window__image" src="" alt="">
+  <!-- חלון הפרויקט שנפתח בלחיצה על פרויקט (המילוי והתנועה ב-project-window.js) -->
+  <div class="pw" aria-hidden="true">
+    <span class="pw__index"></span>
+    <div class="pw__head">
+      <div class="pw__title"></div>
+      <p class="pw__meta"></p>
+    </div>
+    <img class="pw__image" src="" alt="">
+    <div class="pw__thumbs"></div>
+    <button class="pw__nav pw__prev" type="button"><span class="pw__arrow">&larr;</span>previous</button>
+    <button class="pw__nav pw__next" type="button"><span class="pw__arrow">&rarr;</span>next</button>
   </div>
+
+  <!-- "scroll down" שמופיע ליד העכבר כשחלון הפרויקט פתוח -->
+  <div class="scroll-cursor" aria-hidden="true">scroll down</div>
 
   <!-- הסמן הצהוב עם החץ: מחליף את העכבר כשהוא על פרויקט -->
   <div class="explore-cursor" aria-hidden="true">
@@ -163,62 +174,9 @@
       }
     }
 
-    // ===== לחיצה על פרויקט: חלון באמצע המסך =====
-    // בלחיצה נפתח חלון עם הדימוי של הפרויקט, ושאר הדברים במסך נעלמים.
-    // גלילה למטה בזמן שהחלון פתוח מעבירה לעמוד הפרויקט. Esc או לחיצה מחוץ לחלון סוגרים.
-    const projectWindow = document.querySelector(".project-window");
-    const projectWindowImage = projectWindow.querySelector(".project-window__image");
-    const exploreCursor = document.querySelector(".explore-cursor");
-    const projectItems = document.querySelectorAll(".home-gallery__item[data-preview]");
-    const bigScreen = window.matchMedia("(hover: hover) and (min-width: 701px)");
-    const WINDOW_LEAVE_DURATION = 500; // כמה זמן החלון גדל לפני שעוברים לעמוד הפרויקט
-    let openProjectUrl = null;
-
-    function openWindow(item) {
-      // הדימוי בחלון: הדימוי הראשון ברשימה data-preview של הפרויקט
-      projectWindowImage.src = item.dataset.preview.split(",")[0].trim();
-      openProjectUrl = item.getAttribute("href");
-      document.body.classList.add("is-window-open");
-    }
-
-    function closeWindow() {
-      openProjectUrl = null;
-      document.body.classList.remove("is-window-open");
-    }
-
-    function goToProject() {
-      if (!openProjectUrl || document.body.classList.contains("is-window-leaving")) return;
-      document.body.classList.add("is-window-leaving");
-      setTimeout(() => { window.location.href = openProjectUrl; }, WINDOW_LEAVE_DURATION);
-    }
-
-    projectItems.forEach(function (item) {
-      item.addEventListener("click", function (event) {
-        if (!bigScreen.matches) return; // בטלפון: ישר לעמוד הפרויקט
-        event.preventDefault();
-        openWindow(item);
-      });
-    });
-
-    // גלילה למטה (גלגלת, משטח מגע או מקלדת) כשהחלון פתוח: לעמוד הפרויקט
-    window.addEventListener("wheel", function (event) {
-      if (openProjectUrl && event.deltaY > 0) goToProject();
-    }, { passive: true });
-
-    document.addEventListener("keydown", function (event) {
-      if (!openProjectUrl) return;
-      if (event.key === "Escape") closeWindow();
-      if (["ArrowDown", "PageDown", " "].includes(event.key)) goToProject();
-    });
-
-    // לחיצה מחוץ לחלון סוגרת אותו, לחיצה על החלון עצמו פותחת את הפרויקט
-    projectWindow.addEventListener("click", function (event) {
-      if (event.target === projectWindowImage) goToProject();
-      else closeWindow();
-    });
-
     // ===== הסמן הצהוב: מחליף את העכבר כשהוא על פרויקט =====
-    projectItems.forEach(function (item) {
+    const exploreCursor = document.querySelector(".explore-cursor");
+    document.querySelectorAll(".home-gallery__item[data-preview]").forEach(function (item) {
       item.addEventListener("mouseenter", () => document.body.classList.add("is-over-project"));
       item.addEventListener("mouseleave", () => document.body.classList.remove("is-over-project"));
     });
@@ -236,5 +194,8 @@
       });
     });
   </script>
+
+  <!-- חלון הפרויקט שנפתח בלחיצה על פרויקט -->
+  <script src="project-window.js"></script>
 </body>
 </html>
