@@ -117,10 +117,9 @@
   <!-- "scroll down" שמופיע ליד העכבר כשחלון הפרויקט פתוח -->
   <div class="scroll-cursor" aria-hidden="true">scroll down</div>
 
-  <!-- הסמן הצהוב עם החץ: מחליף את העכבר כשהוא על פרויקט -->
+  <!-- הסמן עם החץ (ריבוע עם קו לבן): מחליף את העכבר כשהוא על פרויקט -->
   <div class="explore-cursor" aria-hidden="true">
     <img src="images/arrow-right.png" alt="">
-    <span class="explore-cursor__cover"></span>
   </div>
 
   <script>
@@ -166,7 +165,7 @@
       }
     }
 
-    // ===== הסמן הצהוב: מחליף את העכבר כשהוא על פרויקט =====
+    // ===== הסמן עם החץ: מחליף את העכבר כשהוא על פרויקט =====
     const exploreCursor = document.querySelector(".explore-cursor");
     document.querySelectorAll(".home-gallery__item[data-preview]").forEach(function (item) {
       item.addEventListener("mouseenter", () => document.body.classList.add("is-over-project"));

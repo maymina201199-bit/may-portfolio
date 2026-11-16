@@ -484,7 +484,8 @@ body {
   animation: pw-number-in 400ms ease both;
 }
 
-/* ===== הסמן הצהוב עם החץ: מחליף את העכבר כשהוא על פרויקט ===== */
+/* ===== הסמן עם החץ: מחליף את העכבר כשהוא על פרויקט ===== */
+/* ריבוע שקוף עם קו לבן דק, ובתוכו חץ לבן */
 .home-gallery__item[data-preview] {
   cursor: none;
 }
@@ -497,7 +498,7 @@ body {
   width: 36px;
   height: 24px;
   margin: -12px 0 0 -18px; /* מרכז הסמן בדיוק על העכבר */
-  background-color: var(--color-marker);
+  border: var(--line-width) solid var(--color-home-text);
   pointer-events: none;
   display: none;
 }
@@ -507,22 +508,15 @@ body {
   display: block;
 }
 
+/* החץ: הקובץ שחור, והופכים אותו ללבן. החיתוך משמאל מקצר את הזנב של החץ, כמו בפיגמה */
 .explore-cursor img {
   position: absolute;
-  top: 3px;
-  left: 7px;
+  top: 2px;
+  left: 6px;
   width: 17px;
   height: 17px;
-}
-
-/* מלבן צהוב קטן שמסתיר את תחילת החץ, כמו בפיגמה */
-.explore-cursor__cover {
-  position: absolute;
-  top: 5px;
-  left: 6px;
-  width: 6px;
-  height: 15px;
-  background-color: var(--color-marker);
+  filter: invert(1);
+  clip-path: inset(0 0 0 5px);
 }
 
 /* מי שביקש במחשב פחות אנימציות: החלון מופיע בלי תנועה */
