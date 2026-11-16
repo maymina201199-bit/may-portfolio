@@ -47,13 +47,14 @@
   /* חלון הפרויקט שנפתח בלחיצה על פרויקט (המידות מהאתר crxtianhub.com) */
   --pw-item-size: 15cqw;           /* גודל כל דימוי: 15% מרוחב המסך, כמו באתר המקור */
   --pw-item-start: 1cqw;           /* הריבוע הקטן שממנו הדימוי מתחיל */
-  --pw-entry-duration: 2600ms;     /* כל התנועה של דימוי אחד (כמו באתר המקור) */
-  --pw-entry-stagger: 130ms;       /* כל דימוי מתחיל קצת אחרי הקודם */
-  --pw-entry-delay: 240ms;
-  --pw-number-duration: 800ms;
+  --pw-entry-duration: 1700ms;     /* כל התנועה של דימוי אחד */
+  --pw-entry-stagger: 90ms;        /* כל דימוי מתחיל קצת אחרי הקודם */
+  --pw-entry-delay: 120ms;
+  --pw-number-duration: 500ms;
   --pw-small-text: 12px;           /* המספרים 01_ */
-  --pw-hold: 500ms;                /* כמה זמן הדימויים נשארים במקום לפני שהמסך נעלם */
-  --pw-leave-duration: 1000ms;     /* הדימויים עפים למקום שלהם בעמוד והרקע השחור נעלם */
+  --pw-hold: 150ms;                /* רגע קצר שהדימויים נשארים במקום לפני שהם עפים */
+  --pw-leave-duration: 850ms;      /* הדימויים עפים למקום שלהם בעמוד והרקע השחור נעלם */
+  --pw-fly-easing: cubic-bezier(0.65, 0, 0.35, 1); /* ease-in-out: מתחיל ונעצר ברכות */
   --pw-easing: cubic-bezier(0.22, 0.65, 0.3, 1);
   --minimap-width: 160px;         /* המפה הקטנה של העמוד */
   --minimap-height: 285px;
@@ -342,7 +343,7 @@ body {
   background-color: var(--color-home-background);
   color: var(--color-home-text);
   cursor: pointer;
-  transition: background-color var(--pw-leave-duration) var(--pw-easing);
+  transition: background-color var(--pw-leave-duration) var(--pw-fly-easing);
 }
 
 /* אחרי שהדימויים גדלו: הרקע השחור נעלם, וכל דימוי עף למקום שלו בעמוד הפרויקט */
@@ -351,14 +352,13 @@ body {
   pointer-events: none;
 }
 
+/* בזמן המעוף הדימוי כבר בגודל ובמקום של היעד, והתנועה עצמה היא transform ו-clip-path
+   (project.js), כך שהיא חלקה ולא מחשבת את העמוד מחדש בכל פריים */
 .pw__item.is-flying {
   transform: none;
   animation: none;
-  transition:
-    left var(--pw-leave-duration) var(--pw-easing),
-    top var(--pw-leave-duration) var(--pw-easing),
-    width var(--pw-leave-duration) var(--pw-easing),
-    height var(--pw-leave-duration) var(--pw-easing);
+  transform-origin: center;
+  will-change: transform, clip-path;
 }
 
 .pw__item.is-flying .pw__number {

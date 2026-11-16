@@ -42,19 +42,28 @@
     document.body.classList.remove("is-entering");
     const items = [...entry.querySelectorAll(".pw__item")];
     const from = items.map(item => item.querySelector(".pw__image").getBoundingClientRect());
+    const to = targets.map(img => img.getBoundingClientRect());
+    const easing = style.getPropertyValue("--pw-fly-easing").trim();
+
+    // FLIP: שמים כל דימוי ישר בגודל ובמקום של היעד, ואז מתחילים אותו
+    // מהגודל והמקום שהיה בו (בעזרת transform ו-clip-path) ונותנים לו לחזור ליעד
     items.forEach(function (item, i) {
+      const f = from[i], t = to[i];
       item.classList.add("is-flying");
-      Object.assign(item.style, { left: from[i].left + "px", top: from[i].top + "px",
-                                  width: from[i].width + "px", height: from[i].height + "px" });
+      Object.assign(item.style, { left: t.left + "px", top: t.top + "px",
+                                  width: t.width + "px", height: t.height + "px" });
+      const scale = Math.max(f.width / t.width, f.height / t.height);
+      const insetX = Math.max(0, (t.width - f.width / scale) / 2);
+      const insetY = Math.max(0, (t.height - f.height / scale) / 2);
+      const moveX = (f.left + f.width / 2) - (t.left + t.width / 2);
+      const moveY = (f.top + f.height / 2) - (t.top + t.height / 2);
+      item.animate([
+        { transform: `translate(${moveX}px, ${moveY}px) scale(${scale})`,
+          clipPath: `inset(${insetY}px ${insetX}px)` },
+        { transform: "none", clipPath: "inset(0px 0px)" },
+      ], { duration: ms("--pw-leave-duration"), easing, fill: "both" });
     });
-    requestAnimationFrame(() => requestAnimationFrame(function () {
-      entry.classList.add("is-settling");
-      items.forEach(function (item, i) {
-        const to = targets[i].getBoundingClientRect();
-        Object.assign(item.style, { left: to.left + "px", top: to.top + "px",
-                                    width: to.width + "px", height: to.height + "px" });
-      });
-    }));
+    entry.classList.add("is-settling");
     setTimeout(() => entry.remove(), ms("--pw-leave-duration") + 50);
   }
 
