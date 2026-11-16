@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>May Mina | Portrait</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="home-page">
+  <!--
+    עמוד פרויקט. כל עמודי הפרויקטים בנויים באותה צורה:
+    החלק העליון כמו בעמוד הבית (התפריט שקוף יותר), שורה עם שם הפרויקט ו-IMAGES,
+    דימוי גדול משמאל וטקסט מימין, ומתחת שאר הדימויים: שניים זה ליד זה, ואחד רחב, וחוזר חלילה.
+    הדימויים של הפרויקט נמצאים בתיקייה images/projects/portrait.
+  -->
+  <header class="home-header">
+    <!-- השם מוביל חזרה לעמוד הבית -->
+    <h1 class="home-name"><a class="home-name__link" href="index.html">may mina .</a></h1>
+
+    <a class="home-process-link" href="process.html" aria-label="process" title="process"></a>
+
+    <!-- התפריט: בעמוד פרויקט הוא שקוף יותר (project-menu) -->
+    <nav class="home-menu project-menu">
+      <p class="home-menu__label">works</p>
+      <ul class="home-menu__list">
+        <li class="home-menu__item--current">graphic design</li>
+        <li>digital</li>
+        <li>photography</li>
+        <li>visual Identity</li>
+        <li>social media</li>
+      </ul>
+    </nav>
+
+    <!-- שורת הפרויקט: שם הפרויקט, IMAGES וטלפון, על הקו התחתון של החלק העליון -->
+    <p class="project-meta project-meta--title">Portrait</p>
+    <p class="project-meta project-meta--field">IMAGES</p>
+    <p class="home-contact home-contact--phone">+972-54-9199429</p>
+  </header>
+
+  <main class="project-page">
+    <!-- הפתיחה: דימוי גדול משמאל וטקסט מימין -->
+    <section class="project-intro">
+      <img class="project-intro__image" src="images/projects/portrait/00-cover.jpg" alt="Portrait">
+      <p class="project-intro__description">
+        A portrait photography project featuring women recovering from eating disorders
+      </p>
+    </section>
+
+    <!-- שאר הדימויים של הפרויקט -->
+    <section class="project-images">
+      <div class="project-images__pair">
+        <img class="project-images__image" src="images/projects/portrait/01.jpg" alt="" loading="lazy">
+        <img class="project-images__image" src="images/projects/portrait/02.jpg" alt="" loading="lazy">
+      </div>
+
+      <img class="project-images__image project-images__image--wide" src="images/projects/portrait/03.jpg" alt="" loading="lazy">
+    </section>
+  </main>
+
+  <!-- המפה הקטנה של העמוד שמופיעה כשגוללים -->
+  <script src="project.js"></script>
+</body>
+</html>

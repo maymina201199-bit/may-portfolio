@@ -8,10 +8,10 @@
 </head>
 <body class="home-page">
   <!--
-    עמוד פרויקט. כל עמוד פרויקט בנוי באותה צורה:
-    החלק העליון כמו בעמוד הבית (התפריט שקוף יותר), שורה עם שם הפרויקט והתחום,
-    ואז דימוי משמאל וטקסט עם כפתור מימין.
-    כדי לבנות עמוד לפרויקט חדש: מעתיקים את הקובץ הזה ומחליפים שם, תחום, דימוי וטקסט.
+    עמוד פרויקט. כל עמודי הפרויקטים בנויים באותה צורה:
+    החלק העליון כמו בעמוד הבית (התפריט שקוף יותר), שורה עם שם הפרויקט ו-IMAGES,
+    דימוי גדול משמאל וטקסט מימין, ומתחת שאר הדימויים: שניים זה ליד זה, ואחד רחב, וחוזר חלילה.
+    הדימויים של הפרויקט נמצאים בתיקייה images/projects/1984-2025.
   -->
   <header class="home-header">
     <!-- השם מוביל חזרה לעמוד הבית -->
@@ -31,26 +31,70 @@
       </ul>
     </nav>
 
-    <!-- שורת הפרויקט: שם, תחום וטלפון, על הקו התחתון של החלק העליון -->
+    <!-- שורת הפרויקט: שם הפרויקט, IMAGES וטלפון, על הקו התחתון של החלק העליון -->
     <p class="project-meta project-meta--title">1984 / 2025</p>
-    <p class="project-meta project-meta--field">Graphic &amp; Typographic Design</p>
+    <p class="project-meta project-meta--field">IMAGES</p>
     <p class="home-contact home-contact--phone">+972-54-9199429</p>
   </header>
 
-  <main class="project-intro">
-    <img class="project-intro__image" src="images/project-1984-2025-cover.jpg" alt="החוברת 1984 / 2025 פתוחה">
-
-    <div class="project-intro__text">
+  <main class="project-page">
+    <!-- הפתיחה: דימוי גדול משמאל וטקסט מימין -->
+    <section class="project-intro">
+      <img class="project-intro__image" src="images/projects/1984-2025/00-cover.jpg" alt="1984 / 2025">
       <p class="project-intro__description">
-        A booklet exploring the tight and absurd parallel between the reality<br>
-        show "Big Brother" and George Orwell’s dystopian novel "1984".<br>
-        How did reality show creators manage to transform a dystopia into<br>
-        such a desirable cultural model? What does that say about us — as a society and as individuals?
+        A booklet exploring the tight and absurd parallel between the reality show "Big Brother" and George Orwell’s dystopian novel "1984".<br>
+        How did reality show creators manage to transform a dystopia into such a desirable cultural model? What does that say about us,<br>
+        as a society and as individuals?
       </p>
+    </section>
 
-      <!-- הכפתור: עוד לא מוביל לשום מקום -->
-      <button class="project-button" type="button">view project</button>
-    </div>
+    <!-- שאר הדימויים של הפרויקט -->
+    <section class="project-images">
+      <div class="project-images__pair">
+        <img class="project-images__image" src="images/projects/1984-2025/01.jpg" alt="" loading="lazy">
+        <img class="project-images__image" src="images/projects/1984-2025/02.jpg" alt="" loading="lazy">
+      </div>
+
+      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/03.jpg" alt="" loading="lazy">
+
+      <div class="project-images__pair">
+        <img class="project-images__image" src="images/projects/1984-2025/04.jpg" alt="" loading="lazy">
+        <img class="project-images__image" src="images/projects/1984-2025/05.jpg" alt="" loading="lazy">
+      </div>
+
+      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/06.jpg" alt="" loading="lazy">
+
+      <div class="project-images__pair">
+        <img class="project-images__image" src="images/projects/1984-2025/07.jpg" alt="" loading="lazy">
+        <img class="project-images__image" src="images/projects/1984-2025/08.jpg" alt="" loading="lazy">
+      </div>
+
+      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/09.jpg" alt="" loading="lazy">
+
+      <div class="project-images__pair">
+        <img class="project-images__image" src="images/projects/1984-2025/10.jpg" alt="" loading="lazy">
+        <img class="project-images__image" src="images/projects/1984-2025/11.jpg" alt="" loading="lazy">
+      </div>
+
+      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/12.jpg" alt="" loading="lazy">
+
+      <div class="project-images__pair">
+        <img class="project-images__image" src="images/projects/1984-2025/13.jpg" alt="" loading="lazy">
+        <img class="project-images__image" src="images/projects/1984-2025/14.jpg" alt="" loading="lazy">
+      </div>
+
+      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/15.jpg" alt="" loading="lazy">
+
+      <div class="project-images__pair">
+        <img class="project-images__image" src="images/projects/1984-2025/16.jpg" alt="" loading="lazy">
+        <img class="project-images__image" src="images/projects/1984-2025/17.jpg" alt="" loading="lazy">
+      </div>
+
+      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/18.jpg" alt="" loading="lazy">
+    </section>
   </main>
+
+  <!-- המפה הקטנה של העמוד שמופיעה כשגוללים -->
+  <script src="project.js"></script>
 </body>
 </html>

@@ -27,7 +27,8 @@
      לכן כל המידות של עמוד הפרויקט מוקטנות באותו יחס (15/18), כדי שהיחסים יישארו כמו בפיגמה */
   --project-scale: calc(15 / 18);
   --project-meta-size: var(--home-text-size);              /* שם הפרויקט והתחום: כמו "may mina ." */
-  --project-text-size: calc(26px * var(--project-scale));  /* הטקסט והכפתור (26px בפיגמה) */
+  --project-text-size: calc(34px * var(--project-scale));  /* הטקסט ליד הדימוי הגדול (34px בפיגמה) */
+  --project-text-line: calc(36px * var(--project-scale));  /* גובה שורה של הטקסט (36px בפיגמה) */
   --menu-dim-opacity: 0.4;     /* עמוד פרויקט: התפריט שקוף יותר */
   --intro-letter-size: 100px; /* האות במסך הפתיחה */
   --cursor-label-size: 11px; /* התווית [ NEXT ] שליד העכבר */
@@ -35,15 +36,18 @@
   /* ריווחים */
   --space-page: 16px;
   /* עמוד הבית (המספרים מהפריים ברוחב 1440px) */
-  --home-header-height: 222px;   /* החלק השחור שמעל הדימויים */
+  --home-header-height: 222px;   /* החלק העליון בעמודי הפרויקטים */
+  --home-header-height-compact: 170px; /* החלק העליון בעמוד הבית: נמוך יותר, הגריד מתחיל גבוה יותר */
   --space-home-top: 17px;        /* מרחק השם והתפריט מלמעלה */
   --space-home-edge: 14px;       /* מרחק השם מהקצה השמאלי */
   /* עמוד פרויקט (המספרים מהפריים ברוחב 1440px) */
   --space-project-edge: var(--space-home-edge); /* הדימוי ושם הפרויקט מיושרים ל-"may mina ." */
-  --space-project-top: calc(39px * var(--project-scale));  /* מהשורה של שם הפרויקט עד הדימוי */
-  --space-project-gap: 22px;      /* בין הדימוי לטקסט */
-  --project-button-width: calc(286px * var(--project-scale));
-  --project-button-height: calc(78px * var(--project-scale));
+  --space-project-intro-top: calc(26px * var(--project-scale)); /* מהשורה של שם הפרויקט עד הדימוי */
+  --space-project-images-gap: calc(15px * var(--project-scale)); /* בין הדימויים של הפרויקט */
+  --minimap-width: 160px;         /* המפה הקטנה של העמוד */
+  --minimap-height: 285px;
+  --minimap-right: calc(100% * 70 / 1440); /* מרחק מהקצה הימני, כמו בפיגמה */
+  --minimap-bottom: 24px;         /* מרחק מתחתית המסך */
   --space-counter-top: 9px;        /* המספור: מרחק מהקצה העליון של הדימוי */
   --cursor-label-gap: 10px;      /* רווח בין הסוגריים למילה ב-[ NEXT ] */
   /* עמוד התהליך (המספרים מהפריים ברוחב 1440px) */
@@ -130,6 +134,11 @@ body {
 .home-header {
   position: relative;
   height: var(--home-header-height);
+}
+
+/* בעמוד הבית החלק העליון נמוך יותר, כדי שהגריד יתחיל גבוה יותר */
+.home-header--compact {
+  height: var(--home-header-height-compact);
 }
 
 .home-name {
@@ -432,6 +441,59 @@ body {
   }
 }
 
+/* ===== מפה קטנה של העמוד (minimap), בעמודי הפרויקטים ===== */
+/* קבועה על המסך בצד ימין, ומופיעה כשמתחילים לגלול (project.js) */
+.minimap {
+  position: fixed;
+  right: var(--minimap-right);
+  bottom: var(--minimap-bottom);
+  z-index: 5;
+  width: var(--minimap-width);
+  height: var(--minimap-height);
+  overflow: hidden;
+  background-color: var(--color-home-background);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.minimap.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* העותק המוקטן של העמוד */
+.minimap__content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.minimap__content .project-page {
+  margin: 0;
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+/* המסגרת הלבנה: מה שרואים עכשיו על המסך */
+.minimap__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border: var(--line-width) solid var(--color-home-text);
+  pointer-events: none;
+}
+
+/* בטלפון אין מפה */
+@media (max-width: 700px) {
+  .minimap {
+    display: none;
+  }
+}
+
 /* ===== עמוד פרויקט ===== */
 /* התפריט שקוף יותר. "works" נשאר באפור שלו */
 .project-menu .home-menu__list {
@@ -455,77 +517,83 @@ body {
   left: calc(100% * 720 / 1440);
 }
 
-/* דימוי משמאל (856 על 589 בפיגמה) וטקסט מימין */
+/* כל התוכן של עמוד הפרויקט: מיושר ל-"may mina ." משמאל, ובאותו מרחק מימין */
+.project-page {
+  margin: var(--space-project-intro-top) var(--space-project-edge) var(--space-project-edge);
+}
+
+/* הפתיחה: דימוי גדול משמאל (902 על 603 בפיגמה) וטקסט מימין (453 רוחב) */
 .project-intro {
   display: grid;
-  grid-template-columns: 856fr 472fr;
-  column-gap: var(--space-project-gap);
-  margin: var(--space-project-top) var(--space-edge-line) var(--space-edge) var(--space-project-edge);
+  grid-template-columns: 902fr 453fr;
+  column-gap: calc(100% * 31 / 1386);
+  margin-bottom: var(--space-project-images-gap);
 }
 
 .project-intro__image {
   display: block;
   width: 100%;
-  aspect-ratio: 856 / 589;
+  aspect-ratio: 902 / 603;
   object-fit: cover;
-  object-position: left 24%; /* החיתוך כמו בפיגמה */
-}
-
-/* הטקסט למעלה, והכפתור בתחתית, בקו אחד עם התחתית של הדימוי */
-.project-intro__text {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
 }
 
 .project-intro__description {
   margin: 0;
   font-size: var(--project-text-size);
-  line-height: normal;
+  line-height: var(--project-text-line);
 }
 
-/* הכפתור: מסגרת לבנה. כשהעכבר עליו הוא מתמלא בלבן והטקסט נהיה שחור */
-.project-button {
-  width: var(--project-button-width);
-  height: var(--project-button-height);
-  border: var(--line-width) solid var(--color-home-text);
-  background-color: transparent;
-  color: var(--color-home-text);
-  font-family: var(--font-home);
-  font-size: var(--project-text-size);
-  cursor: pointer;
-  transition: background-color 200ms ease, color 200ms ease;
+/* שאר הדימויים: שניים זה ליד זה (685 על 856 בפיגמה), ואחד רחב (1385 על 589) */
+.project-images {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-project-images-gap);
 }
 
-.project-button:hover {
-  background-color: var(--color-home-text);
-  color: var(--color-home-background);
+.project-images__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-project-images-gap);
 }
 
-/* טלפון: הדימוי, ומתחתיו הטקסט והכפתור */
+.project-images__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 685 / 856;
+  object-fit: cover;
+}
+
+.project-images__image--wide {
+  aspect-ratio: 1385 / 589;
+}
+
+/* טלפון: הכול בעמודה אחת */
 @media (max-width: 700px) {
   .project-meta {
     position: static;
     line-height: normal;
   }
 
-  .project-intro {
-    grid-template-columns: 1fr;
-    row-gap: 24px;
+  .project-page {
     margin: 24px var(--space-page) var(--space-page);
   }
 
-  .project-intro__text {
-    gap: 32px;
+  .project-intro {
+    grid-template-columns: 1fr;
+    row-gap: 24px;
   }
 
   .project-intro__description {
     font-size: var(--home-text-size);
+    line-height: normal;
   }
 
   .project-intro__description br {
     display: none; /* בטלפון השורות נשברות לבד */
+  }
+
+  .project-images__pair {
+    grid-template-columns: 1fr;
   }
 }
 

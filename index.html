@@ -11,13 +11,12 @@
 <body class="home-page">
   <!-- מסך הפתיחה: האותיות של "may mina" מתחלפות אחת אחרי השנייה באמצע המסך.
        מופיע בכל פעם שהעמוד נטען או מתרענן -->
-
   <div class="intro" aria-hidden="true">
     <span class="intro__letter">m</span>
   </div>
 
-  <!-- החלק העליון: שם, תפריט ופרטי קשר -->
-  <header class="home-header">
+  <!-- החלק העליון: שם ותפריט (בעמוד הבית הוא נמוך יותר, home-header--compact) -->
+  <header class="home-header home-header--compact">
     <h1 class="home-name">may mina .</h1>
 
     <!-- קישור לעמוד התהליך: עיגול קטן בפינה הימנית העליונה -->
@@ -34,164 +33,49 @@
         <li>social media</li>
       </ul>
     </nav>
-
-    <p class="home-contact home-contact--email">email: maymina201199@gmail.com</p>
-    <p class="home-contact home-contact--phone">+972-54-9199429</p>
   </header>
 
   <!--
     הפרויקטים מסודרים בשורות של שלושה (<section class="home-row">). כל שורה כוללת
     את שלושת הריבועים ומתחתם את שלושת השמות, באותו סדר משמאל לימין.
-    כדי להוסיף שורה: מעתיקים <section class="home-row"> שלם ומחליפים דימויים ושמות.
-
-    בכל ריבוע יכולים להיות כמה דימויים (class="home-gallery__slide").
-    הראשון מסומן is-active ומופיע קודם. לחיצה בחצי הימני: הבא, בחצי השמאלי: הקודם.
-    בדימוי האחרון מופיע "explore the project", ולחיצה מובילה לכתובת שב-data-project-url
-    (כרגע ריק, עד שיהיו עמודי פרויקטים).
-    הדימויים של כל פרויקט נמצאים בתיקייה images/projects/<שם הפרויקט>.
+    כל ריבוע הוא קישור לעמוד של הפרויקט (ל-Manyone עוד אין עמוד).
+    כדי להוסיף שורה: מעתיקים <section class="home-row"> שלם ומחליפים דימויים, קישורים ושמות.
   -->
   <main class="home-projects">
 
     <!-- שורה 1 -->
     <section class="home-row">
       <div class="home-gallery">
-        <!-- manyone TLV -->
-        <div class="home-gallery__item" data-project-url="">
+        <div class="home-gallery__item">
           <video class="home-gallery__slide is-active" src="images/home-manyone.mp4" poster="images/home-manyone-poster.jpg" autoplay muted loop playsinline aria-label="Manyone"></video>
         </div>
-        <!-- 1984 -->
-        <div class="home-gallery__item" data-project-url="1984-2025.html">
+        <a class="home-gallery__item" href="1984-2025.html">
           <img class="home-gallery__slide is-active" src="images/home-row2-booklet.jpg" alt="1984 / 2025">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/01.jpg" alt="1984 01" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/02.jpg" alt="1984 02" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/03.jpg" alt="1984 03" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/04.jpg" alt="1984 04" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/05.jpg" alt="1984 05" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/06.jpg" alt="1984 06" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/07.jpg" alt="1984 07" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/08.jpg" alt="1984 08" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/09.jpg" alt="1984 09" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/10.jpg" alt="1984 10" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/11.jpg" alt="1984 11" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/12.jpg" alt="1984 12" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/13.jpg" alt="1984 13" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/14.jpg" alt="1984 14" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/15.jpg" alt="1984 15" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/16.jpg" alt="1984 16" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/17.jpg" alt="1984 17" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/1984-2025/18.jpg" alt="1984 18" loading="lazy">
-        </div>
-        <!-- Modern Warfare -->
-        <div class="home-gallery__item" data-project-url="">
-          <img class="home-gallery__slide is-active" src="images/projects/modern-warfare/01.jpg" alt="Modern Warfare 01">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/02.jpg" alt="Modern Warfare 02" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/03.jpg" alt="Modern Warfare 03" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/04.jpg" alt="Modern Warfare 04" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/05.jpg" alt="Modern Warfare 05" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/06.jpg" alt="Modern Warfare 06" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/07.jpg" alt="Modern Warfare 07" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/08.jpg" alt="Modern Warfare 08" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/09.jpg" alt="Modern Warfare 09" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/10.jpg" alt="Modern Warfare 10" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/11.jpg" alt="Modern Warfare 11" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/12.jpg" alt="Modern Warfare 12" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/13.jpg" alt="Modern Warfare 13" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/14.jpg" alt="Modern Warfare 14" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/15.jpg" alt="Modern Warfare 15" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/16.jpg" alt="Modern Warfare 16" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/17.jpg" alt="Modern Warfare 17" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/18.jpg" alt="Modern Warfare 18" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/19.jpg" alt="Modern Warfare 19" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/20.jpg" alt="Modern Warfare 20" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/21.jpg" alt="Modern Warfare 21" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/22.jpg" alt="Modern Warfare 22" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/23.jpg" alt="Modern Warfare 23" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/24.jpg" alt="Modern Warfare 24" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/25.jpg" alt="Modern Warfare 25" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/26.jpg" alt="Modern Warfare 26" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/27.jpg" alt="Modern Warfare 27" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/28.jpg" alt="Modern Warfare 28" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/29.jpg" alt="Modern Warfare 29" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/30.jpg" alt="Modern Warfare 30" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/31.jpg" alt="Modern Warfare 31" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/32.jpg" alt="Modern Warfare 32" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/33.jpg" alt="Modern Warfare 33" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/modern-warfare/34.jpg" alt="Modern Warfare 34" loading="lazy">
-        </div>
+        </a>
+        <a class="home-gallery__item" href="hevel.html">
+          <img class="home-gallery__slide is-active" src="images/home-row2-portrait.jpg" alt="Hevel">
+        </a>
       </div>
 
       <div class="home-titles">
         <p class="home-titles__name">manyone TLV / SOCIAL MEDIA</p>
         <p class="home-titles__name">1984 / 2025 /GRAPHIC &amp; TYPOGRAPHIC DESIGN</p>
-        <p class="home-titles__name">Modern Warfare /GRAPHIC &amp; TYPOGRAPHIC DESIGN</p>
+        <p class="home-titles__name">Hevel /BRANDING</p>
       </div>
     </section>
 
     <!-- שורה 2 -->
     <section class="home-row">
       <div class="home-gallery">
-        <!-- lifta لفتا -->
-        <div class="home-gallery__item" data-project-url="">
+        <a class="home-gallery__item" href="lifta.html">
           <img class="home-gallery__slide is-active" src="images/projects/lifta/00-cover.jpg" alt="lifta">
-          <img class="home-gallery__slide" src="images/projects/lifta/01.jpg" alt="lifta لفتا 01" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/02.jpg" alt="lifta لفتا 02" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/03.jpg" alt="lifta لفتا 03" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/04.jpg" alt="lifta لفتا 04" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/05.jpg" alt="lifta لفتا 05" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/06.jpg" alt="lifta لفتا 06" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/07.jpg" alt="lifta لفتا 07" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/08.jpg" alt="lifta لفتا 08" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/09.jpg" alt="lifta لفتا 09" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/10.jpg" alt="lifta لفتا 10" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/11.jpg" alt="lifta لفتا 11" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/12.jpg" alt="lifta لفتا 12" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/13.jpg" alt="lifta لفتا 13" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/14.jpg" alt="lifta لفتا 14" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/15.jpg" alt="lifta لفتا 15" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/16.jpg" alt="lifta لفتا 16" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/17.jpg" alt="lifta لفتا 17" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/18.jpg" alt="lifta لفتا 18" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/19.jpg" alt="lifta لفتا 19" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/20.jpg" alt="lifta لفتا 20" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/21.jpg" alt="lifta لفتا 21" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/22.jpg" alt="lifta لفتا 22" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/23.jpg" alt="lifta لفتا 23" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/24.jpg" alt="lifta لفتا 24" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/25.jpg" alt="lifta لفتا 25" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/26.jpg" alt="lifta لفتا 26" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/27.jpg" alt="lifta لفتا 27" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/28.jpg" alt="lifta لفتا 28" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/29.jpg" alt="lifta لفتا 29" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/30.jpg" alt="lifta لفتا 30" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/31.jpg" alt="lifta لفتا 31" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/32.jpg" alt="lifta لفتا 32" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/lifta/33.jpg" alt="lifta لفتا 33" loading="lazy">
-        </div>
-        <!-- Portrait -->
-        <div class="home-gallery__item" data-project-url="">
+        </a>
+        <a class="home-gallery__item" href="portrait.html">
           <img class="home-gallery__slide home-gallery__slide--face is-active" src="images/home-photo-face.jpg" alt="Portrait">
-          <img class="home-gallery__slide" src="images/projects/portrait/01.jpg" alt="Portrait 01" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/portrait/02.jpg" alt="Portrait 02" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/portrait/03.jpg" alt="Portrait 03" loading="lazy">
-        </div>
-        <!-- Sabra -->
-        <div class="home-gallery__item" data-project-url="">
+        </a>
+        <a class="home-gallery__item" href="sabra.html">
           <img class="home-gallery__slide is-active" src="images/home-photo-cactus.jpg" alt="Sabra">
-          <img class="home-gallery__slide" src="images/projects/sabra/01.jpg" alt="Sabra 01" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/02.jpg" alt="Sabra 02" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/03.jpg" alt="Sabra 03" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/04.jpg" alt="Sabra 04" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/05.jpg" alt="Sabra 05" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/06.jpg" alt="Sabra 06" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/07.jpg" alt="Sabra 07" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/08.jpg" alt="Sabra 08" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/09.jpg" alt="Sabra 09" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/10.jpg" alt="Sabra 10" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/11.jpg" alt="Sabra 11" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/12.jpg" alt="Sabra 12" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/13.jpg" alt="Sabra 13" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sabra/14.jpg" alt="Sabra 14" loading="lazy">
-        </div>
+        </a>
       </div>
 
       <div class="home-titles">
@@ -204,57 +88,25 @@
     <!-- שורה 3 -->
     <section class="home-row">
       <div class="home-gallery">
-        <!-- Sela -->
-        <div class="home-gallery__item" data-project-url="">
+        <a class="home-gallery__item" href="sela.html">
           <video class="home-gallery__slide home-gallery__slide--stone is-active" src="images/home-row2-stone.mp4" poster="images/home-row2-stone-poster.jpg" autoplay muted loop playsinline aria-label="Sela"></video>
-          <img class="home-gallery__slide" src="images/projects/sela/01.jpg" alt="Sela 01" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sela/02.jpg" alt="Sela 02" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sela/03.jpg" alt="Sela 03" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sela/04.jpg" alt="Sela 04" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/sela/05.jpg" alt="Sela 05" loading="lazy">
-        </div>
-        <!-- Posters -->
-        <div class="home-gallery__item" data-project-url="">
+        </a>
+        <a class="home-gallery__item" href="posters.html">
           <img class="home-gallery__slide is-active" src="images/projects/posters/00-cover.jpg" alt="Posters">
-          <img class="home-gallery__slide" src="images/projects/posters/01.jpg" alt="Posters 01" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/posters/02.jpg" alt="Posters 02" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/posters/03.jpg" alt="Posters 03" loading="lazy">
-        </div>
-        <!-- Hevel -->
-        <div class="home-gallery__item" data-project-url="">
-          <img class="home-gallery__slide is-active" src="images/home-row2-portrait.jpg" alt="Hevel">
-          <img class="home-gallery__slide" src="images/projects/hevel/01.jpg" alt="Hevel 01" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/hevel/02.jpg" alt="Hevel 02" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/hevel/03.jpg" alt="Hevel 03" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/hevel/04.jpg" alt="Hevel 04" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/hevel/05.jpg" alt="Hevel 05" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/hevel/06.jpg" alt="Hevel 06" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/hevel/07.jpg" alt="Hevel 07" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/hevel/08.jpg" alt="Hevel 08" loading="lazy">
-          <img class="home-gallery__slide" src="images/projects/hevel/09.jpg" alt="Hevel 09" loading="lazy">
-        </div>
+        </a>
+        <a class="home-gallery__item" href="modern-warfare.html">
+          <img class="home-gallery__slide is-active" src="images/projects/modern-warfare/01.jpg" alt="Modern Warfare">
+        </a>
       </div>
 
       <div class="home-titles">
         <p class="home-titles__name">Sela /UX/UI DESIGN</p>
         <p class="home-titles__name">Posters /GRAPHIC DESIGN / IMAGEMAKING</p>
-        <p class="home-titles__name">Hevel /BRANDING</p>
+        <p class="home-titles__name">Modern Warfare /GRAPHIC &amp; TYPOGRAPHIC DESIGN</p>
       </div>
     </section>
 
   </main>
-
-  <!-- התווית שעוקבת אחרי העכבר מעל הדימויים -->
-  <div class="cursor-label" aria-hidden="true">
-    <!-- [ NEXT ] / [ PREV ] -->
-    <span class="cursor-label__bracket">[</span><span class="cursor-label__text">next</span><span class="cursor-label__bracket">]</span>
-
-    <!-- הסמן הצהוב עם החץ: מופיע בדימוי האחרון, במקום NEXT -->
-    <span class="cursor-label__arrow">
-      <img src="images/arrow-right.png" alt="">
-      <span class="cursor-label__arrow-cover"></span>
-    </span>
-  </div>
 
   <script>
     // ===== מסך הפתיחה =====
@@ -305,172 +157,6 @@
       video.addEventListener("ended", function () {
         video.currentTime = 0;
         video.play();
-      });
-    });
-
-    // ===== התווית [ NEXT ] / [ PREV ] שעוקבת אחרי העכבר =====
-    const label = document.querySelector(".cursor-label");
-    const labelText = document.querySelector(".cursor-label__text");
-
-    // התווית יושבת קצת מימין לעכבר
-    const LABEL_OFFSET_X = 18;
-    const LABEL_OFFSET_Y = -6;
-    // כמה מהר התווית משיגה את העכבר (מספר קטן = נגררת יותר לאט)
-    const LABEL_FOLLOW = 0.18;
-
-    let mouseX = 0, mouseY = 0; // איפה העכבר
-    let labelX = 0, labelY = 0; // איפה התווית
-
-    // בכל פריים התווית זזה קצת לכיוון העכבר, וכך היא נגררת אחריו ברכות
-    function moveLabel() {
-      labelX += (mouseX - labelX) * LABEL_FOLLOW;
-      labelY += (mouseY - labelY) * LABEL_FOLLOW;
-      label.style.transform = `translate(${labelX + LABEL_OFFSET_X}px, ${labelY + LABEL_OFFSET_Y}px)`;
-      requestAnimationFrame(moveLabel);
-    }
-    requestAnimationFrame(moveLabel);
-
-    // באיזה חצי של הריבוע העכבר נמצא: ימני = הבא, שמאלי = הקודם
-    function isRightHalf(item, x) {
-      const box = item.getBoundingClientRect();
-      return x > box.left + box.width / 2;
-    }
-
-    // האם רואים עכשיו את הדימוי האחרון בריבוע
-    function isLastSlide(item) {
-      const total = item.querySelectorAll(".home-gallery__slide").length;
-      return Number(item.dataset.current || 0) === total - 1;
-    }
-
-    // מה התווית אומרת: בדימוי האחרון, בחצי הימני, היא מזמינה לעמוד הפרויקט
-    function updateLabel(item, x) {
-      const explore = isRightHalf(item, x) && isLastSlide(item);
-      label.classList.toggle("is-explore", explore);
-      labelText.textContent = explore ? "explore the project" : (isRightHalf(item, x) ? "next" : "prev");
-    }
-
-    // ===== המספור 01 | 02 | 03 =====
-    // נבנה לבד לפי מספר הדימויים בריבוע, והמספר של הדימוי הנוכחי מסומן בקו תחתון
-    function updateCounter(item, currentIndex) {
-      const counter = item.querySelector(".home-gallery__counter");
-      const total = item.querySelectorAll(".home-gallery__slide").length;
-      const numbers = [];
-      for (let i = 0; i < total; i++) {
-        const number = String(i + 1).padStart(2, "0");
-        numbers.push(i === currentIndex ? `<span class="is-current">${number}</span>` : number);
-      }
-      counter.innerHTML = numbers.join(" | ");
-    }
-
-    // ===== מעבר בין דימויים בתוך ריבוע =====
-    const SLIDE_DURATION = 900;
-    const SLIDE_EASING = "cubic-bezier(0.76, 0, 0.24, 1)";
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    function showSlide(item, direction) {
-      const slides = [...item.querySelectorAll(".home-gallery__slide")];
-      if (slides.length < 2 || item.dataset.moving) return; // אין לאן לעבור, או שעוד באמצע מעבר
-
-      const current = slides.findIndex(slide => slide.classList.contains("is-active"));
-      const next = (current + direction + slides.length) % slides.length;
-      const oldSlide = slides[current];
-      const newSlide = slides[next];
-
-      newSlide.classList.add("is-active");
-      if (newSlide.tagName === "VIDEO") newSlide.play();
-      updateCounter(item, next);
-      item.dataset.current = next; // זוכרים איזה דימוי מוצג עכשיו
-
-      function finish() {
-        oldSlide.classList.remove("is-active");
-        if (oldSlide.tagName === "VIDEO") oldSlide.pause();
-        newSlide.style.zIndex = "";
-        delete item.dataset.moving;
-      }
-
-      if (reduceMotion) return finish();
-      item.dataset.moving = "true";
-
-      // הדימוי החדש נחשף מלמעלה למטה (הבא) או מלמטה למעלה (הקודם),
-      // והישן זז קצת באותו כיוון מתחתיו
-      newSlide.style.zIndex = 1;
-      const hiddenEdge = direction > 0 ? "inset(0 0 100% 0)" : "inset(100% 0 0 0)";
-      const push = direction > 0 ? "10%" : "-10%";
-
-      newSlide.animate(
-        [{ clipPath: hiddenEdge }, { clipPath: "inset(0 0 0 0)" }],
-        { duration: SLIDE_DURATION, easing: SLIDE_EASING }
-      );
-      oldSlide.animate(
-        [{ transform: "translateY(0)" }, { transform: `translateY(${push})` }],
-        { duration: SLIDE_DURATION, easing: SLIDE_EASING }
-      ).onfinish = finish;
-    }
-
-    // ===== חזרה לדימוי הראשון =====
-    function resetToFirstSlide(item) {
-      const slides = [...item.querySelectorAll(".home-gallery__slide")];
-      slides.forEach(function (slide, index) {
-        slide.getAnimations().forEach(animation => animation.cancel()); // עוצרים מעבר שבאמצע
-        slide.style.zIndex = "";
-        slide.classList.toggle("is-active", index === 0);
-        if (slide.tagName === "VIDEO") {
-          if (index === 0) slide.play(); else slide.pause();
-        }
-      });
-      delete item.dataset.moving;
-      item.dataset.current = 0;
-      updateCounter(item, 0);
-    }
-
-    // כמה זמן מחכים אחרי שהעכבר יצא, עד שהדימוי נעלם והמסגרת חזרה (קצת יותר מ--reveal-duration ב-styles.css)
-    const HIDE_DURATION = 600;
-
-    // ===== חיבור הכול לכל ריבוע בגלריה =====
-    document.querySelectorAll(".home-gallery__item").forEach(function (item) {
-      // מוסיפים לכל ריבוע את המספור שלו
-      const counter = document.createElement("p");
-      counter.className = "home-gallery__counter";
-      item.appendChild(counter);
-      updateCounter(item, 0);
-
-      let resetTimer; // הטיימר של החזרה לדימוי הראשון
-
-      item.addEventListener("mouseenter", function (event) {
-        clearTimeout(resetTimer); // חזרנו לפני שהספיק להתאפס: נשארים באותו דימוי
-        // התווית מתחילה מהמקום של העכבר, ולא עפה מהפינה
-        mouseX = labelX = event.clientX;
-        mouseY = labelY = event.clientY;
-        label.classList.add("is-visible");
-      });
-
-      item.addEventListener("mousemove", function (event) {
-        mouseX = event.clientX;
-        mouseY = event.clientY;
-        updateLabel(item, event.clientX);
-      });
-
-      item.addEventListener("mouseleave", function () {
-        label.classList.remove("is-visible");
-
-        // כשיוצאים מהדימוי הוא חוזר לדימוי הראשון,
-        // אחרי שהדימוי נעלם, כדי שההחלפה לא תיראה
-        resetTimer = setTimeout(function () {
-          resetToFirstSlide(item);
-        }, HIDE_DURATION);
-      });
-
-      item.addEventListener("click", function (event) {
-        const goingForward = isRightHalf(item, event.clientX);
-
-        // בדימוי האחרון, "הבא" מוביל לעמוד הפרויקט (הכתובת ב-data-project-url)
-        if (goingForward && isLastSlide(item)) {
-          if (item.dataset.projectUrl) window.location.href = item.dataset.projectUrl;
-          return;
-        }
-
-        showSlide(item, goingForward ? 1 : -1);
-        updateLabel(item, event.clientX);
       });
     });
   </script>
