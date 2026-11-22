@@ -20,8 +20,8 @@
   --contact-drop: 0.18em; /* כמה פרטי הקשר יורדים כדי לשבת על הקו של הדימויים */
   --counter-size: 18px; /* המספור 01 | 02 | 03 על דימוי פתוח */
   --project-name-size: 15px; /* השמות של הפרויקטים מתחת לדימויים */
-  --space-titles-top: 3px;   /* בין הדימויים לשמות */
-  --home-titles-height: 54px; /* פס השמות: מהדימויים של שורה אחת עד הדימויים של השורה הבאה */
+  --space-titles-top: 15px;  /* בין הדימויים לשמות (בפיגמה: הדימוי נגמר ב-899, השם ב-914) */
+  --home-titles-height: 54px; /* מהדימויים של שורה אחת עד הדימויים של השורה הבאה (899 עד 953 בפיגמה) */
   --process-link-size: 14px; /* העיגול שמוביל לעמוד התהליך */
   /* עמוד פרויקט: בפיגמה הוא בנוי לפי "may mina ." בגודל 18px, ובאתר "may mina ." בגודל 15px.
      לכן כל המידות של עמוד הפרויקט מוקטנות באותו יחס (15/18), כדי שהיחסים יישארו כמו בפיגמה */
@@ -328,11 +328,11 @@ body {
   font-size: var(--project-name-size);
 }
 
-/* כל שם זז קצת פנימה מתחילת העמודה שלו, כמו בפיגמה (18px, 26px, 10px).
+/* כל שם זז קצת פנימה מתחילת העמודה שלו, כמו בפיגמה (29px, 16px, 3px).
    העמודה (1, 2 או 3) נקבעת ב-JavaScript, כי היא משתנה כשמסננים לפי קטגוריה */
-.home-gallery__item[data-column="1"] .home-gallery__name { padding-left: calc(100% * 18 / 480); }
-.home-gallery__item[data-column="2"] .home-gallery__name { padding-left: calc(100% * 26 / 480); }
-.home-gallery__item[data-column="3"] .home-gallery__name { padding-left: calc(100% * 10 / 480); }
+.home-gallery__item[data-column="1"] .home-gallery__name { padding-left: calc(100% * 29 / 480); }
+.home-gallery__item[data-column="2"] .home-gallery__name { padding-left: calc(100% * 16 / 480); }
+.home-gallery__item[data-column="3"] .home-gallery__name { padding-left: calc(100% * 3 / 480); }
 
 /* ===== כניסה לעמוד פרויקט: 4 דימויים עולים על המסך (כמו באתר crxtianhub.com) ===== */
 /* מסך שחור מעל העמוד. 4 דימויים של הפרויקט עולים בו אחד אחרי השני, ואז הוא נעלם
