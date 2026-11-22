@@ -56,10 +56,14 @@
   --pw-leave-duration: 850ms;      /* הדימויים עפים למקום שלהם בעמוד והרקע השחור נעלם */
   --pw-fly-easing: cubic-bezier(0.65, 0, 0.35, 1); /* ease-in-out: מתחיל ונעצר ברכות */
   --pw-easing: cubic-bezier(0.22, 0.65, 0.3, 1);
-  --minimap-width: 160px;         /* המפה הקטנה של העמוד */
-  --minimap-height: 285px;
-  --minimap-right: calc(100% * 70 / 1440); /* מרחק מהקצה הימני, כמו בפיגמה */
+  /* המפה הקטנה של העמוד והכפתור "Next project" (312 על 263 ו-115 על 24 בפיגמה, מוקטנים כמו שאר העמוד) */
+  --minimap-width: calc(312px * var(--project-scale));
+  --minimap-height: calc(263px * var(--project-scale));
+  --minimap-gap: calc(8px * var(--project-scale));
+  --minimap-right: var(--space-project-edge); /* מיושר לשוליים של העמוד */
   --minimap-bottom: 24px;         /* מרחק מתחתית המסך */
+  --next-project-width: calc(115px * var(--project-scale));
+  --next-project-height: calc(24px * var(--project-scale));
   --space-counter-top: 9px;        /* המספור: מרחק מהקצה העליון של הדימוי */
   --cursor-label-gap: 10px;      /* רווח בין הסוגריים למילה ב-[ NEXT ] */
   /* עמוד התהליך (המספרים מהפריים ברוחב 1440px) */
@@ -586,24 +590,47 @@ body {
 
 /* ===== מפה קטנה של העמוד (minimap), בעמודי הפרויקטים ===== */
 /* קבועה על המסך בצד ימין, ומופיעה כשמתחילים לגלול (project.js) */
-.minimap {
+/* המפה והכפתור "Next project" יחד, בפינה הימנית התחתונה */
+.project-dock {
   position: fixed;
   right: var(--minimap-right);
   bottom: var(--minimap-bottom);
   z-index: 5;
-  width: var(--minimap-width);
-  height: var(--minimap-height);
-  overflow: hidden;
-  background-color: var(--color-home-background);
-  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--minimap-gap);
   opacity: 0;
   pointer-events: none;
   transition: opacity 300ms ease;
 }
 
-.minimap.is-visible {
+.project-dock.is-visible {
   opacity: 1;
   pointer-events: auto;
+}
+
+.minimap {
+  position: relative;
+  width: var(--minimap-width);
+  height: var(--minimap-height);
+  overflow: hidden;
+  background-color: var(--color-home-background);
+  cursor: pointer;
+}
+
+/* הכפתור: מלבן לבן עם טקסט שחור (115 על 24 בפיגמה) */
+.next-project {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--next-project-width);
+  height: var(--next-project-height);
+  background-color: var(--color-home-text);
+  color: var(--color-home-background);
+  font-size: var(--project-meta-size);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 /* העותק המוקטן של העמוד */
@@ -632,7 +659,7 @@ body {
 
 /* בטלפון אין מפה */
 @media (max-width: 700px) {
-  .minimap {
+  .project-dock {
     display: none;
   }
 }
@@ -686,29 +713,56 @@ body {
   line-height: var(--project-text-line);
 }
 
-/* שאר הדימויים: שניים זה ליד זה (685 על 856 בפיגמה), ואחד רחב (1385 על 589) */
+/* שאר הדימויים: גריד של 6 עמודות עם רווח קבוע וקטן, כמו בפיגמה.
+   כל דימוי הוא tile, והסוג שלו קובע כמה עמודות הוא תופס (העמוד בונה אותם בסדר קבוע:
+   רחב מלא, גדול + שניים קטנים, שלושה קטנים, שלושה קטנים, רחב מלא, שניים קטנים + גדול, רחב) */
 .project-images {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-flow: dense; /* ממלא את החורים, כך ש"שניים קטנים + גדול" מסתדרים נכון */
   gap: var(--space-project-images-gap);
 }
 
-.project-images__pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-project-images-gap);
+.tile {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
 }
 
 .project-images__image {
   display: block;
   width: 100%;
-  aspect-ratio: 685 / 856;
+  height: 100%;
   object-fit: cover;
 }
 
-.project-images__image--wide {
-  aspect-ratio: 1385 / 589;
+/* רחב מלא: 6 עמודות (1378 על 917 בפיגמה) */
+.tile--full  { grid-column: span 6; aspect-ratio: 1378 / 917; }
+
+/* קטן: 2 עמודות (452 על 362 בפיגמה) */
+.tile--small { grid-column: span 2; aspect-ratio: 452 / 362; }
+.tile--small-left { grid-column: 1 / span 2; aspect-ratio: 452 / 362; }
+
+/* גדול: 4 עמודות וגובה של שני קטנים. הדימוי ממלא אותו בלי להגדיל את השורות */
+.tile--big,
+.tile--big-right {
+  grid-column: span 4;
+  grid-row: span 2;
 }
+
+.tile--big-right { grid-column: 3 / span 4; }
+
+.tile--big .project-images__image,
+.tile--big-right .project-images__image {
+  position: absolute;
+  inset: 0;
+}
+
+/* רחב: 5 עמודות (1155 על 768 בפיגמה) */
+.tile--wide  { grid-column: span 5; aspect-ratio: 1155 / 768; }
+
+/* חצי: 3 עמודות, כשנשארים בסוף רק שני דימויים */
+.tile--half  { grid-column: span 3; aspect-ratio: 452 / 362; }
 
 /* טלפון: הכול בעמודה אחת */
 @media (max-width: 700px) {
@@ -735,8 +789,15 @@ body {
     display: none; /* בטלפון השורות נשברות לבד */
   }
 
-  .project-images__pair {
+  /* בטלפון כל דימוי ברוחב מלא */
+  .project-images {
     grid-template-columns: 1fr;
+  }
+
+  .tile[class*="tile--"] {
+    grid-column: auto;
+    grid-row: auto;
+    aspect-ratio: 3 / 2;
   }
 }
 

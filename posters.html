@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>May Mina | Posters</title>
-  <link rel="stylesheet" href="styles.css?v=20261116j">
+  <link rel="stylesheet" href="styles.css?v=20261122a">
 </head>
 <body class="home-page">
   <!--
     עמוד פרויקט. כל עמודי הפרויקטים בנויים באותה צורה:
     החלק העליון כמו בעמוד הבית (התפריט שקוף יותר), שורה עם שם הפרויקט ו-IMAGES,
-    דימוי גדול משמאל וטקסט מימין, ומתחת שאר הדימויים: שניים זה ליד זה, ואחד רחב, וחוזר חלילה.
+    דימוי גדול משמאל וטקסט מימין, ומתחת שאר הדימויים בגריד של 6 עמודות (כמו בפיגמה):
+    כל דימוי הוא tile, והסוג שלו (full / big / small / wide ...) קובע כמה עמודות הוא תופס.
     הדימויים של הפרויקט נמצאים בתיקייה images/projects/posters.
   -->
   <header class="home-header">
@@ -48,16 +49,13 @@
 
     <!-- שאר הדימויים של הפרויקט -->
     <section class="project-images">
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/posters/01.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/posters/02.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/posters/03.jpg" alt="" loading="lazy">
+      <figure class="tile tile--full"><img class="project-images__image" src="images/projects/posters/01.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--half"><img class="project-images__image" src="images/projects/posters/02.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--half"><img class="project-images__image" src="images/projects/posters/03.jpg" alt="" loading="lazy"></figure>
     </section>
   </main>
 
   <!-- המפה הקטנה של העמוד שמופיעה כשגוללים -->
-  <script src="project.js?v=20261116j"></script>
+  <script src="project.js?v=20261122a"></script>
 </body>
 </html>

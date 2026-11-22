@@ -77,8 +77,13 @@
 // ===== מפה קטנה של העמוד (minimap) =====
 // בעמודי הפרויקטים: כשמתחילים לגלול, בפינה מופיעה גרסה קטנה של כל הדימויים בעמוד,
 // ומסגרת לבנה מסמנת את מה שרואים עכשיו על המסך. לחיצה על המפה קופצת לאותו מקום.
+// מתחת למפה יש כפתור "Next project" לפרויקט הבא.
 
 const page = document.querySelector(".project-page");
+
+// הסדר של עמודי הפרויקטים, כמו בגריד בעמוד הבית. "Next project" מוביל לבא אחריו
+const PROJECT_ORDER = ["modern-warfare", "hevel", "sabra", "portrait", "sela", "lifta",
+                       "1984-2025", "eat-and-drink"];
 
 if (page) {
   // בונים את המפה: עותק מוקטן של כל התוכן של העמוד
@@ -97,7 +102,21 @@ if (page) {
 
   minimap.appendChild(content);
   minimap.appendChild(frame);
-  document.body.appendChild(minimap);
+
+  // הכפתור "Next project" מתחת למפה
+  const current = location.pathname.split("/").pop().replace(".html", "");
+  const next = PROJECT_ORDER[(PROJECT_ORDER.indexOf(current) + 1) % PROJECT_ORDER.length];
+  const nextLink = document.createElement("a");
+  nextLink.className = "next-project";
+  nextLink.href = next + ".html";
+  nextLink.textContent = "Next project";
+
+  // המפה והכפתור יחד, בפינה הימנית התחתונה
+  const dock = document.createElement("div");
+  dock.className = "project-dock";
+  dock.appendChild(minimap);
+  dock.appendChild(nextLink);
+  document.body.appendChild(dock);
 
   // אחרי כמה פיקסלים של גלילה המפה מופיעה
   const SHOW_AFTER_SCROLL = 10;
@@ -125,7 +144,7 @@ if (page) {
     frame.style.transform = `translateY(${frameTop - shift}px)`;
     frame.style.height = frameHeight + "px";
 
-    minimap.classList.toggle("is-visible", window.scrollY > SHOW_AFTER_SCROLL);
+    dock.classList.toggle("is-visible", window.scrollY > SHOW_AFTER_SCROLL);
     minimap.dataset.scale = scale;
     minimap.dataset.shift = shift;
   }

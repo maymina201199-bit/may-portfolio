@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>May Mina | Modern Warfare</title>
-  <link rel="stylesheet" href="styles.css?v=20261116j">
+  <link rel="stylesheet" href="styles.css?v=20261122a">
 </head>
 <body class="home-page">
   <!--
     עמוד פרויקט. כל עמודי הפרויקטים בנויים באותה צורה:
     החלק העליון כמו בעמוד הבית (התפריט שקוף יותר), שורה עם שם הפרויקט ו-IMAGES,
-    דימוי גדול משמאל וטקסט מימין, ומתחת שאר הדימויים: שניים זה ליד זה, ואחד רחב, וחוזר חלילה.
+    דימוי גדול משמאל וטקסט מימין, ומתחת שאר הדימויים בגריד של 6 עמודות (כמו בפיגמה):
+    כל דימוי הוא tile, והסוג שלו (full / big / small / wide ...) קובע כמה עמודות הוא תופס.
     הדימויים של הפרויקט נמצאים בתיקייה images/projects/modern-warfare.
   -->
   <header class="home-header">
@@ -48,86 +49,43 @@
 
     <!-- שאר הדימויים של הפרויקט -->
     <section class="project-images">
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/02.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/03.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/04.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/05.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/06.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/07.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/08.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/09.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/10.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/11.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/12.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/13.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/14.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/15.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/16.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/17.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/18.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/19.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/20.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/21.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/22.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/23.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/24.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/25.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/26.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/27.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/28.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/29.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/30.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/31.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/modern-warfare/32.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/modern-warfare/33.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/modern-warfare/34.jpg" alt="" loading="lazy">
+      <figure class="tile tile--full"><img class="project-images__image" src="images/projects/modern-warfare/02.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--big"><img class="project-images__image" src="images/projects/modern-warfare/03.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/04.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/05.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/06.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/07.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/08.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/09.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/10.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/11.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--full"><img class="project-images__image" src="images/projects/modern-warfare/12.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--big-right"><img class="project-images__image" src="images/projects/modern-warfare/13.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small-left"><img class="project-images__image" src="images/projects/modern-warfare/14.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small-left"><img class="project-images__image" src="images/projects/modern-warfare/15.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--wide"><img class="project-images__image" src="images/projects/modern-warfare/16.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--full"><img class="project-images__image" src="images/projects/modern-warfare/17.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--big"><img class="project-images__image" src="images/projects/modern-warfare/18.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/19.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/20.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/21.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/22.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/23.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/24.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/25.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/modern-warfare/26.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--full"><img class="project-images__image" src="images/projects/modern-warfare/27.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--big-right"><img class="project-images__image" src="images/projects/modern-warfare/28.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small-left"><img class="project-images__image" src="images/projects/modern-warfare/29.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small-left"><img class="project-images__image" src="images/projects/modern-warfare/30.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--wide"><img class="project-images__image" src="images/projects/modern-warfare/31.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--full"><img class="project-images__image" src="images/projects/modern-warfare/32.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--half"><img class="project-images__image" src="images/projects/modern-warfare/33.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--half"><img class="project-images__image" src="images/projects/modern-warfare/34.jpg" alt="" loading="lazy"></figure>
     </section>
   </main>
 
   <!-- המפה הקטנה של העמוד שמופיעה כשגוללים -->
-  <script src="project.js?v=20261116j"></script>
+  <script src="project.js?v=20261122a"></script>
 </body>
 </html>

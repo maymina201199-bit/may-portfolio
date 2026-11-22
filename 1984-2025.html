@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>May Mina | 1984 / 2025</title>
-  <link rel="stylesheet" href="styles.css?v=20261116j">
+  <link rel="stylesheet" href="styles.css?v=20261122a">
 </head>
 <body class="home-page">
   <!--
     עמוד פרויקט. כל עמודי הפרויקטים בנויים באותה צורה:
     החלק העליון כמו בעמוד הבית (התפריט שקוף יותר), שורה עם שם הפרויקט ו-IMAGES,
-    דימוי גדול משמאל וטקסט מימין, ומתחת שאר הדימויים: שניים זה ליד זה, ואחד רחב, וחוזר חלילה.
+    דימוי גדול משמאל וטקסט מימין, ומתחת שאר הדימויים בגריד של 6 עמודות (כמו בפיגמה):
+    כל דימוי הוא tile, והסוג שלו (full / big / small / wide ...) קובע כמה עמודות הוא תופס.
     הדימויים של הפרויקט נמצאים בתיקייה images/projects/1984-2025.
   -->
   <header class="home-header">
@@ -50,51 +51,28 @@
 
     <!-- שאר הדימויים של הפרויקט -->
     <section class="project-images">
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/1984-2025/01.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/1984-2025/02.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/03.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/1984-2025/04.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/1984-2025/05.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/06.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/1984-2025/07.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/1984-2025/08.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/09.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/1984-2025/10.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/1984-2025/11.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/12.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/1984-2025/13.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/1984-2025/14.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/15.jpg" alt="" loading="lazy">
-
-      <div class="project-images__pair">
-        <img class="project-images__image" src="images/projects/1984-2025/16.jpg" alt="" loading="lazy">
-        <img class="project-images__image" src="images/projects/1984-2025/17.jpg" alt="" loading="lazy">
-      </div>
-
-      <img class="project-images__image project-images__image--wide" src="images/projects/1984-2025/18.jpg" alt="" loading="lazy">
+      <figure class="tile tile--full"><img class="project-images__image" src="images/projects/1984-2025/01.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--big"><img class="project-images__image" src="images/projects/1984-2025/02.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/1984-2025/03.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/1984-2025/04.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/1984-2025/05.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/1984-2025/06.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/1984-2025/07.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/1984-2025/08.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/1984-2025/09.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small"><img class="project-images__image" src="images/projects/1984-2025/10.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--full"><img class="project-images__image" src="images/projects/1984-2025/11.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--big-right"><img class="project-images__image" src="images/projects/1984-2025/12.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small-left"><img class="project-images__image" src="images/projects/1984-2025/13.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--small-left"><img class="project-images__image" src="images/projects/1984-2025/14.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--wide"><img class="project-images__image" src="images/projects/1984-2025/15.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--full"><img class="project-images__image" src="images/projects/1984-2025/16.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--half"><img class="project-images__image" src="images/projects/1984-2025/17.jpg" alt="" loading="lazy"></figure>
+      <figure class="tile tile--half"><img class="project-images__image" src="images/projects/1984-2025/18.jpg" alt="" loading="lazy"></figure>
     </section>
   </main>
 
   <!-- המפה הקטנה של העמוד שמופיעה כשגוללים -->
-  <script src="project.js?v=20261116j"></script>
+  <script src="project.js?v=20261122a"></script>
 </body>
 </html>
