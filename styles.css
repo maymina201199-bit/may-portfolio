@@ -664,6 +664,45 @@ body {
   }
 }
 
+/* ===== דימוי שנפתח בגדול בלחיצה (project.js) ===== */
+.project-intro__image,
+.project-images__image {
+  cursor: zoom-in;
+}
+
+.image-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-home-edge);
+  background-color: var(--color-home-background);
+  cursor: zoom-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms var(--pw-fly-easing);
+}
+
+.image-viewer.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* הדימוי כולו, בלי חיתוך, הכי גדול שנכנס במסך */
+.image-viewer__image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform: scale(0.96);
+  transition: transform 300ms var(--pw-fly-easing);
+}
+
+.image-viewer.is-open .image-viewer__image {
+  transform: none;
+}
+
 /* ===== עמוד פרויקט ===== */
 /* התפריט שקוף יותר. "works" נשאר באפור שלו */
 .project-menu .home-menu__list {

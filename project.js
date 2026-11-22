@@ -163,3 +163,33 @@ if (page) {
   window.addEventListener("load", updateMinimap); // אחרי שכל הדימויים נטענו, העמוד באורך הסופי
   updateMinimap();
 }
+
+// ===== לחיצה על דימוי: הוא נפתח בגדול על כל המסך =====
+// הדימוי מוצג כולו (בלי חיתוך) על רקע שחור. לחיצה נוספת, Esc או גלילה סוגרים
+(function () {
+  const projectPage = document.querySelector(".project-page");
+  if (!projectPage) return;
+
+  const viewer = document.createElement("div");
+  viewer.className = "image-viewer";
+  viewer.innerHTML = '<img class="image-viewer__image" alt="">';
+  document.body.appendChild(viewer);
+  const viewerImage = viewer.querySelector("img");
+
+  function open(img) {
+    viewerImage.src = img.currentSrc || img.src;
+    viewer.classList.add("is-open");
+  }
+
+  function close() {
+    viewer.classList.remove("is-open");
+  }
+
+  projectPage.querySelectorAll(".project-intro__image, .project-images__image").forEach(function (img) {
+    img.addEventListener("click", () => open(img));
+  });
+
+  viewer.addEventListener("click", close);
+  document.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
+  window.addEventListener("wheel", close, { passive: true });
+})();
