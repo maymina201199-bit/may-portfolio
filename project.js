@@ -184,8 +184,7 @@ if (page) {
     const box = slot.getBoundingClientRect();
     viewerBox.style.setProperty("--viewer-ratio", box.width / box.height);
     viewerImage.src = img.currentSrc || img.src;
-    viewerImage.style.transform = img.style.transform;           // אותו זום והטיה
-    viewerImage.style.objectPosition = getComputedStyle(img).objectPosition;
+    viewerImage.style.cssText = img.style.cssText;                // אותו חיתוך, זום והטיה (--dx, --dy, --rot, --zoom)
     viewer.classList.add("is-open");
   }
 

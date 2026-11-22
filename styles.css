@@ -695,7 +695,9 @@ body {
   --viewer-ratio: 1.5;
   width: min(100%, (100vh - 2 * var(--space-home-edge)) * var(--viewer-ratio));
   aspect-ratio: var(--viewer-ratio);
+  position: relative;
   overflow: hidden;
+  container-type: size;
   transform: scale(0.96);
   transition: transform 300ms var(--pw-fly-easing);
 }
@@ -704,13 +706,7 @@ body {
   transform: none;
 }
 
-/* הדימוי בתוכה, עם אותו חיתוך, זום והטיה כמו בעמוד */
-.image-viewer__image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+/* הדימוי בתוכה מקבל את אותו חיתוך, זום והטיה כמו בעמוד (ראו .tile .project-images__image) */
 
 /* ===== עמוד פרויקט ===== */
 /* התפריט שקוף יותר. "works" נשאר באפור שלו */
@@ -780,12 +776,10 @@ body {
 
 /* מסגרת לדימוי הגדול, כשהוא חתוך או מוגדל כמו בפיגמה */
 .project-intro__frame {
+  position: relative;
   overflow: hidden;
   aspect-ratio: 902 / 603;
-}
-
-.project-intro__frame .project-intro__image {
-  height: 100%;
+  container-type: size;
 }
 
 /* שורת קרדיט קטנה בסוף הטקסט (Compadre 11px בפיגמה) */
@@ -811,13 +805,24 @@ body {
   position: relative;
   margin: 0;
   overflow: hidden;
+  container-type: size; /* הדימוי בתוך המשבצת מחושב לפי הגודל שלה */
 }
 
-.project-images__image {
-  display: block;
-  width: 100%;
-  height: 100%;
+/* הדימוי במשבצת (וגם בדימוי הגדול ובחלון ההגדלה):
+   תמיד בגודל של "cover" לפחות, כך שהוא ממלא את כל המשבצת גם כשמזיזים אותו.
+   --dx / --dy מזיזים אותו, --rot מטה אותו ו---zoom מגדיל, כמו החיתוך בפיגמה */
+.tile .project-images__image,
+.project-intro__frame .project-intro__image,
+.image-viewer__box .image-viewer__image {
+  --photo-ratio: 1.5;
+  position: absolute;
+  left: calc(50% + var(--dx, 0%));
+  top: calc(50% + var(--dy, 0%));
+  width: max(100cqw, 100cqh * var(--photo-ratio));
+  height: max(100cqh, 100cqw / var(--photo-ratio));
+  max-width: none;
   object-fit: cover;
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(var(--zoom, 1));
 }
 
 /* רחב מלא: 6 עמודות (1378 על 917 בפיגמה) */
@@ -835,12 +840,6 @@ body {
 }
 
 .tile--big-right { grid-column: 3 / span 4; }
-
-.tile--big .project-images__image,
-.tile--big-right .project-images__image {
-  position: absolute;
-  inset: 0;
-}
 
 /* רחב: 5 עמודות (1155 על 768 בפיגמה) */
 .tile--wide  { grid-column: span 5; aspect-ratio: 1155 / 768; }
