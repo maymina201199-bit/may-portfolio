@@ -9,7 +9,7 @@
 
   // הדימויים בעמוד שאליהם 4 הדימויים יעופו בסוף
   const targets = [...projectPage.querySelectorAll(".project-intro__image, .project-images__image")].slice(0, 4);
-  const sources = targets.map(img => img.getAttribute("src"));
+  const sources = targets.map(el => el.tagName === "VIDEO" ? el.getAttribute("poster") : el.getAttribute("src"));
   if (sources.length === 0) return;
   targets.forEach(img => img.removeAttribute("loading")); // שיהיו טעונים כשהדימויים מגיעים אליהם
 
@@ -82,8 +82,7 @@
 const page = document.querySelector(".project-page");
 
 // הסדר של עמודי הפרויקטים, כמו בגריד בעמוד הבית. "Next project" מוביל לבא אחריו
-const PROJECT_ORDER = ["modern-warfare", "hevel", "sabra", "portrait", "sela", "lifta",
-                       "1984-2025", "eat-and-drink"];
+const PROJECT_ORDER = ["eat-and-drink", "hevel", "sabra", "portrait", "sela", "lifta", "1984-2025", "modern-warfare"];
 
 if (page) {
   // בונים את המפה: עותק מוקטן של כל התוכן של העמוד
@@ -183,7 +182,7 @@ if (page) {
     const slot = img.closest(".tile, .project-intro__frame") || img;
     const box = slot.getBoundingClientRect();
     viewerBox.style.setProperty("--viewer-ratio", box.width / box.height);
-    viewerImage.src = img.currentSrc || img.src;
+    viewerImage.src = img.tagName === "VIDEO" ? img.poster : (img.currentSrc || img.src); // סרטון: תמונת הפתיחה שלו
     viewerImage.style.cssText = img.style.cssText;                // אותו חיתוך, זום והטיה (--dx, --dy, --rot, --zoom)
     viewer.classList.add("is-open");
   }
