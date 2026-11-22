@@ -225,6 +225,7 @@ body {
 .home-menu .home-menu__label {
   color: var(--color-home-muted);
   text-decoration: none;
+  transition: color 300ms ease; /* הצבע מתחלף בעדינות כשבוחרים קטגוריה */
 }
 
 .home-menu .is-selected,

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>May Mina</title>
-  <link rel="stylesheet" href="styles.css?v=20261122j">
+  <link rel="stylesheet" href="styles.css?v=20261122k">
   <!-- טוענים את הפונט של השם מוקדם, כדי שמסך הפתיחה יופיע ישר בפונט הנכון -->
   <link rel="preload" href="fonts/PolymathDispDemo-Regular.otf" as="font" type="font/otf" crossorigin>
 </head>
@@ -82,14 +82,14 @@
 
       <a class="home-gallery__item" href="sela.html" data-categories="digital" data-preview="images/projects/sela/00-cover.jpg, images/projects/sela/01.jpg, images/projects/sela/02.jpg, images/projects/sela/03.jpg">
         <div class="home-gallery__media">
-          <video class="home-gallery__slide home-gallery__slide--stone is-active" src="images/home-row2-stone.mp4?v=20261122j" poster="images/home-row2-stone-poster.jpg" autoplay muted loop playsinline aria-label="Sela"></video>
+          <video class="home-gallery__slide home-gallery__slide--stone is-active" src="images/home-row2-stone.mp4?v=20261122k" poster="images/home-row2-stone-poster.jpg" autoplay muted loop playsinline aria-label="Sela"></video>
         </div>
         <p class="home-gallery__name">Sela</p>
       </a>
 
       <a class="home-gallery__item" href="lifta.html" data-categories="visual-identity" data-preview="images/projects/lifta/00-cover.jpg, images/projects/lifta/01.jpg, images/projects/lifta/02.jpg, images/projects/lifta/03.jpg">
         <div class="home-gallery__media">
-          <video class="home-gallery__slide is-active" src="images/home-lifta.mp4?v=20261122j" poster="images/home-lifta-poster.jpg" autoplay muted loop playsinline aria-label="lifta"></video>
+          <video class="home-gallery__slide is-active" src="images/home-lifta.mp4?v=20261122k" poster="images/home-lifta-poster.jpg" autoplay muted loop playsinline aria-label="lifta"></video>
         </div>
         <p class="home-gallery__name">lifta <span class="text-arabic" lang="ar">لفتا</span></p>
       </a>
@@ -128,7 +128,7 @@
       <!-- VC Bezalel: סרטון שמתנגן בלולאה, בלי סאונד (עוד אין לו עמוד, אז הוא לא קישור) -->
       <div class="home-gallery__item" data-categories="social-media">
         <div class="home-gallery__media">
-          <video class="home-gallery__slide is-active" src="images/home-vc-bezalel.mp4?v=20261122j" poster="images/home-vc-bezalel-poster.jpg" autoplay muted loop playsinline aria-label="VC Bezalel"></video>
+          <video class="home-gallery__slide is-active" src="images/home-vc-bezalel.mp4?v=20261122k" poster="images/home-vc-bezalel-poster.jpg" autoplay muted loop playsinline aria-label="VC Bezalel"></video>
         </div>
         <p class="home-gallery__name">vc bezalel</p>
       </div>
@@ -208,8 +208,43 @@
       history.replaceState(null, "", category === "all" ? "index.html" : "index.html?category=" + category);
     }
 
+    // מעבר נעים בין קטגוריות: הפרויקטים הנוכחיים נעלמים בעדינות למטה,
+    // ואז הפרויקטים של הקטגוריה החדשה עולים אחד אחרי השני
+    const gallery = document.querySelector(".home-gallery");
+    const FADE_OUT = 280;      // כמה זמן הפרויקטים הישנים נעלמים
+    const FADE_IN = 600;       // כמה זמן כל פרויקט חדש עולה
+    const STAGGER = 60;        // כל פרויקט מתחיל קצת אחרי הקודם
+    const EASE = "cubic-bezier(0.22, 0.65, 0.3, 1)";
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let switching = false;
+
+    function switchCategory(category) {
+      const current = document.querySelector(".home-menu .is-selected");
+      if (switching || (current && current.dataset.filter === category)) return;
+      if (reduceMotion) return showCategory(category);
+      switching = true;
+
+      // 1. הישנים נעלמים
+      gallery.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(12px)" }],
+                      { duration: FADE_OUT, easing: "ease-in", fill: "forwards" }).onfinish = function () {
+        // 2. מחליפים את הפרויקטים ועולים לראש הגריד
+        showCategory(category);
+        gallery.getAnimations().forEach(a => a.cancel());
+        const top = gallery.getBoundingClientRect().top + window.scrollY - 170;
+        if (window.scrollY > top) window.scrollTo(0, Math.max(0, top));
+
+        // 3. החדשים עולים אחד אחרי השני
+        const shown = [...galleryItems].filter(item => !item.hidden);
+        shown.forEach(function (item, index) {
+          item.animate([{ opacity: 0, transform: "translateY(24px)" }, { opacity: 1, transform: "none" }],
+                       { duration: FADE_IN, delay: index * STAGGER, easing: EASE, fill: "backwards" });
+        });
+        setTimeout(() => { switching = false; }, FADE_IN + shown.length * STAGGER);
+      };
+    }
+
     filterButtons.forEach(function (button) {
-      button.addEventListener("click", () => showCategory(button.dataset.filter));
+      button.addEventListener("click", () => switchCategory(button.dataset.filter));
     });
 
     showCategory(new URLSearchParams(location.search).get("category") || "all");
