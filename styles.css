@@ -218,13 +218,18 @@ body {
   cursor: pointer;
 }
 
-/* העיצוב כמו קודם: "works" באפור עם קו תחתון, ו-graphic design עם קו תחתון */
+/* מצבים של התפריט: הפריט שנבחר (הקטגוריה או העמוד שנמצאים בו) לבן עם קו תחתון,
+   וכל השאר באפור. בעמוד הבית "works" נבחר מההתחלה */
+.home-menu button,
+.home-menu a,
 .home-menu .home-menu__label {
   color: var(--color-home-muted);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
+.home-menu .is-selected,
 .home-menu .home-menu__item--current {
+  color: var(--color-home-text);
   text-decoration: underline;
 }
 
@@ -232,12 +237,6 @@ body {
 .home-menu button:hover,
 .home-menu a:hover {
   text-decoration: underline;
-}
-
-/* בעמודי הפרויקטים התפריט הוא קישורים לעמוד הבית, מסונן לפי הקטגוריה */
-.home-menu a {
-  color: inherit;
-  text-decoration: none;
 }
 
 /* פרטי הקשר: קטנים, באותיות גדולות */
@@ -709,10 +708,7 @@ body {
 /* הדימוי בתוכה מקבל את אותו חיתוך, זום והטיה כמו בעמוד (ראו .tile .project-images__image) */
 
 /* ===== עמוד פרויקט ===== */
-/* התפריט שקוף יותר. "works" נשאר באפור שלו */
-.project-menu .home-menu__list {
-  opacity: var(--menu-dim-opacity);
-}
+
 
 /* פרטי הקשר באפור, למעלה, בגובה של "may mina ." (בפיגמה ב-960 וב-1201 מתוך 1440) */
 .project-contact {
