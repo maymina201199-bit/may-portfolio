@@ -670,6 +670,23 @@ body {
   opacity: var(--menu-dim-opacity);
 }
 
+/* פרטי הקשר באפור, למעלה, בגובה של "may mina ." (בפיגמה ב-960 וב-1201 מתוך 1440) */
+.project-contact {
+  position: absolute;
+  top: var(--space-home-top);
+  color: var(--color-home-muted);
+  text-decoration: none;
+}
+
+.project-contact:hover {
+  text-decoration: underline;
+}
+
+.project-contact--email { left: calc(100% * 960 / 1440); }
+.project-contact--phone { left: calc(100% * 1201 / 1440); }
+
+/* בעמוד פרויקט הסמן העגול של "תהליך" יושב מימין לטלפון, אז לא צריך לזוז */
+
 /* שורת הפרויקט: שם הפרויקט משמאל, התחום באמצע, על הקו התחתון של החלק העליון */
 .project-meta {
   position: absolute;
@@ -711,6 +728,25 @@ body {
   margin: 0;
   font-size: var(--project-text-size);
   line-height: var(--project-text-line);
+}
+
+/* מסגרת לדימוי הגדול, כשהוא חתוך או מוגדל כמו בפיגמה */
+.project-intro__frame {
+  overflow: hidden;
+  aspect-ratio: 902 / 603;
+}
+
+.project-intro__frame .project-intro__image {
+  height: 100%;
+}
+
+/* שורת קרדיט קטנה בסוף הטקסט (Compadre 11px בפיגמה) */
+.project-intro__credit {
+  display: block;
+  margin-top: calc(var(--project-text-line) * 3);
+  font-family: var(--font-label);
+  font-size: calc(11px * var(--project-scale) * 18 / 15);
+  line-height: normal;
 }
 
 /* שאר הדימויים: גריד של 6 עמודות עם רווח קבוע וקטן, כמו בפיגמה.
