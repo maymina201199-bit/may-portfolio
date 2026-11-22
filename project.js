@@ -165,19 +165,27 @@ if (page) {
 }
 
 // ===== לחיצה על דימוי: הוא נפתח בגדול על כל המסך =====
-// הדימוי מוצג כולו (בלי חיתוך) על רקע שחור. לחיצה נוספת, Esc או גלילה סוגרים
+// הדימוי נפתח בדיוק עם החיתוך שיש לו בעמוד (אותה צורה, אותו זום ואותה הטיה),
+// רק גדול, על רקע שחור. לחיצה נוספת, Esc או גלילה סוגרים
 (function () {
   const projectPage = document.querySelector(".project-page");
   if (!projectPage) return;
 
   const viewer = document.createElement("div");
   viewer.className = "image-viewer";
-  viewer.innerHTML = '<img class="image-viewer__image" alt="">';
+  viewer.innerHTML = '<div class="image-viewer__box"><img class="image-viewer__image" alt=""></div>';
   document.body.appendChild(viewer);
+  const viewerBox = viewer.querySelector(".image-viewer__box");
   const viewerImage = viewer.querySelector("img");
 
   function open(img) {
+    // הצורה של המשבצת בעמוד (או של הדימוי עצמו, אם אין לו משבצת)
+    const slot = img.closest(".tile, .project-intro__frame") || img;
+    const box = slot.getBoundingClientRect();
+    viewerBox.style.setProperty("--viewer-ratio", box.width / box.height);
     viewerImage.src = img.currentSrc || img.src;
+    viewerImage.style.transform = img.style.transform;           // אותו זום והטיה
+    viewerImage.style.objectPosition = getComputedStyle(img).objectPosition;
     viewer.classList.add("is-open");
   }
 
