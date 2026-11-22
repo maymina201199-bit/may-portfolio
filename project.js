@@ -200,3 +200,77 @@ if (page) {
   document.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
   window.addEventListener("wheel", close, { passive: true });
 })();
+
+// ===== סידור שורות בטקסט של הפרויקט =====
+// אף פעם לא נשארת מילה לבד בשורה, והשורות מתחלפות כמה שאפשר: קצרה, ארוכה, קצרה, ארוכה.
+// הסידור מחושב מחדש בכל גודל מסך (גם בטלפון).
+(function () {
+  const SHORT_LINE = 0.72; // שורה "קצרה" היא בערך 72% מהרוחב
+  const blocks = [...document.querySelectorAll(".project-intro__description")];
+  if (!blocks.length) return;
+
+  // שומרים את המילים המקוריות של כל טקסט (בלי שבירות שורה ידניות). שורת הקרדיט נשארת כמו שהיא
+  blocks.forEach(function (block) {
+    const credit = block.querySelector(".project-intro__credit");
+    if (credit) credit.remove();
+    block.dataset.words = JSON.stringify(
+      block.innerHTML.replace(/<br\s*\/?>/gi, " ").trim().split(/\s+/).filter(Boolean));
+    block.credit = credit;
+  });
+
+  function balance(block) {
+    const words = JSON.parse(block.dataset.words);
+    const maxWidth = block.clientWidth - 2;
+
+    // מודדים כל מילה ואת הרווח, באותו פונט של הטקסט
+    const probe = document.createElement("span");
+    probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap";
+    block.appendChild(probe);
+    const width = words.map(w => { probe.innerHTML = w; return probe.getBoundingClientRect().width; });
+    probe.innerHTML = "a&nbsp;a"; const withSpace = probe.getBoundingClientRect().width;
+    probe.innerHTML = "aa"; const space = withSpace - probe.getBoundingClientRect().width;
+    probe.remove();
+
+    const lineWidth = (i, j) => width.slice(i, j).reduce((a, b) => a + b, 0) + space * (j - i - 1);
+
+    // מחפשים את החלוקה הכי טובה לשורות: כל שורה לפחות 2 מילים ולא רחבה מהטקסט,
+    // והשורות קרובות לסירוגין לאורך "קצר" ו"ארוך". הזיכרון (cache) לפי מיקום ושורה זוגית/אי־זוגית
+    const n = words.length;
+    const cache = new Map();
+    function solve(i, lineNo) {
+      const key = i * 2 + (lineNo % 2);
+      if (cache.has(key)) return cache.get(key);
+      if (i === n) return { cost: 0, breaks: [] };
+      let result = { cost: Infinity, breaks: [] };
+      for (let j = i + 2; j <= n; j++) {
+        if (n - j === 1) continue;
+        const w = lineWidth(i, j);
+        if (w > maxWidth) break;
+        const target = (lineNo % 2 === 0 ? SHORT_LINE : 1) * maxWidth;
+        const cost = j === n ? 0 : Math.pow((target - w) / maxWidth, 2) * 100;
+        const rest = solve(j, lineNo + 1);
+        if (cost + rest.cost < result.cost) result = { cost: cost + rest.cost, breaks: [j, ...rest.breaks] };
+      }
+      cache.set(key, result);
+      return result;
+    }
+
+    const { breaks, cost } = solve(0, 0);
+    if (!isFinite(cost)) {                    // אם אי אפשר (טקסט קצר מאוד), רק מחברים את שתי המילים האחרונות
+      block.innerHTML = words.slice(0, -1).join(" ") + "&nbsp;" + words[words.length - 1];
+    } else {
+      let start = 0;
+      block.innerHTML = breaks.map(end => {
+        const line = words.slice(start, end).join(" ");
+        start = end;
+        return `<span class="balanced-line">${line}</span>`;
+      }).join("");
+    }
+    if (block.credit) block.appendChild(block.credit);
+  }
+
+  const run = () => blocks.forEach(balance);
+  document.fonts.ready.then(run);
+  let timer;
+  window.addEventListener("resize", () => { clearTimeout(timer); timer = setTimeout(run, 100); });
+})();

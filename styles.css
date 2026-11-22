@@ -782,6 +782,12 @@ body {
   container-type: size;
 }
 
+/* שורה בטקסט אחרי הסידור של project.js: כל שורה בשורה משלה, בלי שבירה נוספת */
+.balanced-line {
+  display: block;
+  white-space: nowrap;
+}
+
 /* שורת קרדיט קטנה בסוף הטקסט (Compadre 11px בפיגמה) */
 .project-intro__credit {
   display: block;
