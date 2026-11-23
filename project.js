@@ -107,7 +107,9 @@ if (page) {
   const next = PROJECT_ORDER[(PROJECT_ORDER.indexOf(current) + 1) % PROJECT_ORDER.length];
   const nextLink = document.createElement("a");
   nextLink.className = "next-project";
-  nextLink.href = next + ".html";
+  // אותו מספר גרסה כמו בקישור ל-project.js, כדי שהדפדפן יטען את העמוד הבא בגרסה החדשה
+  const versionMatch = (document.querySelector('script[src*="project.js"]') || {}).src?.match(/v=([^&]+)/);
+  nextLink.href = next + ".html" + (versionMatch ? "?v=" + versionMatch[1] : "");
   nextLink.textContent = "Next project";
 
   // המפה והכפתור יחד, בפינה הימנית התחתונה
