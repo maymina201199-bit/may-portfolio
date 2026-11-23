@@ -785,13 +785,20 @@ body {
   white-space: nowrap;
 }
 
-/* שורת קרדיט קטנה בסוף הטקסט (Compadre 11px בפיגמה) */
+/* שורת קרדיט בסוף הטקסט: באותו פונט, גודל וצבע כמו המייל והטלפון למעלה,
+   והקו התחתון שלה בגובה הקו התחתון של הדימוי הגדול */
+.project-intro__description {
+  position: relative;
+}
+
 .project-intro__credit {
-  display: block;
-  margin-top: calc(var(--project-text-line) * 3);
-  font-family: var(--font-label);
-  font-size: calc(11px * var(--project-scale) * 18 / 15);
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-family: var(--font-home);
+  font-size: var(--home-text-size);
   line-height: normal;
+  color: var(--color-home-muted);
 }
 
 /* שאר הדימויים: גריד של 6 עמודות עם רווח קבוע וקטן, כמו בפיגמה.
@@ -873,6 +880,13 @@ body {
 
   .project-intro__description br {
     display: none; /* בטלפון השורות נשברות לבד */
+  }
+
+  /* בטלפון הקרדיט חוזר להיות מתחת לטקסט */
+  .project-intro__credit {
+    position: static;
+    display: block;
+    margin-top: 24px;
   }
 
   /* בטלפון כל דימוי ברוחב מלא */
