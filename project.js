@@ -94,6 +94,13 @@ if (page) {
   content.className = "minimap__content";
   const copy = page.cloneNode(true);
   copy.querySelectorAll("img").forEach(img => img.removeAttribute("loading"));
+  // בעותק המוקטן סרטונים לא מתנגנים ולא נטענים: רואים רק את תמונת הפתיחה שלהם
+  copy.querySelectorAll("video").forEach(function (video) {
+    video.removeAttribute("autoplay");
+    video.removeAttribute("data-autoplay");
+    video.removeAttribute("src");
+    video.preload = "none";
+  });
   content.appendChild(copy);
 
   const frame = document.createElement("div");
@@ -358,4 +365,29 @@ if (page) {
     video.addEventListener("play", () => update(lastTarget));
     video.addEventListener("pause", () => update(lastTarget));
   });
+})();
+
+// ===== סרטונים בפיד: נטענים ומתנגנים רק כשהם קרובים למסך =====
+// (data-autoplay במקום autoplay) כך שהעמוד לא מוריד את כל הסרטונים בבת אחת.
+// סרטון שיוצא מהמסך נעצר, וכשחוזרים אליו הוא ממשיך. סרטון שעצרו בלחיצה נשאר עצור.
+(function () {
+  const videos = [...document.querySelectorAll(".project-page video[data-autoplay]")].filter(v => !v.closest(".minimap"));
+  if (!videos.length || !("IntersectionObserver" in window)) {
+    videos.forEach(video => { video.muted = true; video.play().catch(function () {}); });
+    return;
+  }
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      const video = entry.target;
+      if (entry.isIntersecting) {
+        if (!video.dataset.userPaused) {
+          video.muted = true;
+          video.play().catch(function () {});
+        }
+      } else if (!video.paused) {
+        video.pause();
+      }
+    });
+  }, { rootMargin: "300px 0px" }); // מתחילים לטעון קצת לפני שהסרטון נכנס למסך
+  videos.forEach(video => observer.observe(video));
 })();
