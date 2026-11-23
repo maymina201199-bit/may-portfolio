@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>May Mina | manyone TLV</title>
+  <link rel="stylesheet" href="styles.css?v=20261123a">
+</head>
+<body class="home-page">
+  <!--
+    עמוד פרויקט. כל עמודי הפרויקטים בנויים באותה צורה:
+    החלק העליון כמו בעמוד הבית (התפריט שקוף יותר), שורה עם שם הפרויקט ו-IMAGES,
+    דימוי גדול משמאל וטקסט מימין, ומתחת שאר הדימויים בגריד של 6 עמודות (כמו בפיגמה):
+    כל דימוי הוא tile, והסוג שלו (full / big / small / wide ...) קובע כמה עמודות הוא תופס.
+    הדימויים של הפרויקט נמצאים בתיקייה images/projects/manyone.
+  -->
+  <header class="home-header">
+    <!-- השם מוביל חזרה לעמוד הבית -->
+    <h1 class="home-name"><a class="home-name__link" href="index.html">may mina .</a></h1>
+
+    <a class="home-process-link" href="process.html" aria-label="process" title="process"></a>
+
+    <!-- התפריט: הקטגוריה של הפרויקט לבנה עם קו תחתון, השאר באפור. כל קטגוריה מובילה לעמוד הבית, מסונן לפיה -->
+    <nav class="home-menu project-menu">
+      <a class="home-menu__label" href="index.html">works</a>
+      <ul class="home-menu__list">
+        <li><a href="index.html?category=graphic-design">graphic design</a></li>
+        <li><a href="index.html?category=digital">digital</a></li>
+        <li><a href="index.html?category=photography">photography</a></li>
+        <li><a href="index.html?category=visual-identity">visual Identity</a></li>
+        <li><a class="home-menu__item--current" href="index.html?category=social-media">social media</a></li>
+      </ul>
+    </nav>
+
+    <!-- שורת הפרויקט: שם הפרויקט ו-IMAGES, על הקו התחתון של החלק העליון -->
+    <p class="project-meta project-meta--title">manyone TLV</p>
+    <p class="project-meta project-meta--field">IMAGES</p>
+    <!-- פרטי הקשר באפור, למעלה מימין (כמו בפיגמה) -->
+    <a class="project-contact project-contact--email" href="mailto:maymina201199@gmail.com">maymina201199@gmail</a>
+    <a class="project-contact project-contact--phone" href="tel:+972549199429">054-9199429</a>
+  </header>
+
+  <main class="project-page">
+    <!-- הפתיחה: דימוי גדול משמאל וטקסט מימין -->
+    <section class="project-intro">
+      <video class="project-intro__image" src="images/home-manyone.mp4" poster="images/home-manyone-poster.jpg" autoplay muted loop playsinline aria-label="manyone TLV"></video>
+      <p class="project-intro__description">
+        <!-- הטקסט של הפרויקט יתווסף כאן -->
+      </p>
+    </section>
+
+    <!-- שאר הדימויים: כל דימוי במקום המדויק שלו בפיגמה (x, y, רוחב, גובה מתוך עמוד ברוחב 1440) -->
+    <section class="project-images project-free" style="--canvas-h: 2597">
+      <figure class="tile" style="--x: 24; --y: 17; --w: 452; --h: 566"><img class="project-images__image" src="images/projects/manyone/01.jpg" alt="" loading="lazy" style="--photo-ratio: 0.7986"></figure>
+      <figure class="tile" style="--x: 492; --y: 18; --w: 452; --h: 566"><img class="project-images__image" src="images/projects/manyone/02.jpg" alt="" loading="lazy" style="--photo-ratio: 0.7986"></figure>
+      <figure class="tile" style="--x: 960; --y: 18; --w: 452; --h: 566"><img class="project-images__image" src="images/projects/manyone/03.jpg" alt="" loading="lazy" style="--photo-ratio: 0.7986"></figure>
+      <figure class="tile" style="--x: 492; --y: 601; --w: 458; --h: 560"><img class="project-images__image" src="images/projects/manyone/04.jpg" alt="" loading="lazy" style="--photo-ratio: 0.8179"></figure>
+      <figure class="tile" style="--x: 959; --y: 601; --w: 456; --h: 765"><img class="project-images__image" src="images/projects/manyone/05.jpg" alt="" loading="lazy" style="--photo-ratio: 0.5961"></figure>
+      <figure class="tile" style="--x: 28; --y: 1384; --w: 682; --h: 1213"><img class="project-images__image" src="images/projects/manyone/06.jpg" alt="" loading="lazy" style="--photo-ratio: 0.5622"></figure>
+      <img class="project-free__decor" src="images/projects/manyone/dots.png" alt="" style="--x: 655; --y: 1271; --w: 123; --h: 20">
+    </section>
+  </main>
+
+  <!-- המפה הקטנה של העמוד שמופיעה כשגוללים -->
+  <script src="project.js?v=20261123a"></script>
+</body>
+</html>

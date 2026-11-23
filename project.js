@@ -82,7 +82,7 @@
 const page = document.querySelector(".project-page");
 
 // הסדר של עמודי הפרויקטים, כמו בגריד בעמוד הבית. "Next project" מוביל לבא אחריו
-const PROJECT_ORDER = ["modern-warfare", "hevel", "eat-and-drink", "sabra", "sela", "portrait", "1984-2025", "lifta"];
+const PROJECT_ORDER = ["manyone", "modern-warfare", "hevel", "eat-and-drink", "sabra", "sela", "portrait", "1984-2025", "lifta"];
 
 if (page) {
   // בונים את המפה: עותק מוקטן של כל התוכן של העמוד

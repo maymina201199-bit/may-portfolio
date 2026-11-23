@@ -811,6 +811,27 @@ body {
   gap: var(--space-project-images-gap);
 }
 
+/* עמוד עם סידור חופשי (הבל, Manyone): כל דימוי יושב במקום המדויק שלו בפיגמה.
+   --x / --y / --w / --h הם המיקום והגודל בפיקסלים מתוך עמוד ברוחב 1440,
+   ו---canvas-h הוא הגובה של כל האזור. הכול גדל ומתכווץ יחד עם רוחב המסך */
+.project-images.project-free {
+  display: block;
+  position: relative;
+  margin-left: calc(-1 * var(--space-project-edge));
+  margin-right: calc(-1 * var(--space-project-edge));
+  margin-top: calc(-1 * var(--space-project-images-gap));
+  aspect-ratio: 1440 / var(--canvas-h);
+}
+
+.project-free > .tile,
+.project-free__decor {
+  position: absolute;
+  left: calc(var(--x) / 1440 * 100%);
+  top: calc(var(--y) / var(--canvas-h) * 100%);
+  width: calc(var(--w) / 1440 * 100%);
+  height: calc(var(--h) / var(--canvas-h) * 100%);
+}
+
 .tile {
   position: relative;
   margin: 0;
@@ -898,6 +919,26 @@ body {
     grid-column: auto;
     grid-row: auto;
     aspect-ratio: 3 / 2;
+  }
+
+  /* בטלפון הסידור החופשי הופך לטור אחד, וכל דימוי שומר על הצורה שלו מהפיגמה */
+  .project-images.project-free {
+    display: grid;
+    margin: 0;
+    aspect-ratio: auto;
+  }
+
+  .project-free > .tile {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--w) / var(--h);
+  }
+
+  .project-free__decor {
+    display: none;
   }
 }
 
