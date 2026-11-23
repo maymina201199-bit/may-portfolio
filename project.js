@@ -194,7 +194,20 @@ if (page) {
   }
 
   projectPage.querySelectorAll(".project-intro__image, .project-images__image").forEach(function (img) {
-    img.addEventListener("click", () => open(img));
+    img.addEventListener("click", function () {
+      if (img.tagName === "VIDEO") {
+        // סרטון: לחיצה עוצרת או מפעילה אותו (ולא פותחת אותו בגדול)
+        if (img.paused) {
+          delete img.dataset.userPaused;
+          img.play().catch(function () {});
+        } else {
+          img.dataset.userPaused = "true"; // שהקוד שמפעיל סרטונים לבד לא יפעיל אותו שוב
+          img.pause();
+        }
+        return;
+      }
+      open(img);
+    });
   });
 
   viewer.addEventListener("click", close);
@@ -281,11 +294,68 @@ if (page) {
   function playAllVideos() {
     document.querySelectorAll("video[autoplay]").forEach(function (video) {
       video.muted = true;
-      if (video.paused) video.play().catch(function () {});
+      if (video.paused && !video.dataset.userPaused) video.play().catch(function () {});
     });
   }
   playAllVideos();
   document.addEventListener("touchstart", playAllVideos, { once: true, passive: true });
   document.addEventListener("click", playAllVideos, { once: true });
   document.addEventListener("visibilitychange", function () { if (!document.hidden) playAllVideos(); });
+})();
+
+// ===== הסמן מעל דימויים וסרטונים (האייקונים מהפיגמה) =====
+// מעל דימוי: פלוס (לחיצה מגדילה). בדימוי הגדול: מינוס (לחיצה מקטינה).
+// מעל סרטון: שני קווים כשהוא מתנגן (לחיצה עוצרת), משולש כשהוא עצור (לחיצה מפעילה).
+// כמו הסמן בעמוד הבית: קווים לבנים שהופכים לשחורים על רקע בהיר
+(function () {
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return; // רק במחשב עם עכבר
+
+  const cursor = document.createElement("div");
+  cursor.className = "media-cursor";
+  cursor.innerHTML = '<img alt="">';
+  document.body.appendChild(cursor);
+  const icon = cursor.querySelector("img");
+
+  const ICONS = {
+    "zoom-in": "images/cursor-zoom-in.svg",
+    "zoom-out": "images/cursor-zoom-out.svg",
+    play: "images/cursor-play.svg",
+    pause: "images/cursor-pause.svg",
+  };
+  let current = "";
+  let lastTarget = null;
+
+  function update(target) {
+    lastTarget = target;
+    let kind = "";
+    if (target && target.closest(".image-viewer.is-open")) {
+      kind = "zoom-out";
+    } else if (target && !target.closest(".minimap")) {
+      const media = target.closest(".project-page .project-intro__image, .project-page .project-images__image");
+      if (media) kind = media.tagName === "VIDEO" ? (media.paused ? "play" : "pause") : "zoom-in";
+    }
+    if (kind !== current) {
+      current = kind;
+      cursor.dataset.kind = kind;
+      if (kind) icon.src = ICONS[kind];
+    }
+    document.body.classList.toggle("has-media-cursor", kind !== "");
+  }
+
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener("mousemove", function (event) {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+    cursor.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
+    update(event.target);
+  });
+  // אחרי לחיצה (עצירה/הפעלה, פתיחה/סגירה) האייקון מתעדכן מיד לפי מה שמתחת לעכבר
+  document.addEventListener("click", function () {
+    setTimeout(() => update(document.elementFromPoint(mouseX, mouseY)), 0);
+  });
+  document.addEventListener("mouseleave", () => update(null));
+  document.querySelectorAll("video").forEach(function (video) {
+    video.addEventListener("play", () => update(lastTarget));
+    video.addEventListener("pause", () => update(lastTarget));
+  });
 })();
