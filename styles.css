@@ -669,7 +669,7 @@ body {
 }
 
 /* ===== הסמן מעל דימויים וסרטונים בעמודי הפרויקטים (project.js) ===== */
-/* האייקונים מהפיגמה, בחצי מהגודל שלהם שם, כמו הסמן של עמוד הבית */
+/* האייקונים מהפיגמה, בחצי מהגודל שלהם שם ובקו של 1px, כמו הסמן של עמוד הבית */
 .has-media-cursor,
 .has-media-cursor * {
   cursor: none !important; /* במקום הסמן הרגיל מופיע האייקון */
@@ -689,26 +689,29 @@ body {
   display: block;
 }
 
-/* כל אייקון ממורכז על העכבר */
+/* כל אייקון ממורכז על העכבר, על פיקסלים שלמים, כדי שהקו יהיה חד ובעובי 1px
+   (בדיוק כמו הריבוע עם החץ בעמוד הבית) */
 .media-cursor img {
   display: block;
-  transform: translate(-50%, -50%);
 }
 
 .media-cursor[data-kind="zoom-in"] img,
 .media-cursor[data-kind="zoom-out"] img {
-  width: 35.5px; /* 71 על 46 בפיגמה */
-  height: 23px;
+  width: 36px; /* כמו הריבוע עם החץ בעמוד הבית */
+  height: 24px;
+  margin: -12px 0 0 -18px;
 }
 
 .media-cursor[data-kind="play"] img {
-  width: 25px; /* 50 על 49 בפיגמה */
-  height: 24.5px;
+  width: 26px;
+  height: 24px;
+  margin: -12px 0 0 -13px;
 }
 
 .media-cursor[data-kind="pause"] img {
-  width: 18.5px; /* 37 על 47 בפיגמה */
-  height: 23.5px;
+  width: 20px;
+  height: 24px;
+  margin: -12px 0 0 -10px;
 }
 
 /* ===== דימוי שנפתח בגדול בלחיצה (project.js) ===== */
