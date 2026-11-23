@@ -851,6 +851,58 @@ body {
   color: var(--color-home-muted);
 }
 
+/* ===== עמוד עם נתונים במקום דימוי פתיחה (Manyone) ===== */
+/* טקסט משמאל, ומימין הנתונים: מתחילים באמצע המסך, כמו שורת התחום שמעליהם (726 מתוך 1440 בפיגמה) */
+.project-intro--stats {
+  grid-template-columns: 1fr 1fr;
+  column-gap: 0;
+}
+
+.project-stats {
+  padding-left: calc(100vw * 6 / 1440);
+}
+
+/* כל שורה: המספר, ומימין המילה (שמתחילה ב-960 מתוך 1440, כמו המייל למעלה) */
+.project-stats__list {
+  display: grid;
+  grid-template-columns: calc(100vw * 234 / 1440) auto;
+  margin: 0;
+  font-size: var(--project-text-size);
+  line-height: calc(72px * var(--project-scale));
+}
+
+.project-stats__list dt,
+.project-stats__list dd {
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* ב-68.7K אין פלוס, אבל המספר מתחיל באותו מקום כמו שאר המספרים */
+.project-stats__plus--empty {
+  visibility: hidden;
+}
+
+.project-stats__note {
+  margin: calc(72px * var(--project-scale)) 0 0;
+  font-size: calc(16px * var(--project-scale));
+  line-height: calc(72px * var(--project-scale));
+  white-space: pre;
+}
+
+/* הפיד: 3 עמודות, כל פוסט 4 על 5 (455 על 568 בפיגמה) */
+.project-images.project-feed {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.project-feed > .tile,
+.project-feed__empty {
+  aspect-ratio: 455 / 568;
+}
+
+.project-feed__empty {
+  background-color: var(--color-home-text); /* ריבוע לבן עד שיגיע התוכן */
+}
+
 /* שאר הדימויים: גריד של 6 עמודות עם רווח קבוע וקטן, כמו בפיגמה.
    כל דימוי הוא tile, והסוג שלו קובע כמה עמודות הוא תופס (העמוד בונה אותם בסדר קבוע:
    רחב מלא, גדול + שניים קטנים, שלושה קטנים, שלושה קטנים, רחב מלא, שניים קטנים + גדול, רחב) */
@@ -969,6 +1021,32 @@ body {
     grid-column: auto;
     grid-row: auto;
     aspect-ratio: 3 / 2;
+  }
+
+  /* בטלפון: הנתונים מתחת לטקסט, והפיד בטור אחד */
+  .project-intro--stats {
+    grid-template-columns: 1fr;
+  }
+
+  .project-stats {
+    padding-left: 0;
+  }
+
+  .project-stats__list {
+    grid-template-columns: auto 1fr;
+    column-gap: 24px;
+    font-size: var(--home-text-size);
+    line-height: 2;
+  }
+
+  .project-stats__note {
+    margin-top: 8px;
+    line-height: normal;
+  }
+
+  .project-feed > .tile[class],
+  .project-feed__empty {
+    aspect-ratio: 455 / 568;
   }
 
   /* בטלפון הסידור החופשי הופך לטור אחד, וכל דימוי שומר על הצורה שלו מהפיגמה */
