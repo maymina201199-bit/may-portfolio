@@ -275,3 +275,17 @@ if (page) {
   let timer;
   window.addEventListener("resize", () => { clearTimeout(timer); timer = setTimeout(run, 100); });
 })();
+
+// ===== הפעלה אוטומטית של סרטונים (כמו בעמוד הבית) =====
+(function () {
+  function playAllVideos() {
+    document.querySelectorAll("video[autoplay]").forEach(function (video) {
+      video.muted = true;
+      if (video.paused) video.play().catch(function () {});
+    });
+  }
+  playAllVideos();
+  document.addEventListener("touchstart", playAllVideos, { once: true, passive: true });
+  document.addEventListener("click", playAllVideos, { once: true });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) playAllVideos(); });
+})();
