@@ -56,14 +56,16 @@
   --pw-leave-duration: 850ms;      /* הדימויים עפים למקום שלהם בעמוד והרקע השחור נעלם */
   --pw-fly-easing: cubic-bezier(0.65, 0, 0.35, 1); /* ease-in-out: מתחיל ונעצר ברכות */
   --pw-easing: cubic-bezier(0.22, 0.65, 0.3, 1);
-  /* המפה הקטנה של העמוד והכפתור "Next project" (312 על 263 ו-115 על 24 בפיגמה, מוקטנים כמו שאר העמוד) */
-  --minimap-width: calc(312px * var(--project-scale));
-  --minimap-height: calc(263px * var(--project-scale));
-  --minimap-gap: calc(8px * var(--project-scale));
+  /* המפה הקטנה של העמוד והכפתור "Next project" (132 על 232 ו-115 על 24 בפיגמה, מוקטנים כמו שאר העמוד) */
+  --minimap-width: calc(132px * var(--project-scale));
+  --minimap-height: calc(232px * var(--project-scale));
+  --minimap-gap: calc(15px * var(--project-scale));
   --minimap-right: var(--space-project-edge); /* מיושר לשוליים של העמוד */
   --minimap-bottom: 24px;         /* מרחק מתחתית המסך */
   --next-project-width: calc(115px * var(--project-scale));
   --next-project-height: calc(24px * var(--project-scale));
+  --next-project-radius: calc(16px * var(--project-scale)); /* פינות מעוגלות */
+  --next-project-size: calc(12px * var(--project-scale));   /* גודל הטקסט בכפתור */
   --space-counter-top: 9px;        /* המספור: מרחק מהקצה העליון של הדימוי */
   --cursor-label-gap: 10px;      /* רווח בין הסוגריים למילה ב-[ NEXT ] */
   /* עמוד התהליך (המספרים מהפריים ברוחב 1440px) */
@@ -619,16 +621,17 @@ body {
   cursor: pointer;
 }
 
-/* הכפתור: מלבן לבן עם טקסט שחור (115 על 24 בפיגמה) */
+/* הכפתור: מלבן לבן מעוגל עם טקסט שחור קטן (115 על 24 בפיגמה) */
 .next-project {
   display: flex;
   align-items: center;
   justify-content: center;
   width: var(--next-project-width);
   height: var(--next-project-height);
+  border-radius: var(--next-project-radius);
   background-color: var(--color-home-text);
   color: var(--color-home-background);
-  font-size: var(--project-meta-size);
+  font-size: var(--next-project-size);
   text-decoration: none;
   white-space: nowrap;
 }
