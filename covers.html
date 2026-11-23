@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>May Mina | קאברים</title>
+  <link rel="stylesheet" href="styles.css?v=20261123p">
+</head>
+<body class="home-page covers-page">
+  <!--
+    עמוד נסתר (לא בתפריט): בחירת הקאבר של הסרטונים בפיד של Manyone.
+    מנגנים סרטון, עוצרים על הפריים הרצוי ולוחצים "שמור קאבר".
+    הפריים נחתך לצורה של הריבוע בגריד (4 על 5) ונשמר ישר ב-GitHub, והאתר מתעדכן לבד.
+    בשביל השמירה צריך "מפתח" של GitHub (token), שנשמר רק בדפדפן הזה.
+  -->
+  <main class="covers">
+    <h1 class="covers__title">קאברים לפיד של Manyone</h1>
+    <p class="covers__intro">מנגנים סרטון, עוצרים על הפריים שרוצים (אפשר גם עם החיצים ‹ › פריים אחרי פריים), ולוחצים "שמור קאבר". האתר מתעדכן תוך דקה בערך.</p>
+
+    <!-- המפתח של GitHub -->
+    <section class="covers__key">
+      <label for="token">מפתח GitHub</label>
+      <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
+      <button type="button" id="save-token">שמור מפתח</button>
+      <button type="button" id="forget-token">מחק מפתח מהדפדפן</button>
+      <p class="covers__status" id="token-status"></p>
+    </section>
+
+    <section class="covers__list" id="list"></section>
+  </main>
+
+  <script>
+    // ===== הגדרות =====
+    const REPO = "maymina201199-bit/may-portfolio";
+    const BRANCH = "main";
+    const PAGE = "manyone.html";
+    // הפוסטים בפיד שהקאבר שלהם הוא פריים מסרטון
+    const POSTS = [
+      { post: 3, name: "צילומי סטודיו", video: "images/projects/manyone/post-03.mp4" },
+      { post: 4, name: "הקוביות", video: "images/projects/manyone/post-04.mp4" },
+      { post: 5, name: "about us", video: "images/projects/manyone/post-05.mp4" },
+      { post: 6, name: "הנוף", video: "images/projects/manyone/post-06.mp4" },
+      { post: 9, name: "הפתיחה (Nike)", video: "images/home-manyone.mp4" },
+    ];
+    const SQUARE = 455 / 568; // הצורה של הריבוע בגריד, כמו בפיגמה
+    const FRAME = 1 / 30;     // פריים אחד
+
+    // ===== המפתח: נשמר רק בדפדפן הזה =====
+    const tokenInput = document.getElementById("token");
+    const tokenStatus = document.getElementById("token-status");
+    function readToken() { try { return localStorage.getItem("gh-token") || ""; } catch (e) { return ""; } }
+    function showTokenState() {
+      tokenStatus.textContent = readToken() ? "יש מפתח שמור בדפדפן הזה ✓" : "אין עדיין מפתח. בלי מפתח אי אפשר לשמור.";
+    }
+    document.getElementById("save-token").addEventListener("click", function () {
+      try { localStorage.setItem("gh-token", tokenInput.value.trim()); } catch (e) {}
+      tokenInput.value = "";
+      showTokenState();
+    });
+    document.getElementById("forget-token").addEventListener("click", function () {
+      try { localStorage.removeItem("gh-token"); } catch (e) {}
+      showTokenState();
+    });
+    showTokenState();
+
+    // ===== GitHub: קריאה ושמירה של קובץ =====
+    async function github(path, options) {
+      const response = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+        ...options,
+        headers: { Authorization: `Bearer ${readToken()}`, Accept: "application/vnd.github+json" },
+      });
+      if (!response.ok) {
+        if (response.status === 401) throw new Error("המפתח לא תקין או שפג תוקפו");
+        if (response.status === 403 || response.status === 404) throw new Error("למפתח אין הרשאה לכתוב לאתר");
+        throw new Error("GitHub החזיר שגיאה " + response.status);
+      }
+      return response.json();
+    }
+    async function currentFile(path) {
+      return github(`${path}?ref=${BRANCH}&t=${Date.now()}`, { method: "GET", cache: "no-store" });
+    }
+    async function saveFile(path, base64, message) {
+      let sha;
+      try { sha = (await currentFile(path)).sha; } catch (e) { sha = undefined; }
+      return github(path, { method: "PUT", body: JSON.stringify({ message, content: base64, branch: BRANCH, sha }) });
+    }
+    function bytesToBase64(bytes) {
+      let binary = "";
+      for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      return btoa(binary);
+    }
+    const textToBase64 = text => bytesToBase64(new TextEncoder().encode(text));
+    const base64ToText = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\n/g, "")), c => c.charCodeAt(0)));
+
+    // ===== הפריים: חותכים מהאמצע לצורה של הריבוע בגריד =====
+    function drawCover(video, canvas) {
+      const vw = video.videoWidth, vh = video.videoHeight;
+      let w = vw, h = Math.round(vw / SQUARE);
+      if (h > vh) { h = vh; w = Math.round(vh * SQUARE); }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(video, (vw - w) / 2, (vh - h) / 2, w, h, 0, 0, w, h);
+    }
+
+    // ===== כרטיס לכל פוסט =====
+    const list = document.getElementById("list");
+    POSTS.forEach(function (item) {
+      const card = document.createElement("article");
+      card.className = "covers__card";
+      card.innerHTML = `
+        <h2>פוסט ${item.post}: ${item.name}</h2>
+        <div class="covers__media">
+          <div><p>הסרטון</p><video src="${item.video}" controls muted playsinline preload="metadata"></video></div>
+          <div><p>הקאבר החדש (בדיוק כמו בגריד)</p><canvas></canvas></div>
+          <div><p>הקאבר שיש עכשיו באתר</p><img src="images/projects/manyone/post-${String(item.post).padStart(2, "0")}-cover.jpg?t=${Date.now()}" alt=""></div>
+        </div>
+        <div class="covers__actions">
+          <button type="button" data-step="-1">‹ פריים אחורה</button>
+          <button type="button" data-step="1">פריים קדימה ›</button>
+          <span class="covers__time">0.00 שניות</span>
+          <button type="button" class="covers__save">שמור קאבר</button>
+        </div>
+        <p class="covers__status"></p>`;
+      list.appendChild(card);
+
+      const video = card.querySelector("video");
+      const canvas = card.querySelector("canvas");
+      const time = card.querySelector(".covers__time");
+      const status = card.querySelector(".covers__status");
+      const current = card.querySelector("img");
+      const update = () => { drawCover(video, canvas); time.textContent = video.currentTime.toFixed(2) + " שניות"; };
+      // כשהסרטון מוכן, קופצים לפריים הראשון כדי שהתצוגה של הקאבר החדש לא תהיה ריקה
+      video.addEventListener("loadedmetadata", () => { video.currentTime = 0.01; });
+      video.addEventListener("loadeddata", update);
+      video.addEventListener("seeked", update);
+      video.addEventListener("pause", update);
+      card.querySelectorAll("[data-step]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          video.pause();
+          video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + Number(button.dataset.step) * FRAME));
+        });
+      });
+
+      card.querySelector(".covers__save").addEventListener("click", async function () {
+        if (!readToken()) { status.textContent = "צריך קודם לשמור מפתח GitHub (למעלה)."; return; }
+        video.pause();
+        update();
+        const button = this;
+        button.disabled = true;
+        status.textContent = "שומר…";
+        try {
+          // 1. התמונה של הקאבר
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.88));
+          const imageBase64 = bytesToBase64(new Uint8Array(await blob.arrayBuffer()));
+          const imagePath = `images/projects/manyone/post-${String(item.post).padStart(2, "0")}-cover.jpg`;
+          await saveFile(imagePath, imageBase64, `Manyone: new cover for post ${item.post} (${video.currentTime.toFixed(2)}s, from the covers page)`);
+          // 2. מספר גרסה לתמונה בעמוד, כדי שהדפדפנים יציגו את הקאבר החדש ולא את הישן
+          const page = await currentFile(PAGE);
+          const html = base64ToText(page.content);
+          const stamp = Date.now();
+          const pattern = new RegExp(`(${imagePath.replace(/[.]/g, "\\.")})(\\?c=\\d+)?"`, "g");
+          const updated = html.replace(pattern, `$1?c=${stamp}"`);
+          await github(PAGE, { method: "PUT", body: JSON.stringify({ message: `Manyone: show the new cover of post ${item.post}`, content: textToBase64(updated), branch: BRANCH, sha: page.sha }) });
+          current.src = canvas.toDataURL("image/jpeg", 0.88);
+          status.textContent = "נשמר ✓ האתר יתעדכן תוך דקה-שתיים.";
+        } catch (error) {
+          status.textContent = "לא נשמר: " + error.message;
+        }
+        button.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>
