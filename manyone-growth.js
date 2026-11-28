@@ -60,16 +60,28 @@
     const baseFS = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--home-text-size")) || 15; // כמו "manyone TLV"
     const wide = cw >= 500; // במחשב: המספרים מימין לגרף. בטלפון: מתחת
     const l = { cw, wide };
+    ctx.textAlign = "left"; // המדידות של הטקסט למטה מניחות יישור לשמאל
 
     if (wide) {
-      const u = cw / 700; // פיקסל אחד של הפיגמה, על המסך
+      const u = cw / 706; // פיקסל אחד של הפיגמה, על המסך (העמודה: 720 עד 1426)
       const FS = baseFS * Math.min(1, u);
       l.FS = FS;
       l.T = Math.ceil(FS * 1.2); // מקום מעל INSTAGRAM (ה-canvas עולה למעלה באותה כמות)
-      l.X0 = 0; l.X1 = 392 * u;
+      // הגרף מתחיל בדיוק בקו של "SM / PHOTOGRAPHY", והמספר הגדול בדיוק בקו של מספר הטלפון
+      const left = cv.getBoundingClientRect().left;
+      const field = document.querySelector(".project-meta--field");
+      const phone = document.querySelector(".project-contact--phone");
+      l.X0 = field ? Math.max(0, field.getBoundingClientRect().left - left) : 0;
+      l.X1 = l.X0 + 392 * u;
       l.yB = 2 * u; l.lineY = 15 * u;
       l.GY0 = 66 * u; l.GY1 = 338 * u; l.monthsY = 367 * u;
-      l.NX0 = 467 * u; l.NX1 = 690 * u;
+      l.NX0 = phone ? phone.getBoundingClientRect().left - left : 473 * u;
+      l.NX1 = 696 * u;
+      // הספרה 0 של הטלפון מתחילה קצת אחרי הקצה של התיבה שלה: מזיזים את 68.7K כך שהדיו יתחיל באותו מקום
+      if (phone) {
+        ctx.font = `${getComputedStyle(phone).fontSize} ${FONT}`;
+        l.phoneInk = -ctx.measureText("0").actualBoundingBoxLeft;
+      }
       l.heroY = 39 * u; l.labelY = 63 * u;
       l.rowsTop = 76 * u; l.rowH = 41.8 * u; l.rowText = 25 * u;
       l.heroCap = 58 * u; // גובה הספרות של 68.7K
@@ -90,6 +102,8 @@
     // גודל הפונט של 68.7K לפי גובה הספרות
     ctx.font = `100px ${FONT}`;
     l.HS = 100 * l.heroCap / ctx.measureText("68.7K").actualBoundingBoxAscent;
+    ctx.font = `${l.HS}px ${FONT}`;
+    l.heroX = l.NX0 + (l.phoneInk || 0) + ctx.measureText("6").actualBoundingBoxLeft; // הדיו של ה-6 על הקו
 
     // גודל ה-canvas: חד גם במסכים צפופים
     const dpr = Math.min(window.devicePixelRatio || 1, 3);
@@ -173,7 +187,7 @@
     const heroA = easeOut(prog(t, 2.2, 1.0));
     const heroV = 68.7 * easeOutExpo(prog(t, 2.2, 3.2));
     const yOff = (1 - heroA) * 12;
-    text(`${fmt(heroV, 1)}K`, L.NX0 - L.HS * 0.02, L.heroY + yOff, L.HS, heroA);
+    text(`${fmt(heroV, 1)}K`, L.heroX, L.heroY + yOff, L.HS, heroA);
     text("total views", L.NX0, L.labelY + yOff, FS, 0.6 * heroA);
 
     // שורות הנתונים

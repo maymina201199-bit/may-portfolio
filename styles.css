@@ -864,7 +864,6 @@ body {
 }
 
 .project-stats {
-  padding-left: calc(100vw * 6 / 1440);
   min-width: 0; /* כדי שהגרף לא ימתח את העמוד לרוחב */
 }
 
