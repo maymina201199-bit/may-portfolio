@@ -63,10 +63,11 @@
   --minimap-gap: calc(15px * var(--project-scale) * var(--dock-scale));
   --minimap-right: var(--space-project-edge); /* מיושר לשוליים של העמוד */
   --minimap-bottom: 24px;         /* מרחק מתחתית המסך */
-  --next-project-width: calc(115px * var(--project-scale) * var(--dock-scale));
-  --next-project-height: calc(24px * var(--project-scale) * var(--dock-scale));
-  --next-project-radius: calc(16px * var(--project-scale) * var(--dock-scale)); /* פינות מעוגלות */
-  --next-project-size: calc(12px * var(--project-scale) * var(--dock-scale));   /* גודל הטקסט בכפתור */
+  --next-project-scale: 1.5; /* הכפתור "Next project" גדול ב-50% */
+  --next-project-width: calc(115px * var(--project-scale) * var(--dock-scale) * var(--next-project-scale));
+  --next-project-height: calc(24px * var(--project-scale) * var(--dock-scale) * var(--next-project-scale));
+  --next-project-radius: calc(16px * var(--project-scale) * var(--dock-scale) * var(--next-project-scale)); /* פינות מעוגלות */
+  --next-project-size: calc(12px * var(--project-scale) * var(--dock-scale) * var(--next-project-scale));   /* גודל הטקסט בכפתור */
   --space-counter-top: 9px;        /* המספור: מרחק מהקצה העליון של הדימוי */
   --cursor-label-gap: 10px;      /* רווח בין הסוגריים למילה ב-[ NEXT ] */
   /* עמוד התהליך (המספרים מהפריים ברוחב 1440px) */
