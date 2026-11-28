@@ -484,6 +484,33 @@
       changedLayout();
     }
 
+    // ↑ שורה למעלה: אם התמונה מתחילה שורה חדשה, מבטלים את זה. אחרת מקדימים אותה בסדר
+    // רק כמה שצריך כדי שתעלה (ממלאת משבצת פנויה למעלה)
+    function moveUpRow(index) {
+      const specs = list => list.map(it => ({ span: it.span, shape: it.shape, newRow: it.newRow }));
+      const topOf = (list, i) => gridLayout(section, specs(list))[i].top;
+      const item = items[index];
+      const now = topOf(items, index);
+      if (item.newRow) {
+        item.newRow = false;
+        if (topOf(items, index) < now) { changedLayout(); render(); return; }
+        item.newRow = true;
+      }
+      for (let k = index - 1; k >= 0; k--) {
+        const trial = items.slice();
+        trial.splice(index, 1);
+        trial.splice(k, 0, item);
+        if (topOf(trial, k) < now) {
+          items = trial;
+          selected = k;
+          changedLayout();
+          render();
+          return;
+        }
+      }
+      say("אין לתמונה הזאת מקום בשורה שמעליה (אפשר להקטין אותה ולנסות שוב)");
+    }
+
     function change(edit) { edit(items[selected]); changedLayout(); render(); }
     function move(from, to) { selected = moveItem(items, from, to); changedLayout(); render(); }
 
@@ -519,6 +546,7 @@
       });
       group("זום:", zoom, zoomLabel, button("איפוס", "החיתוך חוזר למרכז, בלי זום", () => change(it => { it.dx = 0; it.dy = 0; it.zoom = 1; })));
       group("",
+        button("↑ שורה למעלה", "התמונה עולה לשורה שמעליה, למקום הפנוי הכי קרוב", () => moveUpRow(selected)),
         button("↵ שורה חדשה", "התמונה (ומה שאחריה) יורדת לשורה מתחת לכל מה שלפניה", () => change(it => { it.newRow = !it.newRow; }), item.newRow ? "is-on" : ""),
         button("‹ קודם", "מקום אחד קודם", () => move(selected, selected - 1)),
         button("הבא ›", "מקום אחד הבא", () => move(selected, selected + 2)),
