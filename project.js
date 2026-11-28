@@ -128,12 +128,17 @@ if (page) {
   nextLink.href = next + ".html" + (versionMatch ? "?v=" + versionMatch[1] : "");
   nextLink.textContent = "Next project";
 
-  // המפה והכפתור יחד, בפינה הימנית התחתונה
+  // המפה והכפתור יחד, בפינה הימנית התחתונה.
+  // הכפתור עצמו יושב ישר בעמוד (לא בתוך הפאנל), כדי שהצבע שלו יתהפך לפי מה שמאחוריו,
+  // ובפאנל יש במקומו ריבוע ריק באותו גודל
   const dock = document.createElement("div");
   dock.className = "project-dock";
   dock.appendChild(minimap);
-  dock.appendChild(nextLink);
+  const nextSpace = document.createElement("div");
+  nextSpace.className = "project-dock__next-space";
+  dock.appendChild(nextSpace);
   document.body.appendChild(dock);
+  document.body.appendChild(nextLink);
 
   // אחרי כמה פיקסלים של גלילה המפה מופיעה
   const SHOW_AFTER_SCROLL = 10;
@@ -162,6 +167,7 @@ if (page) {
     frame.style.height = frameHeight + "px";
 
     dock.classList.toggle("is-visible", window.scrollY > SHOW_AFTER_SCROLL);
+    nextLink.classList.toggle("is-visible", window.scrollY > SHOW_AFTER_SCROLL);
     minimap.dataset.scale = scale;
     minimap.dataset.shift = shift;
   }
