@@ -131,7 +131,7 @@
   addButton.textContent = isFeed ? "+ הוספת פוסט (תמונה או סרטון)" : "+ הוספת תמונות";
   section.after(addButton);
 
-  let editor, texts, introImage;
+  let editor, texts, introImage, chart;
   let dirty = false;
   const changed = () => { dirty = true; say("יש שינויים שלא נשמרו"); };
   // שינוי בגריד / בפיד (ולא רק בטקסט). רק אז שומרים את הגריד מחדש
@@ -150,7 +150,7 @@
       say("שומר את העמוד…");
       const page = await currentFile(pageFile);
       const html = base64ToText(page.content);
-      const updated = introImage.apply(texts.apply(layoutChanged ? editor.writePage(html) : html));
+      const updated = chart.apply(introImage.apply(texts.apply(layoutChanged ? editor.writePage(html) : html)));
       await github(pageFile, { method: "PUT", body: JSON.stringify({ message: `${pageFile}: updated from the admin page`, content: textToBase64(updated), branch: BRANCH, sha: page.sha }) });
       dirty = false;
       layoutChanged = false;
@@ -337,6 +337,62 @@
         const result = html.replace(/<(img|video) class="project-intro__image"[^>]*>(<\/video>)?/, () => newHtml);
         newHtml = null;
         return result;
+      },
+    };
+  }
+
+  // ===================== הנתונים של הגרף (עמודי סושיאל) =====================
+  // כפתור "עריכת נתוני הגרף" פותח טופס. הגרף בעמוד מתעדכן אחרי השמירה
+  function chartEditor(doc) {
+    const canvas = document.getElementById("growth-chart");
+    const sourceCanvas = doc.getElementById("growth-chart");
+    if (!canvas || !sourceCanvas) return { apply: html => html };
+    const FIELDS = [
+      ["platform", "הפלטפורמה (מעל הגרף)", "INSTAGRAM"],
+      ["months", "כמה חודשים", "3"],
+      ["total", "סך הצפיות (המספר הגדול, בלי האות)", ""],
+      ["unit", "האות אחרי המספר (K = אלפים, M = מיליונים, או ריק)", "K"],
+      ["views", "views: אחוז הצמיחה (בלי % ובלי +)", ""],
+      ["viewers", "viewers: אחוז הצמיחה", ""],
+      ["nonfollowers", "non-follower views: אחוז הצמיחה", ""],
+    ];
+    const data = {};
+    FIELDS.forEach(([key, , fallback]) => { data[key] = sourceCanvas.dataset[key] !== undefined ? sourceCanvas.dataset[key] : fallback; });
+    let edited = false;
+    const stats = canvas.closest(".project-stats");
+    stats.appendChild(button(sourceCanvas.dataset.empty ? "הוספת נתונים לגרף" : "עריכת נתוני הגרף", "המספרים שבגרף", openForm, "edit-intro-button edit-chart-button"));
+    const modal = document.createElement("div");
+    modal.className = "edit-modal";
+    modal.hidden = true;
+    modal.innerHTML = `<form class="edit-modal__box admin__new"><h2>הנתונים של הגרף</h2>${FIELDS.map(([key, label]) =>
+      `<label>${label}<input name="${key}" dir="ltr" autocomplete="off"></label>`).join("")}
+      <div class="edit-modal__actions"><button type="submit" class="is-main">אישור</button><button type="button" data-act="close">ביטול</button></div>
+      <p class="edit-modal__note">הגרף בעמוד יתעדכן אחרי שלוחצים "שמור" למעלה.</p></form>`;
+    document.body.appendChild(modal);
+    const form = modal.querySelector("form");
+    function openForm() {
+      FIELDS.forEach(([key]) => { form[key].value = data[key]; });
+      modal.hidden = false;
+    }
+    modal.addEventListener("click", e => { if (e.target === modal || e.target.closest('[data-act="close"]')) modal.hidden = true; });
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const clean = v => v.trim().replace(/[+%,\s]/g, "");
+      FIELDS.forEach(([key]) => { data[key] = key === "platform" || key === "unit" ? form[key].value.trim() : clean(form[key].value); });
+      if (!data.total || !data.views) { alert("צריך לפחות את סך הצפיות ואת אחוז הצמיחה של views"); return; }
+      edited = true;
+      modal.hidden = true;
+      changed();
+      say("נתוני הגרף השתנו (יתעדכנו בעמוד אחרי השמירה)");
+    });
+    return {
+      apply(html) {
+        if (!edited) return html;
+        const attrs = FIELDS.map(([key]) => ` data-${key}="${escapeAttr(data[key])}"`).join("");
+        const label = `${data.platform}, ${data.months} months: +${data.views}% views, +${data.viewers}% viewers, +${data.nonfollowers}% non-follower views, ${data.total}${data.unit} total views`;
+        edited = false;
+        return html.replace(/<canvas class="project-stats__chart"[^>]*>/, () =>
+          `<canvas class="project-stats__chart" id="growth-chart" role="img"\n         ${attrs}\n          aria-label="${escapeAttr(label)}">`);
       },
     };
   }
@@ -982,6 +1038,7 @@
     const source = doc.querySelector(".project-page " + selector) || doc.querySelector(selector) || section;
     texts = textEditor(doc);
     introImage = introEditor();
+    chart = chartEditor(doc);
     editor = isFeed ? feedEditor(source) : gridEditor(source);
     addButton.addEventListener("click", () => editor.add());
     if (!readToken()) say("אין מפתח GitHub בדפדפן הזה: אפשר לנסות, אבל כדי לשמור צריך לשמור מפתח בעמוד הניהול.");

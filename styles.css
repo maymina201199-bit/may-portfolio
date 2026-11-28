@@ -2206,3 +2206,60 @@ body {
 .project-feed > .tile {
   cursor: zoom-in;
 }
+
+/* גרף בלי נתונים (עמוד סושיאל חדש): לא מוצג באתר */
+.project-stats.is-empty .project-stats__chart {
+  display: none;
+}
+
+/* מצב עריכה: הכפתור של נתוני הגרף, ומקום לגרף שעוד אין לו נתונים */
+.is-editing .project-stats {
+  position: relative;
+  min-height: 80px;
+}
+
+.edit-chart-button {
+  left: auto;
+  right: 8px;
+}
+
+/* מצב עריכה: טקסט ריק נראה כמו מקום לכתוב בו */
+.is-editing [data-editable]:empty::before {
+  content: "כתבי כאן…";
+  opacity: 0.4;
+}
+
+.is-editing .edit-text:empty {
+  display: inline-block;
+  min-width: 200px;
+}
+
+/* ===== פס הגלילה של העמוד: קו לבן דק (כמו הקווים של האייקונים), שמתעבה כשהעכבר עליו ===== */
+html {
+  scrollbar-color: var(--color-home-text) transparent; /* Firefox */
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* הקו: 1px באמצע (השוליים השקופים מסביב הם המקום שאפשר לתפוס) */
+::-webkit-scrollbar-thumb {
+  border: 5px solid transparent;
+  background-color: var(--color-home-text);
+  background-clip: padding-box;
+}
+
+/* כשהעכבר על הקו או כשגוררים אותו: קצת יותר עבה, כדי שיהיה קל לתפוס */
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  border-width: 3px;
+}

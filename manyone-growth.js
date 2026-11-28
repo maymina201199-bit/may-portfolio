@@ -4,17 +4,30 @@
 (function () {
   const cv = document.getElementById("growth-chart");
   if (!cv) return;
+  // עוד אין נתונים (data-empty): הגרף לא מוצג באתר עד שממלאים אותם בעמוד הניהול
+  if (cv.dataset.empty) { cv.closest(".project-stats").classList.add("is-empty"); return; }
   const ctx = cv.getContext("2d");
   const DURATION = 9; // שניות
   const FONT = '"Polymath Display", Arial, sans-serif'; // הפונט של הכותרות באתר
 
-  // ---------- הנתונים: 90 ימים של צמיחה (פי 17 בערך, כמו +1,614%) ----------
+  // ---------- הנתונים: מה-canvas בעמוד (data-...), כך שלכל עמוד סושיאל יש נתונים משלו.
+  // עורכים אותם בעמוד הניהול. בלי נתונים: הנתונים של Manyone ----------
+  const d = cv.dataset;
+  const num = (value, fallback) => { const n = parseFloat(value); return isNaN(n) ? fallback : n; };
+  const decimals = (value, fallback) => (String(value || fallback).split(".")[1] || "").length;
+  const PLATFORM = (d.platform || "INSTAGRAM").toUpperCase();
+  const MONTHS = Math.max(1, Math.round(num(d.months, 3)));
+  const TOTAL = num(d.total, 68.7), TOTAL_DEC = decimals(d.total, "68.7"), UNIT = d.unit !== undefined ? d.unit : "K";
+  const VIEWS = num(d.views, 1614.1);
+  const GROWTH = Math.max(1.05, 1 + VIEWS / 100); // כמה פעמים העקומה עולה מההתחלה עד הסוף
+
+  // ---------- העקומה: 90 ימים של צמיחה, עד הצמיחה של הצפיות ----------
   let seed = 7;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const N = 90, raw = [];
   for (let i = 0; i < N; i++) {
     const x = i / (N - 1);
-    const base = 1 + 16.1 * (Math.exp(3.2 * x) - 1) / (Math.exp(3.2) - 1);
+    const base = 1 + (GROWTH - 1) * (Math.exp(3.2 * x) - 1) / (Math.exp(3.2) - 1);
     raw.push(base * (1 + (rnd() - 0.5) * 0.28) + (i % 7 === 5 ? base * 0.12 : 0));
   }
   const pts = raw.map((v, i) => {
@@ -22,14 +35,15 @@
     for (let k = -2; k <= 2; k++) { const j = i + k; if (j >= 0 && j < N) { s += raw[j]; c++; } }
     return s / c;
   });
-  pts[0] = 1; pts[N - 1] = 17.141;
-  const maxV = 17.141;
+  pts[0] = 1; pts[N - 1] = GROWTH;
+  const maxV = Math.max(GROWTH, ...pts);
 
   const stats = [
-    { v: 1614.1, dec: 1, label: "views" },
-    { v: 4815,   dec: 0, label: "viewers" },
-    { v: 852.2,  dec: 1, label: "non-follower views" },
+    { v: VIEWS,                        dec: decimals(d.views, "1614.1"),        label: "views" },
+    { v: num(d.viewers, 4815),         dec: decimals(d.viewers, "4815"),        label: "viewers" },
+    { v: num(d.nonfollowers, 852.2),   dec: decimals(d.nonfollowers, "852.2"),  label: "non-follower views" },
   ];
+
 
   // ---------- עזרים ----------
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -38,6 +52,7 @@
   const easeOutExpo = p => p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
   const easeInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   const fmt = (v, dec) => v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  const HERO_TEXT = `${fmt(TOTAL, TOTAL_DEC)}${UNIT}`; // המספר הגדול, למשל 68.7K
 
   function text(str, x, y, size, alpha, align = "left") {
     ctx.font = `${size}px ${FONT}`;
@@ -110,7 +125,8 @@
     }
     // גודל הפונט של 68.7K לפי גובה הספרות
     ctx.font = `100px ${FONT}`;
-    l.HS = 100 * l.heroCap / ctx.measureText("68.7K").actualBoundingBoxAscent;
+    l.HS = Math.min(100 * l.heroCap / ctx.measureText(HERO_TEXT).actualBoundingBoxAscent,
+                    100 * (l.NX1 - l.NX0) / ctx.measureText(HERO_TEXT).width); // לא רחב מהעמודה
     ctx.font = `${l.HS}px ${FONT}`;
     l.heroX = l.NX0 + (l.phoneInk || 0) + ctx.measureText("6").actualBoundingBoxLeft; // הדיו של ה-6 על הקו
 
@@ -138,8 +154,8 @@
 
     // הכותרת
     const hA = easeOut(prog(t, 0, 0.8));
-    text("INSTAGRAM", X0, L.yB, FS, 0.85 * hA);
-    text("3 MONTHS", X1, L.yB, FS, 0.55 * hA, "right");
+    text(PLATFORM, X0, L.yB, FS, 0.85 * hA);
+    text(`${MONTHS} MONTH${MONTHS === 1 ? "" : "S"}`, X1, L.yB, FS, 0.55 * hA, "right");
 
     // קווי הרשת
     const gA = easeOut(prog(t, 0.3, 0.9));
@@ -148,16 +164,16 @@
       hline(X0, X0 + (X1 - X0) * easeInOut(prog(t, 0.3 + k * 0.06, 0.9)), y, (k === 0 ? 0.45 : 0.1) * gA);
     }
     // החודשים
-    for (let m = 0; m < 3; m++) {
+    for (let m = 0; m < MONTHS; m++) {
       const a = easeOut(prog(t, 0.6 + m * 0.12, 0.7));
-      const xs = X0 + (X1 - X0) * (m + 1) / 3;
-      if (m < 2) {
+      const xs = X0 + (X1 - X0) * (m + 1) / MONTHS;
+      if (m < MONTHS - 1) {
         ctx.setLineDash([2, 4]);
         ctx.strokeStyle = `rgba(255,255,255,${0.14 * a})`; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(xs, GY1); ctx.lineTo(xs, GY1 - (GY1 - GY0) * a); ctx.stroke();
         ctx.setLineDash([]);
       }
-      text(`MONTH ${m + 1}`, X0 + (X1 - X0) * (m + 0.5) / 3, L.monthsY, FS, 0.5 * a, "center");
+      text(`MONTH ${m + 1}`, X0 + (X1 - X0) * (m + 0.5) / MONTHS, L.monthsY, FS, 0.5 * a, "center");
     }
 
     // העקומה
@@ -188,14 +204,14 @@
       // האחוז שרץ ליד הקצה
       const growth = (pts[i0] + (pts[i1] - pts[i0]) * f - 1) * 100;
       const la = easeOut(prog(t, 1.4, 0.6));
-      text(`+${fmt(dp >= 1 ? 1614.1 : growth, 1)}%`, Math.min(tx, X1 - 4) - 10, ty - 12, FS, 0.95 * la, "right");
+      text(`+${fmt(dp >= 1 ? VIEWS : growth, stats[0].dec)}%`, Math.min(tx, X1 - 4) - 10, ty - 12, FS, 0.95 * la, "right");
     }
 
     // המספר הגדול: סך הצפיות
     const heroA = easeOut(prog(t, 2.2, 1.0));
-    const heroV = 68.7 * easeOutExpo(prog(t, 2.2, 3.2));
+    const heroV = TOTAL * easeOutExpo(prog(t, 2.2, 3.2));
     const yOff = (1 - heroA) * 12;
-    text(`${fmt(heroV, 1)}K`, L.heroX, L.heroY + yOff, L.HS, heroA);
+    text(`${fmt(heroV, TOTAL_DEC)}${UNIT}`, L.heroX, L.heroY + yOff, L.HS, heroA);
     text("total views", L.NX0, L.labelY + yOff, FS, 0.6 * heroA);
 
     // שורות הנתונים
