@@ -372,6 +372,7 @@
       }
       return {
         tag: media.tagName.toLowerCase(), attrs, span, shape,
+        newRow: figure.dataset.break === "1", // מתחיל שורה חדשה (יורד מתחת לכל מה שלפניו)
         ratio: parseFloat(css("--photo-ratio")) || 0,
         dx: known ? parseFloat(css("--dx")) || 0 : 0,
         dy: known ? parseFloat(css("--dy")) || 0 : 0,
@@ -410,6 +411,7 @@
         figure.className = "tile" + (index === selected ? " is-selected" : "");
         figure.dataset.span = item.span;
         figure.dataset.shape = item.shape;
+        if (item.newRow) figure.dataset.break = "1";
         figure.style.setProperty("--span", item.span);
         const img = document.createElement("img");
         img.className = "project-images__image";
@@ -420,6 +422,7 @@
           const r = img.naturalWidth / img.naturalHeight;
           if (r && Math.abs(r - item.ratio) > 0.001) { item.ratio = r; clampCrop(item); img.style.cssText = mediaStyle(item); }
         });
+        if (item.newRow) figure.insertAdjacentHTML("beforeend", '<span class="edit-badge edit-badge--row">↵ שורה חדשה</span>');
         figure.appendChild(img);
         if (item.tag === "video") figure.insertAdjacentHTML("beforeend", '<span class="edit-badge edit-badge--top">סרטון</span>');
         if (index === selected) figure.insertAdjacentHTML("beforeend", swapping
@@ -516,6 +519,7 @@
       });
       group("זום:", zoom, zoomLabel, button("איפוס", "החיתוך חוזר למרכז, בלי זום", () => change(it => { it.dx = 0; it.dy = 0; it.zoom = 1; })));
       group("",
+        button("↵ שורה חדשה", "התמונה (ומה שאחריה) יורדת לשורה מתחת לכל מה שלפניה", () => change(it => { it.newRow = !it.newRow; }), item.newRow ? "is-on" : ""),
         button("‹ קודם", "מקום אחד קודם", () => move(selected, selected - 1)),
         button("הבא ›", "מקום אחד הבא", () => move(selected, selected + 2)),
         button("החלפה עם תמונה אחרת בעמוד", "התמונה עוברת למשבצת אחרת, והתמונה משם עוברת לכאן", () => { swapping = true; say("לחצי על התמונה שאיתה להחליף (Esc לביטול)"); render(); }, swapping ? "is-on" : ""),
@@ -573,7 +577,7 @@
       const lines = items.map(function (item) {
         const style = mediaStyle(item);
         const media = `<${item.tag} class="project-images__image"${attrsHtml(item.attrs)}${style ? ` style="${style}"` : ""}>${item.tag === "video" ? "</video>" : ""}`;
-        return `      <figure class="tile" data-span="${item.span}" data-shape="${item.shape}" style="--span: ${item.span}">${media}</figure>`;
+        return `      <figure class="tile" data-span="${item.span}" data-shape="${item.shape}"${item.newRow ? ' data-break="1"' : ""} style="--span: ${item.span}">${media}</figure>`;
       });
       return html.replace(SECTION, () => `<section class="project-images project-grid">\n${lines.join("\n")}\n    </section>`);
     }

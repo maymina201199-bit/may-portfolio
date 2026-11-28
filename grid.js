@@ -20,12 +20,26 @@
     grid.classList.add("is-packed");
     grid.style.gridAutoRows = unit + "px";
     grid.style.rowGap = "0px";
+    // כל ריבוע נכנס למקום הכי גבוה (ואז הכי שמאלי) שפנוי לו, גם בחור שנשאר למעלה (כמו בפיגמה).
+    // ריבוע עם data-break="1" מתחיל שורה חדשה: הוא וכל מה שאחריו יורדים מתחת לכל מה שלפניו
+    const placed = []; // הריבועים שכבר במקום: טורים [c0, c1) ושורות [r0, r1)
+    let floor = 0;     // מעל השורה הזאת כבר לא מכניסים ריבועים
+    const free = (c0, c1, r0, r1) => placed.every(p => c1 <= p.c0 || c0 >= p.c1 || r1 <= p.r0 || r0 >= p.r1);
     tiles.forEach(function (tile) {
       const span = Math.min(cols, Math.max(1, parseInt(tile.dataset.span, 10) || 2));
       const heightRatio = tile.dataset.shape === "port" ? 5 / 4 : 4 / 5; // גובה חלקי רוחב
       const rows = Math.max(1, Math.round((widthOf(span) * heightRatio + gap) / unit));
-      tile.style.gridColumn = "span " + span;
-      tile.style.gridRow = "span " + rows;
+      if (tile.dataset.break === "1") floor = Math.max(floor, ...placed.map(p => p.r1));
+      // המקומות האפשריים: הרצפה, או מתחת לריבוע שכבר במקום
+      const tops = [...new Set([floor, ...placed.map(p => p.r1).filter(r => r >= floor)])].sort((a, b) => a - b);
+      let spot = null;
+      for (const top of tops) {
+        for (let c = 0; c + span <= cols && !spot; c++) if (free(c, c + span, top, top + rows)) spot = { c, top };
+        if (spot) break;
+      }
+      placed.push({ c0: spot.c, c1: spot.c + span, r0: spot.top, r1: spot.top + rows });
+      tile.style.gridColumn = `${spot.c + 1} / span ${span}`;
+      tile.style.gridRow = `${spot.top + 1} / span ${rows}`;
       tile.style.height = rows * unit - gap + "px";
     });
   }

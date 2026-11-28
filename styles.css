@@ -2097,3 +2097,12 @@ body {
 .admin__home-item.is-dragging {
   opacity: 0.4;
 }
+
+/* מצב עריכה: סימון של ריבוע שמתחיל שורה חדשה */
+.edit-badge--row {
+  top: 8px;
+  bottom: auto;
+  left: auto;
+  right: 46px;
+  transform: none;
+}
