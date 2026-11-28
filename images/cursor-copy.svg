@@ -1,5 +1,6 @@
-<svg width="14" height="20" viewBox="0 0 14 20" fill="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-<!-- אייקון ההעתקה מהפיגמה (54 על 80, כאן ברבע): דף מלפנים ומאחוריו דף נוסף -->
-<path d="M2.5 0.5H13.5V17.5H2.5Z" stroke="white" stroke-width="1"/>
-<path d="M0.5 2.5V19.5H11.5" stroke="white" stroke-width="1"/>
+<svg width="28" height="40" viewBox="0 0 28 40" fill="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+<!-- אייקון ההעתקה מהפיגמה: הדף שמלפנים בגודל של הריבוע עם החץ (36 על 24, כאן עומד: 24 על 36),
+     ומאחוריו דף נוסף -->
+<path d="M4.5 0.5H27.5V35.5H4.5Z" stroke="white" stroke-width="1"/>
+<path d="M0.5 4V39.5H24" stroke="white" stroke-width="1"/>
 </svg>

@@ -859,12 +859,12 @@ body {
   display: none !important;
 }
 
-/* האייקון (14 על 20, רבע מהפיגמה), ממורכז על העכבר */
+/* האייקון: הדף שמלפנים בגודל של הריבוע עם החץ (24 על 36), ממורכז על העכבר */
 .copy-cursor__icon {
   display: none;
-  width: 14px;
-  height: 20px;
-  margin: -10px 0 0 -7px;
+  width: 28px;
+  height: 40px;
+  margin: -20px 0 0 -14px;
 }
 
 .copy-cursor[data-state="icon"] .copy-cursor__icon {
