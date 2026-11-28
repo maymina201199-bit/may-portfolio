@@ -1902,3 +1902,63 @@ body {
 .is-editing .project-intro__credit[data-editable] {
   white-space: pre-line;
 }
+
+/* ===== עמוד הניהול: הגריד של עמוד הבית ===== */
+.admin__home {
+  margin-top: 16px;
+}
+
+.admin__home-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  background-color: var(--color-home-background);
+}
+
+.admin__home-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: normal;
+}
+
+.admin__home-bar .covers__status {
+  flex: 1;
+  width: auto;
+  margin: 0;
+}
+
+.admin__home-grid {
+  gap: 12px;
+}
+
+.admin__home-item {
+  position: relative;
+}
+
+.admin__home-item.is-changed .home-gallery__media {
+  outline: 3px solid var(--color-marker);
+  outline-offset: 2px;
+}
+
+/* הכפתורים על כל פרויקט */
+.admin__home-tools {
+  position: absolute;
+  right: 8px;
+  bottom: 40px;
+  left: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.covers .admin__home-tools button {
+  padding: 6px 12px;
+  background-color: var(--color-marker);
+  color: var(--color-ink);
+}
