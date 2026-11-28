@@ -1,19 +1,13 @@
 // הגרף המונפש של הצמיחה באינסטגרם (3 חודשים) בעמוד של Manyone.
-// מצויר על canvas בגודל 1080 על 1920. האנימציה מתחילה כשהגרף מגיע למסך,
-// חוזרת על עצמה, ונעצרת כשהוא לא נראה (כדי לא להעמיס על המחשב).
+// במחשב: הגרף משמאל והמספרים מימין לו. בטלפון: המספרים מתחת לגרף.
+// המילה INSTAGRAM יושבת על אותו קו כמו השורה הראשונה של הטקסט משמאל.
+// האנימציה מתחילה כשהגרף מגיע למסך, חוזרת על עצמה, ונעצרת כשהוא לא נראה.
 (function () {
   const cv = document.getElementById("growth-chart");
   if (!cv) return;
   const ctx = cv.getContext("2d");
-  const W = 1080, H = 1920, DURATION = 9; // שניות
-  // הפונט של הכותרות באתר, ובגודל של "manyone TLV" (18 בפיגמה), כפי שהוא נראה על המסך
-  const FONT = '"Polymath Display", Arial, sans-serif';
-  function screenTextSize() {
-    const px = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--home-text-size")) || 15;
-    return px * W / (cv.clientWidth || W); // הגרף מוקטן על המסך, אז מגדילים את הטקסט בהתאם
-  }
-  let FS = screenTextSize();
-  window.addEventListener("resize", () => { FS = screenTextSize(); });
+  const DURATION = 9; // שניות
+  const FONT = '"Polymath Display", Arial, sans-serif'; // הפונט של הכותרות באתר
 
   // ---------- הנתונים: 90 ימים של צמיחה (פי 17 בערך, כמו +1,614%) ----------
   let seed = 7;
@@ -24,7 +18,6 @@
     const base = 1 + 16.1 * (Math.exp(3.2 * x) - 1) / (Math.exp(3.2) - 1);
     raw.push(base * (1 + (rnd() - 0.5) * 0.28) + (i % 7 === 5 ? base * 0.12 : 0));
   }
-  // החלקה קלה, והתחלה וסוף מדויקים
   const pts = raw.map((v, i) => {
     let s = 0, c = 0;
     for (let k = -2; k <= 2; k++) { const j = i + k; if (j >= 0 && j < N) { s += raw[j]; c++; } }
@@ -32,6 +25,12 @@
   });
   pts[0] = 1; pts[N - 1] = 17.141;
   const maxV = 17.141;
+
+  const stats = [
+    { v: 1614.1, dec: 1, label: "views" },
+    { v: 4815,   dec: 0, label: "viewers" },
+    { v: 852.2,  dec: 1, label: "non-follower views" },
+  ];
 
   // ---------- עזרים ----------
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -41,65 +40,119 @@
   const easeInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   const fmt = (v, dec) => v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
 
-  // כל הטקסטים בגרף באותו פונט ובאותו גודל (FS)
-  function text(str, x, y, size, weight, alpha, align = "left", spacing = 0) {
-    ctx.font = `${FS}px ${FONT}`;
-    ctx.letterSpacing = "0px";
-    ctx.textAlign = align; ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+  function text(str, x, y, size, alpha, align = "left") {
+    ctx.font = `${size}px ${FONT}`;
+    ctx.textAlign = align;
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
     ctx.fillText(str, x, y);
   }
-  function hline(x1, x2, y, alpha, w = 1.5) {
+  function hline(x1, x2, y, alpha, w = 1) {
     ctx.strokeStyle = `rgba(255,255,255,${alpha})`; ctx.lineWidth = w;
     ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
   }
 
-  // ---------- המיקומים ----------
-  const M = 90, GX0 = M, GX1 = W - M, GY0 = 360, GY1 = 1040;
-  const gx = i => GX0 + (GX1 - GX0) * (i / (N - 1));
-  const gy = v => GY1 - (GY1 - GY0) * ((v - 1) / (maxV - 1)) * 0.92 - 6;
+  // ---------- המיקומים (בפיקסלים של המסך) ----------
+  let L = {};
 
-  const stats = [
-    { v: 1614.1, dec: 1, pre: "+", suf: "%", label: "views" },
-    { v: 4815,   dec: 0, pre: "+", suf: "%", label: "viewers" },
-    { v: 852.2,  dec: 1, pre: "+", suf: "%", label: "non-follower views" },
-  ];
+  // איפה עובר הקו של השורה הראשונה בטקסט משמאל, ביחס לראש הגרף
+  function firstLineBaseline() {
+    const desc = document.querySelector(".project-intro__description");
+    const node = desc && desc.firstChild;
+    if (!node || !node.textContent.trim()) return null;
+    const range = document.createRange();
+    range.setStart(node, 0); range.setEnd(node, 1);
+    const box = range.getClientRects()[0];
+    if (!box) return null;
+    ctx.font = `${getComputedStyle(desc).fontSize} ${FONT}`;
+    const ascent = ctx.measureText("S").fontBoundingBoxAscent;
+    return box.top + ascent - cv.getBoundingClientRect().top;
+  }
+
+  function layout() {
+    const cw = cv.clientWidth;
+    const FS = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--home-text-size")) || 15; // כמו "manyone TLV"
+    const wide = cw >= 500; // במחשב: המספרים מימין לגרף
+    const k = wide ? cw / 700 : 1;
+    const l = { cw, FS, wide };
+
+    const aligned = wide ? firstLineBaseline() : null;
+    l.yB = aligned !== null && aligned > FS ? aligned : FS; // הקו של INSTAGRAM
+    l.X0 = 0;
+    // עמודת המספרים: 230 מתוך 700, אבל לא צרה מ-240 פיקסלים (שהמילים לא יעלו על המספרים)
+    l.NX0 = wide ? cw - Math.max(230 * k, 240) : 0;
+    l.NX1 = cw;
+    l.X1 = wide ? l.NX0 - 50 * k : cw;
+    l.lineY = l.yB + 16;
+    l.GY0 = l.yB + 70 * k;
+    l.GY1 = l.GY0 + (wide ? 290 * k : cw * 0.62);
+    l.monthsY = l.GY1 + 16 + FS;
+
+    // המספר הגדול (כמו באנימציה המקורית) — בגודל שנכנס ברוחב
+    ctx.font = `100px ${FONT}`;
+    const w100 = ctx.measureText("68.7K").width;
+    l.HS = Math.min(wide ? 88 * k : cw * 0.194, (l.NX1 - l.NX0) * 100 / w100);
+    l.rowH = 3 * FS;
+
+    if (wide) {
+      // המספרים מימין: השורה האחרונה נגמרת בקו התחתון של הגרף
+      l.rowsTop = l.GY1 - 3 * l.rowH;
+    } else {
+      // בטלפון: מתחת לגרף
+      l.rowsTop = l.monthsY + 48 + l.HS * 0.75 + FS + 24;
+    }
+    l.labelY = l.rowsTop - 14;
+    l.heroY = l.labelY - FS - 12;
+    l.H = Math.ceil(Math.max(l.monthsY, l.rowsTop + 3 * l.rowH) + 8);
+
+    // גודל ה-canvas: חד גם במסכים צפופים
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    l.dpr = dpr;
+    cv.style.height = l.H + "px";
+    cv.width = Math.round(cw * dpr);
+    cv.height = Math.round(l.H * dpr);
+    L = l;
+  }
 
   function render(t) {
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
+    const { FS, X0, X1, GY0, GY1 } = L;
+    const gx = i => X0 + (X1 - X0) * (i / (N - 1));
+    const gy = v => GY1 - (GY1 - GY0) * ((v - 1) / (maxV - 1)) * 0.92 - 2;
+
+    ctx.setTransform(L.dpr, 0, 0, L.dpr, 0, 0);
+    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, L.cw, L.H);
     ctx.lineCap = "round"; ctx.lineJoin = "round";
 
     // הכותרת
     const hA = easeOut(prog(t, 0, 0.8));
-    text("INSTAGRAM", M, 190, 30, 400, 0.85 * hA, "left", 8);
-    text("3 MONTHS", W - M, 190, 30, 300, 0.55 * hA, "right", 8);
-    hline(M, M + (W - 2 * M) * easeInOut(prog(t, 0.1, 1.0)), 235, 0.35);
+    text("INSTAGRAM", X0, L.yB, FS, 0.85 * hA);
+    text("3 MONTHS", X1, L.yB, FS, 0.55 * hA, "right");
+    hline(X0, X0 + (X1 - X0) * easeInOut(prog(t, 0.1, 1.0)), L.lineY, 0.35);
 
     // קווי הרשת
     const gA = easeOut(prog(t, 0.3, 0.9));
     for (let k = 0; k <= 4; k++) {
       const y = GY1 - (GY1 - GY0) * k / 4;
-      hline(GX0, GX0 + (GX1 - GX0) * easeInOut(prog(t, 0.3 + k * 0.06, 0.9)), y, (k === 0 ? 0.45 : 0.1) * gA, k === 0 ? 1.5 : 1);
+      hline(X0, X0 + (X1 - X0) * easeInOut(prog(t, 0.3 + k * 0.06, 0.9)), y, (k === 0 ? 0.45 : 0.1) * gA);
     }
     // החודשים
     for (let m = 0; m < 3; m++) {
       const a = easeOut(prog(t, 0.6 + m * 0.12, 0.7));
-      const xs = GX0 + (GX1 - GX0) * (m + 1) / 3;
+      const xs = X0 + (X1 - X0) * (m + 1) / 3;
       if (m < 2) {
-        ctx.setLineDash([4, 10]);
+        ctx.setLineDash([2, 4]);
         ctx.strokeStyle = `rgba(255,255,255,${0.14 * a})`; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(xs, GY1); ctx.lineTo(xs, GY1 - (GY1 - GY0) * a); ctx.stroke();
         ctx.setLineDash([]);
       }
-      text(`MONTH ${m + 1}`, GX0 + (GX1 - GX0) * (m + 0.5) / 3, GY1 + 62, 24, 300, 0.5 * a, "center", 5);
+      text(`MONTH ${m + 1}`, X0 + (X1 - X0) * (m + 0.5) / 3, L.monthsY, FS, 0.5 * a, "center");
     }
 
     // העקומה
     const dp = easeInOut(prog(t, 0.9, 4.0));
     const end = dp * (N - 1);
     if (dp > 0) {
-      ctx.strokeStyle = "#fff"; ctx.lineWidth = 3;
-      ctx.shadowColor = "rgba(255,255,255,0.55)"; ctx.shadowBlur = 14;
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5;
+      ctx.shadowColor = "rgba(255,255,255,0.55)"; ctx.shadowBlur = 6;
       ctx.beginPath(); ctx.moveTo(gx(0), gy(pts[0]));
       const last = Math.floor(end);
       for (let i = 1; i <= last; i++) {
@@ -112,62 +165,63 @@
       ctx.shadowBlur = 0;
 
       // הקצה של הקו: נקודה, טבעת שפועמת וקו מנוקד למטה
-      ctx.setLineDash([3, 9]); ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(tx, ty + 14); ctx.lineTo(tx, GY1); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(tx, ty, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.setLineDash([1.5, 4]); ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(tx, ty + 6); ctx.lineTo(tx, GY1); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(tx, ty, 3, 0, Math.PI * 2); ctx.fill();
       const pulse = (t * 0.9) % 1;
-      ctx.strokeStyle = `rgba(255,255,255,${0.6 * (1 - pulse)})`; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(tx, ty, 10 + pulse * 26, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = `rgba(255,255,255,${0.6 * (1 - pulse)})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(tx, ty, 4 + pulse * 11, 0, Math.PI * 2); ctx.stroke();
 
       // האחוז שרץ ליד הקצה
       const growth = (pts[i0] + (pts[i1] - pts[i0]) * f - 1) * 100;
-      const lx = Math.min(tx, GX1 - 10), la = easeOut(prog(t, 1.4, 0.6));
-      text(`+${fmt(dp >= 1 ? 1614.1 : growth, 1)}%`, lx - 22, ty - 32, 34, 300, 0.95 * la, "right", 1);
+      const la = easeOut(prog(t, 1.4, 0.6));
+      text(`+${fmt(dp >= 1 ? 1614.1 : growth, 1)}%`, Math.min(tx, X1 - 4) - 10, ty - 12, FS, 0.95 * la, "right");
     }
 
     // המספר הגדול: סך הצפיות
     const heroA = easeOut(prog(t, 2.2, 1.0));
     const heroV = 68.7 * easeOutExpo(prog(t, 2.2, 3.2));
-    const yOff = (1 - heroA) * 30;
-    text(`${fmt(heroV, 1)}K`, M - 6, 1330 + yOff, 210, 100, heroA, "left", -4);
-    text("total views", M, 1395 + yOff, 32, 300, 0.6 * heroA, "left", 4);
+    const yOff = (1 - heroA) * 12;
+    text(`${fmt(heroV, 1)}K`, L.NX0 - L.HS * 0.03, L.heroY + yOff, L.HS, heroA);
+    text("total views", L.NX0, L.labelY + yOff, FS, 0.6 * heroA);
 
     // שורות הנתונים
     stats.forEach((s, k) => {
       const st = 2.9 + k * 0.45;
       const a = easeOut(prog(t, st, 0.9));
-      const y = 1500 + k * 120;
-      hline(M, M + (W - 2 * M) * easeInOut(prog(t, st - 0.1, 1.0)), y - 72, 0.22, 1);
+      const top = L.rowsTop + k * L.rowH;
+      hline(L.NX0, L.NX0 + (L.NX1 - L.NX0) * easeInOut(prog(t, st - 0.1, 1.0)), top, 0.22);
       const v = s.v * easeOutExpo(prog(t, st, 2.8));
-      const off = (1 - a) * 24;
-      text(`${s.pre}${fmt(v, s.dec)}${s.suf}`, M, y + off, 64, 200, a, "left", 0);
-      text(s.label, W - M, y - 6 + off, 28, 300, 0.6 * a, "right", 3);
+      const y = top + L.rowH / 2 + FS * 0.35 + (1 - a) * 10;
+      text(`+${fmt(v, s.dec)}%`, L.NX0, y, FS, a);
+      text(s.label, L.NX1, y, FS, 0.6 * a, "right");
     });
-    hline(M, M + (W - 2 * M) * easeInOut(prog(t, 4.2, 1.0)), 1500 + 2 * 120 + 48, 0.22, 1);
+    hline(L.NX0, L.NX0 + (L.NX1 - L.NX0) * easeInOut(prog(t, 4.2, 1.0)), L.rowsTop + 3 * L.rowH, 0.22);
   }
 
   // ---------- הניגון ----------
-  // מי שביקש פחות תנועה במחשב רואה מיד את הגרף הגמור
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    document.fonts.load(`${FS}px ${FONT}`).then(() => { FS = screenTextSize(); render(DURATION); });
-    return;
-  }
-
-  let t0 = 0, running = false;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches; // מי שביקש פחות תנועה רואה את הגרף הגמור
+  let t0 = 0, running = false, lastT = reduced ? DURATION : 0;
   function loop(now) {
     if (!running) return;
     if (!t0) t0 = now;
     let t = (now - t0) / 1000;
     if (t > DURATION + 1.5) { t0 = now; t = 0; } // מתחיל מחדש
-    render(Math.min(t, DURATION));
+    lastT = Math.min(t, DURATION);
+    render(lastT);
     requestAnimationFrame(loop);
   }
-  render(0);
-  // מחכים שהפונט ייטען לפני שמתחילים, אחרת הטקסט יופיע בפונט אחר
-  document.fonts.load(`${FS}px ${FONT}`).then(() => { FS = screenTextSize(); render(0); });
-  new IntersectionObserver(function (entries) {
-    const visible = entries[0].isIntersecting;
-    if (visible && !running) { running = true; t0 = 0; requestAnimationFrame(loop); } // כל פעם שחוזרים אליו, מההתחלה
-    if (!visible) running = false;
-  }).observe(cv);
+
+  // מחכים שהפונט ייטען לפני שמודדים ומציירים, אחרת הטקסט יופיע בפונט אחר
+  document.fonts.load(`16px ${FONT}`).then(function () {
+    layout();
+    render(lastT);
+    window.addEventListener("resize", () => { layout(); render(lastT); });
+    if (reduced) return;
+    new IntersectionObserver(function (entries) {
+      const visible = entries[0].isIntersecting;
+      if (visible && !running) { running = true; t0 = 0; requestAnimationFrame(loop); } // כל פעם שחוזרים אליו, מההתחלה
+      if (!visible) running = false;
+    }).observe(cv);
+  });
 })();

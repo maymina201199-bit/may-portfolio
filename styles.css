@@ -868,13 +868,10 @@ body {
   min-width: 0; /* כדי שהגרף לא ימתח את העמוד לרוחב */
 }
 
-/* הגרף המונפש (Manyone): לאורך (9 על 16), ברוחב של פוסט אחד בפיד */
+/* הגרף המונפש (Manyone): בכל הרוחב של העמודה הימנית. הגובה נקבע ב-manyone-growth.js */
 .project-stats__chart {
   display: block;
-  width: calc(100vw * 455 / 1440);
-  height: auto;
-  max-width: 100%; /* לא רחב יותר מהמקום שיש לו */
-  aspect-ratio: 9 / 16;
+  width: 100%;
 }
 
 /* כל שורה: המספר, ומימין המילה (שמתחילה ב-960 מתוך 1440, כמו המייל למעלה) */
@@ -1056,10 +1053,6 @@ body {
 
   .project-intro--stats .project-intro__description {
     max-width: none;
-  }
-
-  .project-stats__chart {
-    width: 100%; /* בטלפון: ברוחב מלא */
   }
 
   .project-stats__note {
