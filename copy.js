@@ -1,5 +1,6 @@
 // ===== העתקה: הסמן משתנה לאייקון של העתקה (מהפיגמה) =====
-// מתי: כשהעכבר על המייל או על הטלפון, או על טקסט שסימנו (משפט, פסקה).
+// מתי: כשהעכבר על המייל או על הטלפון, וכל עוד יש טקסט מסומן (משפט, פסקה), בכל מקום במסך.
+// מעל הסימון עצמו האייקון שחור (שלא ייעלם באפור של הסימון), בשאר המקומות לבן.
 // לחיצה מעתיקה (המייל / הטלפון / הטקסט המסומן), ובמקום הסמן מופיע "copied!" ל-2 שניות.
 // אחר כך חוזר הסמן הרגיל, עד שהעכבר יוצא ונכנס שוב. גם Cmd+C מציג "copied!".
 // רק במחשב עם עכבר. בטלפון המייל והטלפון נשארים קישורים רגילים.
@@ -19,6 +20,13 @@
 
   // המייל והטלפון (בעמוד הבית ובעמודי הפרויקטים)
   const contactOf = target => target && target.closest && target.closest(".project-contact");
+  // האם יש טקסט מסומן
+  function hasSelection() {
+    const selection = window.getSelection();
+    return !!selection && !selection.isCollapsed && !!selection.toString().trim();
+  }
+  // לחיצה על קישור או כפתור עובדת כרגיל, גם כשיש טקסט מסומן
+  const isControl = target => target && target.closest && target.closest("a, button, input, textarea, select, video");
   // האם העכבר על הטקסט המסומן
   function overSelection() {
     const selection = window.getSelection();
@@ -33,7 +41,9 @@
 
   function update(target) {
     const now = Date.now();
-    const onCopyable = !!contactOf(target) || overSelection();
+    const onContact = !!contactOf(target);
+    const onCopyable = onContact || (hasSelection() && !isControl(target));
+    cursor.dataset.on = !onContact && overSelection() ? "selection" : "";
     if (!onCopyable) resting = false;
     let state = "";
     if (now < copiedUntil) state = "copied";
@@ -71,11 +81,13 @@
     const href = contact.getAttribute("href") || "";
     copy(href.startsWith("mailto:") ? href.slice(7) : contact.textContent.trim());
   });
-  // לחיצה על טקסט מסומן: מעתיקים אותו (ולא מבטלים את הסימון)
+  // לחיצה כשיש טקסט מסומן (עליו או בכל מקום אחר במסך): מעתיקים אותו, ואז הסימון יורד
   document.addEventListener("mousedown", function (event) {
-    if (event.button !== 0 || contactOf(event.target) || !overSelection()) return;
+    if (event.button !== 0 || contactOf(event.target) || isControl(event.target) || !hasSelection()) return;
     event.preventDefault();
-    copy(window.getSelection().toString().trim());
+    const text = window.getSelection().toString().trim();
+    copy(text);
+    window.getSelection().removeAllRanges();
   });
   // Cmd+C / Ctrl+C
   document.addEventListener("copy", () => { if (window.getSelection().toString().trim()) showCopied(); });
