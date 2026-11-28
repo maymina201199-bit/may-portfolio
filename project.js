@@ -1,3 +1,12 @@
+// מצב עריכה (?edit בכתובת, נפתח מעמוד הניהול covers.html): העמוד נראה כמו באתר,
+// ועליו כלים לעריכת הגריד. במצב הזה מדלגים על הכניסה, ההגדלה בלחיצה והסמן המיוחד
+const EDIT_MODE = new URLSearchParams(location.search).has("edit");
+if (EDIT_MODE) {
+  const editorScript = document.createElement("script");
+  editorScript.src = "admin-edit.js?v=" + (new URL(document.currentScript.src).searchParams.get("v") || Date.now());
+  document.body.appendChild(editorScript);
+}
+
 // ===== כניסה לעמוד: 4 דימויים של הפרויקט עולים על המסך (כמו באתר crxtianhub.com) =====
 // מסך שחור מעל העמוד. כל דימוי מתחיל כריבוע קטן בתחתית, עולה למקום שלו ונפתח,
 // אחד אחרי השני. אחרי שכולם עלו, כל דימוי עף למקום שלו בעמוד והרקע השחור נעלם.
@@ -5,7 +14,7 @@
 // הדימויים: הדימוי הגדול של העמוד ו-3 הדימויים הראשונים שמתחתיו.
 (function () {
   const projectPage = document.querySelector(".project-page");
-  if (!projectPage || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!projectPage || EDIT_MODE || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   // הדימויים בעמוד שאליהם 4 הדימויים יעופו בסוף
   const targets = [...projectPage.querySelectorAll(".project-intro__image, .project-images__image")].slice(0, 4);
@@ -179,7 +188,7 @@ if (page) {
 // או החלקה הצידה בטלפון). לחיצה על הרקע השחור, Esc או גלילה סוגרים
 (function () {
   const projectPage = document.querySelector(".project-page");
-  if (!projectPage) return;
+  if (!projectPage || EDIT_MODE) return;
 
   const viewer = document.createElement("div");
   viewer.className = "image-viewer";
@@ -349,7 +358,7 @@ if (page) {
 // מעל סרטון: שני קווים כשהוא מתנגן (לחיצה עוצרת), משולש כשהוא עצור (לחיצה מפעילה).
 // כמו הסמן בעמוד הבית: קווים לבנים שהופכים לשחורים על רקע בהיר
 (function () {
-  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return; // רק במחשב עם עכבר
+  if (EDIT_MODE || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return; // רק במחשב עם עכבר
 
   const cursor = document.createElement("div");
   cursor.className = "media-cursor";
