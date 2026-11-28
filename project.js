@@ -270,7 +270,7 @@ if (page) {
 (function () {
   const SHORT_LINE = 0.72; // שורה "קצרה" היא בערך 72% מהרוחב
   const blocks = [...document.querySelectorAll(".project-intro__description")];
-  if (!blocks.length) return;
+  if (!blocks.length || EDIT_MODE) return; // במצב עריכה הטקסט נשאר כמו שהוא, כדי שאפשר יהיה לערוך אותו
 
   // שומרים את המילים המקוריות של כל טקסט (בלי שבירות שורה ידניות). שורת הקרדיט נשארת כמו שהיא
   blocks.forEach(function (block) {

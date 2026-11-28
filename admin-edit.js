@@ -1,6 +1,7 @@
 // ===== מצב עריכה של עמוד (נטען רק כשבכתובת יש ?edit, מעמוד הניהול covers.html) =====
 // העמוד נראה בדיוק כמו באתר, ועליו כלים:
 // - פס עליון: שם העמוד, חזרה לניהול, ביטול שינויים ושמירה.
+// - לחיצה על טקסט (שם הפרויקט, התחום, התיאור, הקרדיט) מאפשרת לכתוב בו.
 // - לחיצה על ריבוע בוחרת אותו. בריבוע שנבחר גוררים את התמונה כדי לבחור מה רואים (חיתוך).
 // - פס תחתון: הכלים של הריבוע שנבחר (גודל, כיוון, זום, החלפה, הסרה, הזזה).
 // כלום לא משתנה באתר עד שלוחצים "שמור". השמירה כותבת ישר ל-GitHub (עם המפתח מעמוד הניהול).
@@ -129,9 +130,12 @@
   addButton.textContent = isFeed ? "+ הוספת פוסט (תמונה או סרטון)" : "+ הוספת תמונות";
   section.after(addButton);
 
-  let editor;
+  let editor, texts;
   let dirty = false;
   const changed = () => { dirty = true; say("יש שינויים שלא נשמרו"); };
+  // שינוי בגריד / בפיד (ולא רק בטקסט). רק אז שומרים את הגריד מחדש
+  let layoutChanged = false;
+  const changedLayout = () => { layoutChanged = true; changed(); };
   window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
 
   // שמירה: קודם הקבצים החדשים, ואז העמוד
@@ -143,9 +147,11 @@
       await editor.uploadFiles(say);
       say("שומר את העמוד…");
       const page = await currentFile(pageFile);
-      const updated = editor.writePage(base64ToText(page.content));
+      const html = base64ToText(page.content);
+      const updated = texts.apply(layoutChanged ? editor.writePage(html) : html);
       await github(pageFile, { method: "PUT", body: JSON.stringify({ message: `${pageFile}: updated from the admin page`, content: textToBase64(updated), branch: BRANCH, sha: page.sha }) });
       dirty = false;
+      layoutChanged = false;
       say("נשמר ✓ האתר יתעדכן תוך דקה-שתיים");
     } catch (error) {
       say("לא נשמר: " + error.message);
@@ -185,14 +191,86 @@
   }
 
   // קריאה של הגרסה הכי עדכנית של העמוד מ-GitHub (אולי נשמר משהו שעוד לא הגיע לאתר)
-  async function latestSection() {
-    if (!readToken()) return section;
+  async function latestPage() {
+    if (!readToken()) return document;
     try {
-      const html = base64ToText((await currentFile(pageFile)).content);
-      const match = html.match(isFeed ? /<section class="project-images project-feed">[\s\S]*?<\/section>/ : /<section class="project-images(?! project-feed)[^"]*">[\s\S]*?<\/section>/);
-      if (match) return new DOMParser().parseFromString(match[0], "text/html").querySelector("section");
-    } catch (e) {}
-    return section;
+      return new DOMParser().parseFromString(base64ToText((await currentFile(pageFile)).content), "text/html");
+    } catch (e) { return document; }
+  }
+
+  // ===================== הטקסטים: שם הפרויקט, התחום, התיאור והקרדיט =====================
+  // לוחצים על טקסט וכותבים. נשמר רק טקסט ששונה, כל השאר בעמוד נשאר בדיוק כמו שהוא
+  const escapeText = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const oneLine = t => t.replace(/\s+/g, " ").trim();
+  function textEditor(doc) {
+    const fields = [];
+    function editable(el, value, multiline) {
+      el.textContent = value;
+      el.contentEditable = "plaintext-only";
+      if (el.contentEditable !== "plaintext-only") el.contentEditable = "true"; // דפדפן ישן
+      el.dataset.editable = multiline ? "lines" : "line";
+      el.spellcheck = false;
+      el.addEventListener("input", changed);
+      el.addEventListener("keydown", e => { if (e.key === "Enter" && !multiline) { e.preventDefault(); el.blur(); } });
+      return el;
+    }
+    // שם הפרויקט והתחום: שורה אחת
+    [["project-meta--title", "title"], ["project-meta--field", "field"]].forEach(function ([cls, key]) {
+      const el = document.querySelector("." + cls);
+      const source = doc.querySelector("." + cls);
+      if (!el || !source) return;
+      const original = oneLine(source.textContent);
+      editable(el, original, false);
+      fields.push({
+        key, original, read: () => oneLine(el.innerText),
+        pattern: new RegExp(`<p class="project-meta ${cls}">[\\s\\S]*?</p>`),
+        html: value => `<p class="project-meta ${cls}">${escapeText(value)}</p>`,
+      });
+    });
+    // התיאור (טקסט רציף; האתר מסדר את השורות לבד) והקרדיט שבתוכו (שורות)
+    const description = document.querySelector(".project-intro__description");
+    const sourceDescription = doc.querySelector(".project-intro__description");
+    if (description && sourceDescription) {
+      const sourceCredit = sourceDescription.querySelector(".project-intro__credit");
+      const clone = sourceDescription.cloneNode(true);
+      const cloneCredit = clone.querySelector(".project-intro__credit");
+      if (cloneCredit) cloneCredit.remove();
+      const originalText = oneLine(clone.textContent);
+      const originalCredit = sourceCredit ? sourceCredit.innerHTML.split(/<br\s*\/?>/i).map(oneLine).join("\n") : null;
+      description.innerHTML = "";
+      const text = editable(document.createElement("span"), originalText, true);
+      text.classList.add("edit-text");
+      description.appendChild(text);
+      let credit = null;
+      if (originalCredit !== null) {
+        credit = editable(document.createElement("span"), originalCredit, true);
+        credit.className = "project-intro__credit";
+        credit.dataset.editable = "lines";
+        description.appendChild(credit);
+      }
+      const readCredit = () => credit ? credit.innerText.split("\n").map(oneLine).filter(Boolean).join("\n") : null;
+      fields.push({
+        key: "description",
+        original: originalText + "|" + originalCredit,
+        read: () => oneLine(text.innerText) + "|" + readCredit(),
+        pattern: /<p class="project-intro__description">[\s\S]*?<\/p>/,
+        html: function () {
+          const c = readCredit();
+          const creditHtml = c ? `\n        <span class="project-intro__credit">${c.split("\n").map(escapeText).join("<br>")}</span>` : "";
+          return `<p class="project-intro__description">\n        ${escapeText(oneLine(text.innerText))}${creditHtml}\n      </p>`;
+        },
+      });
+    }
+    return {
+      apply(html) {
+        fields.forEach(function (field) {
+          const value = field.read();
+          if (value === field.original || !field.pattern.test(html)) return;
+          html = html.replace(field.pattern, () => field.html(value));
+        });
+        return html;
+      },
+    };
   }
 
   // ===================== עמוד פרויקט רגיל: הגריד של 6 טורים =====================
@@ -307,14 +385,14 @@
         figure.classList.remove("is-cropping");
         figure.removeEventListener("pointermove", onMove);
         figure.removeEventListener("pointerup", onUp);
-        if (item.dx !== start.dx || item.dy !== start.dy) changed();
+        if (item.dx !== start.dx || item.dy !== start.dy) changedLayout();
       }
       figure.addEventListener("pointermove", onMove);
       figure.addEventListener("pointerup", onUp);
     }
 
-    function change(edit) { edit(items[selected]); changed(); render(); }
-    function move(from, to) { selected = moveItem(items, from, to); changed(); render(); }
+    function change(edit) { edit(items[selected]); changedLayout(); render(); }
+    function move(from, to) { selected = moveItem(items, from, to); changedLayout(); render(); }
 
     // ----- הפס התחתון -----
     function showTools() {
@@ -344,7 +422,7 @@
         zoomLabel.textContent = Math.round(item.zoom * 100) + "%";
         const img = section.children[selected] && section.children[selected].querySelector("img");
         if (img) img.style.cssText = mediaStyle(item);
-        changed();
+        changedLayout();
       });
       group("זום:", zoom, zoomLabel, button("איפוס", "החיתוך חוזר למרכז, בלי זום", () => change(it => { it.dx = 0; it.dy = 0; it.zoom = 1; })));
       group("",
@@ -359,7 +437,7 @@
       if (!confirm("להסיר את התמונה הזאת מהגריד? (הקובץ עצמו לא נמחק)")) return;
       items.splice(index, 1);
       selected = -1;
-      changed();
+      changedLayout();
       render();
     }
     async function replace(index) {
@@ -368,7 +446,7 @@
       try {
         const { blob, ratio } = await imageForGrid(file);
         Object.assign(items[index], { tag: "img", attrs: [["src", ""], ["alt", ""], ["loading", "lazy"]], blob, blobUrl: null, ratio, dx: 0, dy: 0, zoom: 1 });
-        changed();
+        changedLayout();
         render();
       } catch (error) { say(error.message); }
     }
@@ -382,7 +460,7 @@
         } catch (error) { say(error.message); }
       }
       selected = items.length - 1;
-      changed();
+      changedLayout();
       render();
       section.lastElementChild.scrollIntoView({ block: "center", behavior: "smooth" });
     }
@@ -466,7 +544,7 @@
       });
       showTools();
     }
-    function move(from, to) { selected = moveItem(items, from, to); changed(); render(); }
+    function move(from, to) { selected = moveItem(items, from, to); changedLayout(); render(); }
     function showTools() {
       const item = items[selected];
       bottomBar.hidden = !item;
@@ -486,7 +564,7 @@
       if (!confirm("להסיר את הפוסט הזה מהפיד? (הקובץ עצמו לא נמחק)")) return;
       items.splice(index, 1);
       selected = -1;
-      changed();
+      changedLayout();
       render();
     }
 
@@ -522,7 +600,7 @@
       try {
         items[index] = await fromFile(file);
         selected = index;
-        changed();
+        changedLayout();
         render();
         if (items[index].needsCover) openCover(index);
       } catch (error) { say(error.message); }
@@ -534,7 +612,7 @@
         try { items.push(await fromFile(file)); } catch (error) { say(error.message); }
       }
       selected = items.length - 1;
-      changed();
+      changedLayout();
       render();
       section.lastElementChild.scrollIntoView({ block: "center", behavior: "smooth" });
       if (items[selected] && items[selected].needsCover) openCover(selected);
@@ -600,7 +678,7 @@
         item.coverUrl = null;
         item.needsCover = false;
         modal.hidden = true;
-        changed();
+        changedLayout();
         render();
       }
     });
@@ -651,7 +729,10 @@
 
   // ===================== התחלה =====================
   say("טוען…");
-  latestSection().then(function (source) {
+  latestPage().then(function (doc) {
+    const selector = isFeed ? "section.project-images.project-feed" : "section.project-images:not(.project-feed)";
+    const source = doc.querySelector(".project-page " + selector) || doc.querySelector(selector) || section;
+    texts = textEditor(doc);
     editor = isFeed ? feedEditor(source) : gridEditor(source);
     addButton.addEventListener("click", () => editor.add());
     if (!readToken()) say("אין מפתח GitHub בדפדפן הזה: אפשר לנסות, אבל כדי לשמור צריך לשמור מפתח בעמוד הניהול.");

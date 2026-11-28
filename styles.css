@@ -1737,3 +1737,23 @@ body {
 .edit-modal__note {
   width: 100%;
 }
+
+/* טקסט שאפשר לערוך במצב עריכה: מסגרת מקווקוות, וכשכותבים בו מסגרת מלאה */
+.is-editing [data-editable] {
+  outline: 1px dashed rgba(235, 255, 18, 0.6);
+  outline-offset: 4px;
+  cursor: text;
+}
+
+.is-editing [data-editable]:hover {
+  outline-color: var(--color-marker);
+}
+
+.is-editing [data-editable]:focus {
+  outline: 2px solid var(--color-marker);
+}
+
+/* בעריכה שורות של קרדיט נשמרות כמו שכותבים אותן */
+.is-editing .project-intro__credit[data-editable] {
+  white-space: pre-line;
+}
