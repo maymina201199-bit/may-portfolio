@@ -5,17 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>May Mina | ניהול</title>
-  <link rel="stylesheet" href="styles.css?v=20261128j">
+  <link rel="stylesheet" href="styles.css?v=20261128k">
 </head>
 <body class="home-page covers-page">
   <!--
-    עמוד נסתר (לא בתפריט): סידור הגריד בעמודי הפרויקטים, ובחירת הקאבר של הסרטונים בפיד של Manyone.
-    מנגנים סרטון, עוצרים על הפריים הרצוי ולוחצים "שמור קאבר".
-    הפריים נחתך לצורה של הריבוע בגריד (4 על 5) ונשמר ישר ב-GitHub, והאתר מתעדכן לבד.
+    עמוד ניהול נסתר (לא בתפריט). בוחרים עמוד, ועורכים אותו:
+    - עמוד סושיאל (עם פיד, כמו manyone): סדר הפוסטים, קאבר לסרטונים, העלאה של פוסטים חדשים, מחיקה.
+    - עמוד פרויקט רגיל: הגריד של 6 טורים (גודל, כיוון, חיתוך, סדר, החלפה, הוספה ומחיקה של תמונות).
+    כלום לא משתנה באתר עד שלוחצים "שמור". השמירה כותבת ישר ל-GitHub, והאתר מתעדכן לבד.
     בשביל השמירה צריך "מפתח" של GitHub (token), שנשמר רק בדפדפן הזה.
   -->
-  <main class="covers">
-    <!-- המפתח של GitHub (בשביל השמירה של הגריד ושל הקאברים) -->
+  <main class="covers admin">
+    <h1 class="covers__title">ניהול האתר</h1>
+
+    <!-- המפתח של GitHub -->
     <section class="covers__key">
       <label for="token">מפתח GitHub</label>
       <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
@@ -24,29 +27,24 @@
       <p class="covers__status" id="token-status"></p>
     </section>
 
-    <!-- ===== סידור הגריד בעמודי הפרויקטים ===== -->
-    <h1 class="covers__title">הגריד בעמודי הפרויקטים</h1>
-    <p class="covers__intro">בוחרים פרויקט. לוחצים על ריבוע כדי לשנות לו גודל (1 עד 6 טורים), כיוון (שוכב 5:4 או עומד 4:5) ואיזה חלק מהתמונה רואים (גוררים את התמונה בתצוגה הגדולה). גוררים ריבוע כדי להזיז אותו למקום אחר. הריבועים מסתדרים לבד, כמו בפיגמה. בסוף לוחצים "שמור גריד".</p>
-    <section class="covers__card grid-editor">
-      <div class="covers__actions">
-        <label for="grid-page">פרויקט:</label>
-        <select id="grid-page" class="grid-editor__select">
-          <option value="">בחרי פרויקט…</option>
-          <option value="modern-warfare.html">Modern Warfare</option>
-          <option value="hevel.html">Hevel</option>
-          <option value="eat-and-drink.html">Eat &amp; Drink</option>
-          <option value="sabra.html">Sabra</option>
-          <option value="sela.html">Sela</option>
-          <option value="portrait.html">Portrait</option>
-          <option value="1984-2025.html">1984 / 2025</option>
-          <option value="lifta.html">Lifta</option>
-        </select>
-        <button type="button" id="grid-reload">בטל שינויים</button>
-        <button type="button" id="grid-save">שמור גריד</button>
-      </div>
-      <p class="covers__status" id="grid-status"></p>
+    <!-- שלב 1: בוחרים עמוד (השם הוא גם השם בכתובת של העמוד) -->
+    <section class="admin__pages">
+      <p class="covers__intro">איזה עמוד עורכים?</p>
+      <div class="admin__page-list" id="page-list"></div>
+    </section>
 
-      <!-- הכלים של הריבוע שנבחר -->
+    <!-- שלב 2: העורך של העמוד -->
+    <section class="admin__editor" id="editor" hidden>
+      <div class="admin__bar">
+        <h2 class="admin__page-name" id="page-name"></h2>
+        <a class="admin__open" id="page-link" href="#" target="_blank">לפתוח את העמוד באתר ↗</a>
+        <button type="button" id="reload">בטל שינויים</button>
+        <button type="button" id="save">שמור</button>
+        <p class="covers__status" id="status"></p>
+      </div>
+      <p class="admin__help" id="help"></p>
+
+      <!-- הכלים של הריבוע שנבחר (גריד רגיל) -->
       <div class="grid-editor__panel" id="grid-panel" hidden>
         <div class="grid-editor__crop-wrap">
           <p>גררי את התמונה כדי לבחור מה רואים</p>
@@ -61,42 +59,63 @@
             <button type="button" data-shape="port">עומד 4:5</button>
           </div>
           <p>זום: <span id="grid-zoom-value">100%</span></p>
-          <input type="range" id="grid-zoom" min="1" max="3" step="0.01" value="1">
+          <input type="range" id="grid-zoom" min="1" max="3" step="0.01" value="1" dir="ltr">
           <div class="grid-editor__buttons">
-            <button type="button" id="grid-reset-crop">איפוס חיתוך</button>
-            <button type="button" id="grid-earlier">→ מקום אחד קודם</button>
-            <button type="button" id="grid-later">מקום אחד הבא ←</button>
+            <button type="button" data-action="reset">איפוס חיתוך</button>
+            <button type="button" data-action="replace">החלפת תמונה</button>
+            <button type="button" data-action="remove">הסרה מהגריד</button>
           </div>
         </div>
       </div>
 
-      <!-- התצוגה של הגריד: אותו עיצוב כמו בעמוד עצמו -->
-      <section class="project-images project-grid grid-editor__grid" id="grid-preview" dir="ltr"></section>
+      <!-- בחירת קאבר לסרטון (פיד של סושיאל) -->
+      <div class="grid-editor__panel feed-editor__panel" id="cover-panel" hidden>
+        <div>
+          <p>הסרטון</p>
+          <video id="cover-video" controls muted playsinline preload="metadata"></video>
+        </div>
+        <div>
+          <p>הקאבר (בדיוק כמו בגריד)</p>
+          <canvas id="cover-canvas"></canvas>
+        </div>
+        <div class="grid-editor__controls">
+          <p>מנגנים ועוצרים על הפריים שרוצים (או פריים אחרי פריים):</p>
+          <div class="grid-editor__buttons">
+            <button type="button" data-step="-1">‹ פריים אחורה</button>
+            <button type="button" data-step="1">פריים קדימה ›</button>
+          </div>
+          <p class="covers__time" id="cover-time">0.00 שניות</p>
+          <div class="grid-editor__buttons">
+            <button type="button" id="cover-use" class="is-on">זה הקאבר</button>
+            <button type="button" id="cover-file">בחירת סרטון מהמחשב</button>
+            <button type="button" id="cover-close">סגירה</button>
+          </div>
+          <p class="covers__status" id="cover-note"></p>
+        </div>
+      </div>
+
+      <!-- התצוגה: אותו עיצוב כמו בעמוד עצמו -->
+      <section class="project-images admin__grid" id="preview" dir="ltr"></section>
+      <button type="button" class="admin__add" id="add"></button>
     </section>
 
-    <!-- ===== קאברים לפיד של Manyone ===== -->
-    <h1 class="covers__title">קאברים לפיד של Manyone</h1>
-    <p class="covers__intro">מנגנים סרטון, עוצרים על הפריים שרוצים (אפשר גם עם החיצים ‹ › פריים אחרי פריים), ולוחצים "שמור קאבר". האתר מתעדכן תוך דקה בערך.</p>
-    <section class="covers__list" id="list"></section>
+    <!-- בחירת קבצים מהמחשב (נפתח מהכפתורים) -->
+    <input type="file" id="file-input" hidden>
   </main>
 
+  <script src="grid.js?v=20261128k"></script>
   <script>
-    // ===== הגדרות =====
+    // ===================== הגדרות =====================
     const REPO = "maymina201199-bit/may-portfolio";
     const BRANCH = "main";
-    const PAGE = "manyone.html";
-    // הפוסטים בפיד שהקאבר שלהם הוא פריים מסרטון
-    const POSTS = [
-      { post: 3, name: "צילומי סטודיו", video: "images/projects/manyone/post-03.mp4" },
-      { post: 4, name: "הקוביות", video: "images/projects/manyone/post-04.mp4" },
-      { post: 5, name: "about us", video: "images/projects/manyone/post-05.mp4" },
-      { post: 6, name: "הנוף", video: "images/projects/manyone/post-06.mp4" },
-      { post: 9, name: "הפתיחה (Nike)", video: "images/home-manyone.mp4" },
-    ];
-    const SQUARE = 455 / 568; // הצורה של הריבוע בגריד, כמו בפיגמה
-    const FRAME = 1 / 30;     // פריים אחד
+    // העמודים (השם = השם בכתובת). עמוד עם פיד הוא עמוד סושיאל
+    const PAGES = ["manyone", "modern-warfare", "hevel", "eat-and-drink", "sabra", "sela", "portrait", "1984-2025", "lifta"];
+    const POST_RATIO = 455 / 568;          // הצורה של פוסט בפיד (4 על 5)
+    const FRAME = 1 / 30;                  // פריים אחד
+    const MAX_VIDEO_MB = 40;               // סרטון גדול מזה לא עולה ישר (שלחי לי אותו לכיווץ)
+    const MAX_IMAGE_WIDTH = 2800;          // תמונות בגריד: עד 2800 פיקסלים ברוחב (איכות גבוהה)
 
-    // ===== המפתח: נשמר רק בדפדפן הזה =====
+    // ===================== המפתח: נשמר רק בדפדפן הזה =====================
     const tokenInput = document.getElementById("token");
     const tokenStatus = document.getElementById("token-status");
     function readToken() { try { return localStorage.getItem("gh-token") || ""; } catch (e) { return ""; } }
@@ -114,7 +133,7 @@
     });
     showTokenState();
 
-    // ===== GitHub: קריאה ושמירה של קובץ =====
+    // ===================== GitHub: קריאה ושמירה של קבצים =====================
     async function github(path, options) {
       const response = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
         ...options,
@@ -132,7 +151,7 @@
     }
     async function saveFile(path, base64, message) {
       let sha;
-      try { sha = (await currentFile(path)).sha; } catch (e) { sha = undefined; }
+      try { sha = (await currentFile(path)).sha; } catch (e) { sha = undefined; } // קובץ חדש: אין sha
       return github(path, { method: "PUT", body: JSON.stringify({ message, content: base64, branch: BRANCH, sha }) });
     }
     function bytesToBase64(bytes) {
@@ -140,126 +159,187 @@
       for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
       return btoa(binary);
     }
+    const blobToBase64 = async blob => bytesToBase64(new Uint8Array(await blob.arrayBuffer()));
     const textToBase64 = text => bytesToBase64(new TextEncoder().encode(text));
     const base64ToText = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\n/g, "")), c => c.charCodeAt(0)));
-
-    // ===== הפריים: חותכים מהאמצע לצורה של הריבוע בגריד =====
-    function drawCover(video, canvas) {
-      const vw = video.videoWidth, vh = video.videoHeight;
-      let w = vw, h = Math.round(vw / SQUARE);
-      if (h > vh) { h = vh; w = Math.round(vh * SQUARE); }
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext("2d").drawImage(video, (vw - w) / 2, (vh - h) / 2, w, h, 0, 0, w, h);
+    // קריאת עמוד: עם מפתח מ-GitHub (הגרסה הכי עדכנית), בלי מפתח מהאתר
+    async function readPage(file) {
+      if (readToken()) return base64ToText((await currentFile(file)).content);
+      return (await fetch(file + "?t=" + Date.now(), { cache: "no-store" })).text();
     }
 
-    // ===== כרטיס לכל פוסט =====
-    const list = document.getElementById("list");
-    POSTS.forEach(function (item) {
-      const card = document.createElement("article");
-      card.className = "covers__card";
-      card.innerHTML = `
-        <h2>פוסט ${item.post}: ${item.name}</h2>
-        <div class="covers__media">
-          <div><p>הסרטון</p><video src="${item.video}" controls muted playsinline preload="metadata"></video></div>
-          <div><p>הקאבר החדש (בדיוק כמו בגריד)</p><canvas></canvas></div>
-          <div><p>הקאבר שיש עכשיו באתר</p><img src="images/projects/manyone/post-${String(item.post).padStart(2, "0")}-cover.jpg?t=${Date.now()}" alt=""></div>
-        </div>
-        <div class="covers__actions">
-          <button type="button" data-step="-1">‹ פריים אחורה</button>
-          <button type="button" data-step="1">פריים קדימה ›</button>
-          <span class="covers__time">0.00 שניות</span>
-          <button type="button" class="covers__save">שמור קאבר</button>
-        </div>
-        <p class="covers__status"></p>`;
-      list.appendChild(card);
-
-      const video = card.querySelector("video");
-      const canvas = card.querySelector("canvas");
-      const time = card.querySelector(".covers__time");
-      const status = card.querySelector(".covers__status");
-      const current = card.querySelector("img");
-      const update = () => { drawCover(video, canvas); time.textContent = video.currentTime.toFixed(2) + " שניות"; };
-      // כשהסרטון מוכן, קופצים לפריים הראשון כדי שהתצוגה של הקאבר החדש לא תהיה ריקה
-      video.addEventListener("loadedmetadata", () => { video.currentTime = 0.01; });
-      video.addEventListener("loadeddata", update);
-      video.addEventListener("seeked", update);
-      video.addEventListener("pause", update);
-      card.querySelectorAll("[data-step]").forEach(function (button) {
-        button.addEventListener("click", function () {
-          video.pause();
-          video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + Number(button.dataset.step) * FRAME));
-        });
+    // ===================== תמונות וסרטונים מהמחשב =====================
+    const fileInput = document.getElementById("file-input");
+    // פותח את חלון הבחירה של הקבצים (Finder) ומחזיר את הקבצים שנבחרו
+    function pickFiles(accept, multiple) {
+      return new Promise(function (resolve) {
+        fileInput.accept = accept;
+        fileInput.multiple = !!multiple;
+        fileInput.value = "";
+        fileInput.onchange = () => resolve([...fileInput.files]);
+        fileInput.click();
       });
-
-      card.querySelector(".covers__save").addEventListener("click", async function () {
-        if (!readToken()) { status.textContent = "צריך קודם לשמור מפתח GitHub (למעלה)."; return; }
-        video.pause();
-        update();
-        const button = this;
-        button.disabled = true;
-        status.textContent = "שומר…";
-        try {
-          // 1. התמונה של הקאבר
-          const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.88));
-          const imageBase64 = bytesToBase64(new Uint8Array(await blob.arrayBuffer()));
-          const imagePath = `images/projects/manyone/post-${String(item.post).padStart(2, "0")}-cover.jpg`;
-          await saveFile(imagePath, imageBase64, `Manyone: new cover for post ${item.post} (${video.currentTime.toFixed(2)}s, from the covers page)`);
-          // 2. מספר גרסה לתמונה בעמוד, כדי שהדפדפנים יציגו את הקאבר החדש ולא את הישן
-          const page = await currentFile(PAGE);
-          const html = base64ToText(page.content);
-          const stamp = Date.now();
-          const pattern = new RegExp(`(${imagePath.replace(/[.]/g, "\\.")})(\\?c=\\d+)?"`, "g");
-          const updated = html.replace(pattern, `$1?c=${stamp}"`);
-          await github(PAGE, { method: "PUT", body: JSON.stringify({ message: `Manyone: show the new cover of post ${item.post}`, content: textToBase64(updated), branch: BRANCH, sha: page.sha }) });
-          current.src = canvas.toDataURL("image/jpeg", 0.88);
-          status.textContent = "נשמר ✓ האתר יתעדכן תוך דקה-שתיים.";
-        } catch (error) {
-          status.textContent = "לא נשמר: " + error.message;
-        }
-        button.disabled = false;
+    }
+    function loadImage(file) {
+      return new Promise(function (resolve, reject) {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("הדפדפן לא מצליח לפתוח את התמונה (אם זה HEIC מהאייפון, שמרי אותה קודם כ-JPG)"));
+        img.src = URL.createObjectURL(file);
       });
+    }
+    function canvasToJpeg(canvas, quality) {
+      return new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", quality || 0.9));
+    }
+    // תמונה לגריד: מקטינים רק אם היא רחבה מ-2800
+    async function imageForGrid(file) {
+      const img = await loadImage(file);
+      const scale = Math.min(1, MAX_IMAGE_WIDTH / img.naturalWidth);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.naturalWidth * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      return { blob: await canvasToJpeg(canvas, 0.9), ratio: canvas.width / canvas.height };
+    }
+    // חיתוך מהאמצע לצורה של פוסט בפיד (4 על 5), ברוחב של עד 1080
+    function cropToPost(source, sw, sh, canvas) {
+      let w = sw, h = Math.round(sw / POST_RATIO);
+      if (h > sh) { h = sh; w = Math.round(sh * POST_RATIO); }
+      const scale = Math.min(1, 1080 / w);
+      canvas.width = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      canvas.getContext("2d").drawImage(source, (sw - w) / 2, (sh - h) / 2, w, h, 0, 0, canvas.width, canvas.height);
+      return canvas;
+    }
+    const stamp = () => Date.now().toString(36);
+    const escapeAttr = v => String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    const attrsHtml = attrs => attrs.map(([name, value]) => value === "" ? ` ${name}` : ` ${name}="${escapeAttr(value)}"`).join("");
+    const round = v => Math.round(v * 10000) / 10000;
+
+    // ===================== שלב 1: בחירת עמוד =====================
+    const pageList = document.getElementById("page-list");
+    const editor = document.getElementById("editor");
+    const preview = document.getElementById("preview");
+    const statusLine = document.getElementById("status");
+    const help = document.getElementById("help");
+    const addButton = document.getElementById("add");
+    let current = null; // העורך הפעיל: gridEditor או feedEditor
+    let pageFile = "", pageName = "", folder = "";
+
+    PAGES.forEach(function (name) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = name;
+      button.addEventListener("click", () => openPage(name));
+      pageList.appendChild(button);
     });
-  </script>
-  <script src="grid.js?v=20261128j"></script>
-  <script>
-    // ===== עריכת הגריד בעמודי הפרויקטים =====
-    // קוראים את העמוד מ-GitHub, מציגים את הריבועים שלו, ושומרים בחזרה רק את החלק של הגריד.
-    // כל ריבוע: גודל (1–6 טורים), כיוון (land = שוכב 5:4, port = עומד 4:5) וחיתוך (--dx, --dy, --zoom).
-    (function () {
-      const pageSelect = document.getElementById("grid-page");
-      const preview = document.getElementById("grid-preview");
+
+    async function openPage(name) {
+      pageList.querySelectorAll("button").forEach(b => b.classList.toggle("is-on", b.textContent === name));
+      pageName = name;
+      pageFile = name + ".html";
+      editor.hidden = false;
+      document.getElementById("page-name").textContent = name;
+      document.getElementById("page-link").href = pageFile + "?t=" + Date.now();
+      statusLine.textContent = "טוען…";
+      try {
+        const html = await readPage(pageFile);
+        const isFeed = /class="project-images project-feed"/.test(html);
+        current = isFeed ? feedEditor : gridEditor;
+        // התיקייה של התמונות של העמוד
+        const firstImage = html.match(/src="(images\/projects\/[^/"]+)\//);
+        folder = firstImage ? firstImage[1] : "images/projects/" + name;
+        current.load(html);
+      } catch (error) {
+        statusLine.textContent = "לא נטען: " + error.message;
+      }
+    }
+    document.getElementById("reload").addEventListener("click", () => { if (pageName) openPage(pageName); });
+    addButton.addEventListener("click", () => current && current.add());
+    window.addEventListener("resize", () => { if (current === gridEditor) packGrid(preview); });
+
+    // שמירה: קודם הקבצים החדשים (תמונות, קאברים, סרטונים), ואז העמוד
+    document.getElementById("save").addEventListener("click", async function () {
+      if (!current) return;
+      if (!readToken()) { statusLine.textContent = "צריך קודם לשמור מפתח GitHub (למעלה)."; return; }
+      const button = this;
+      button.disabled = true;
+      try {
+        await current.uploadFiles(text => { statusLine.textContent = text; });
+        statusLine.textContent = "שומר את העמוד…";
+        const page = await currentFile(pageFile);
+        const html = base64ToText(page.content);
+        const updated = current.writePage(html);
+        await github(pageFile, { method: "PUT", body: JSON.stringify({ message: `${pageFile}: updated from the admin page`, content: textToBase64(updated), branch: BRANCH, sha: page.sha }) });
+        statusLine.textContent = "נשמר ✓ האתר יתעדכן תוך דקה-שתיים (אם לא רואים, Cmd+Shift+R).";
+      } catch (error) {
+        statusLine.textContent = "לא נשמר: " + error.message;
+      }
+      button.disabled = false;
+    });
+
+    // כלים קטנים על כל ריבוע (בתצוגה)
+    function tools(buttons) {
+      const bar = document.createElement("div");
+      bar.className = "admin-tools";
+      buttons.forEach(function ([label, title, action]) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = label;
+        b.title = title;
+        b.addEventListener("click", e => { e.stopPropagation(); action(); });
+        bar.appendChild(b);
+      });
+      return bar;
+    }
+    // גרירה של ריבוע למקום אחר: חצי שמאלי = לפני, חצי ימני = אחרי
+    function makeDraggable(figure, index, move) {
+      figure.draggable = true;
+      figure.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", index); figure.classList.add("is-dragging"); });
+      figure.addEventListener("dragend", () => figure.classList.remove("is-dragging"));
+      figure.addEventListener("dragover", e => e.preventDefault());
+      figure.addEventListener("drop", function (e) {
+        e.preventDefault();
+        const box = figure.getBoundingClientRect();
+        move(Number(e.dataTransfer.getData("text/plain")), index + (e.clientX > box.left + box.width / 2 ? 1 : 0));
+      });
+    }
+    function moveItem(list, from, to) {
+      if (from < 0 || from >= list.length) return from;
+      const [item] = list.splice(from, 1);
+      if (to > from) to--;
+      to = Math.max(0, Math.min(list.length, to));
+      list.splice(to, 0, item);
+      return to;
+    }
+
+    // ===================== עמוד פרויקט רגיל: הגריד של 6 טורים =====================
+    const gridEditor = (function () {
+      const SECTION = /<section class="project-images(?! project-feed)[^"]*">[\s\S]*?<\/section>/;
       const panel = document.getElementById("grid-panel");
       const crop = document.getElementById("grid-crop");
       const cropImage = crop.querySelector("img");
       const zoomInput = document.getElementById("grid-zoom");
       const zoomValue = document.getElementById("grid-zoom-value");
-      const status = document.getElementById("grid-status");
-      const SECTION = /<section class="project-images(?! project-feed)[^"]*">[\s\S]*?<\/section>/;
+      let items = [], selected = -1;
 
-      let items = [];      // הריבועים, לפי הסדר
-      let selected = -1;   // הריבוע שנבחר
-      let pageFile = "";
-
-      // ----- קריאה של העמוד -----
-      async function loadPage(file) {
-        status.textContent = "טוען…";
-        pageFile = file;
-        let html;
-        if (readToken()) html = base64ToText((await currentFile(file)).content); // הגרסה הכי עדכנית
-        else html = await (await fetch(file + "?t=" + Date.now(), { cache: "no-store" })).text();
+      function load(html) {
         const match = html.match(SECTION);
         if (!match) throw new Error("לא מצאתי את הגריד בעמוד");
         const section = new DOMParser().parseFromString(match[0], "text/html").querySelector("section");
         items = [...section.querySelectorAll(":scope > figure.tile")].map(readTile);
         selected = -1;
-        render();
-        status.textContent = section.classList.contains("project-grid")
+        document.getElementById("cover-panel").hidden = true;
+        preview.className = "project-images project-grid admin__grid";
+        addButton.textContent = "+ הוספת תמונות";
+        help.textContent = "לחיצה על תמונה: החלפה בתמונה אחרת מהמחשב. הכפתורים על כל ריבוע: ⇄ שוכב/עומד, − + קטן/גדול, ‹ › להזיז, ✂ חיתוך וזום, ✕ להסיר. אפשר גם לגרור ריבוע למקום אחר.";
+        statusLine.textContent = section.classList.contains("project-grid")
           ? "זה הגריד שיש עכשיו באתר."
-          : "הדף הזה עוד בסידור הישן. ככה הוא ייראה בגריד החדש. כלום לא משתנה באתר עד שלוחצים \"שמור גריד\".";
+          : "העמוד הזה עוד בסידור הישן. ככה הוא ייראה בגריד החדש. כלום לא משתנה באתר עד שלוחצים \"שמור\".";
+        render();
       }
 
-      // ריבוע מהעמוד: הגודל והכיוון שלו. אם הוא עוד בסידור הישן, מתרגמים בערך
+      // ריבוע מהעמוד. אם הוא עוד בסידור הישן, מתרגמים את הגודל בערך ומתחילים את החיתוך מהמרכז
       function readTile(figure) {
         const media = figure.querySelector(".project-images__image");
         const attrs = [...media.attributes].filter(a => a.name !== "class" && a.name !== "style").map(a => [a.name, a.value]);
@@ -280,43 +360,38 @@
           shape = shape || "land";
         }
         return {
-          tag: media.tagName.toLowerCase(),
-          attrs,
-          span,
-          shape,
+          tag: media.tagName.toLowerCase(), attrs, span, shape,
           ratio: parseFloat(css("--photo-ratio")) || 0,
-          // בסידור הישן החיתוך היה לצורה אחרת, אז מתחילים מהמרכז
           dx: isGrid ? parseFloat(css("--dx")) || 0 : 0,
           dy: isGrid ? parseFloat(css("--dy")) || 0 : 0,
           zoom: isGrid ? parseFloat(css("--zoom")) || 1 : 1,
+          blob: null, // תמונה חדשה מהמחשב, שעוד לא עלתה
         };
       }
-
       const attr = (item, name) => (item.attrs.find(a => a[0] === name) || [])[1];
-      const previewSrc = item => item.tag === "video" ? attr(item, "poster") : attr(item, "src");
+      function previewSrc(item) {
+        if (item.blob) return item.blobUrl || (item.blobUrl = URL.createObjectURL(item.blob));
+        return item.tag === "video" ? attr(item, "poster") : attr(item, "src");
+      }
 
-      // ----- החיתוך: לא מזיזים את התמונה מעבר לקצה של הריבוע -----
-      function limits(item) {
-        const tw = 100, th = item.shape === "port" ? 125 : 80, r = item.ratio || 1.5;
-        const iw = Math.max(tw, th * r) * item.zoom, ih = Math.max(th, tw / r) * item.zoom;
-        return { x: (iw - tw) / 2 / tw * 100, y: (ih - th) / 2 / th * 100 };
-      }
+      // החיתוך: לא מזיזים את התמונה מעבר לקצה של הריבוע
       function clampCrop(item) {
-        const l = limits(item);
-        item.dx = Math.max(-l.x, Math.min(l.x, item.dx));
-        item.dy = Math.max(-l.y, Math.min(l.y, item.dy));
+        const tw = 100, th = item.shape === "port" ? 125 : 80, r = item.ratio || 1.5;
+        const lx = (Math.max(tw, th * r) * item.zoom - tw) / 2 / tw * 100;
+        const ly = (Math.max(th, tw / r) * item.zoom - th) / 2 / th * 100;
+        item.dx = Math.max(-lx, Math.min(lx, item.dx));
+        item.dy = Math.max(-ly, Math.min(ly, item.dy));
       }
-      const round = v => Math.round(v * 100) / 100;
       function mediaStyle(item) {
+        const r2 = v => Math.round(v * 100) / 100;
         const parts = [];
         if (item.ratio) parts.push(`--photo-ratio: ${round(item.ratio)}`);
-        if (round(item.dx)) parts.push(`--dx: ${round(item.dx)}%`);
-        if (round(item.dy)) parts.push(`--dy: ${round(item.dy)}%`);
-        if (round(item.zoom) !== 1) parts.push(`--zoom: ${round(item.zoom)}`);
+        if (r2(item.dx)) parts.push(`--dx: ${r2(item.dx)}%`);
+        if (r2(item.dy)) parts.push(`--dy: ${r2(item.dy)}%`);
+        if (r2(item.zoom) !== 1) parts.push(`--zoom: ${r2(item.zoom)}`);
         return parts.join("; ");
       }
 
-      // ----- התצוגה -----
       function render() {
         preview.innerHTML = "";
         items.forEach(function (item, index) {
@@ -326,7 +401,6 @@
           figure.dataset.span = item.span;
           figure.dataset.shape = item.shape;
           figure.style.setProperty("--span", item.span);
-          figure.draggable = true;
           const img = document.createElement("img");
           img.className = "project-images__image";
           img.draggable = false;
@@ -338,35 +412,60 @@
           });
           figure.appendChild(img);
           if (item.tag === "video") figure.insertAdjacentHTML("beforeend", '<span class="grid-editor__badge">סרטון</span>');
-          figure.addEventListener("click", () => { selected = index; render(); });
-          // גרירה למקום אחר
-          figure.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", index); figure.classList.add("is-dragging"); });
-          figure.addEventListener("dragend", () => figure.classList.remove("is-dragging"));
-          figure.addEventListener("dragover", e => e.preventDefault());
-          figure.addEventListener("drop", function (e) {
-            e.preventDefault();
-            const from = Number(e.dataTransfer.getData("text/plain"));
-            const box = figure.getBoundingClientRect();
-            let to = index + (e.clientX > box.left + box.width / 2 ? 1 : 0); // חצי ימני = אחריו
-            move(from, to);
-          });
+          figure.insertAdjacentHTML("beforeend", `<span class="admin-size">${item.span} טורים · ${item.shape === "port" ? "עומד" : "שוכב"}</span>`);
+          figure.appendChild(tools([
+            ["⇄", "שוכב / עומד", () => change(index, it => { it.shape = it.shape === "port" ? "land" : "port"; })],
+            ["−", "קטן יותר (פחות טורים)", () => change(index, it => { it.span = Math.max(1, it.span - 1); })],
+            ["+", "גדול יותר (יותר טורים)", () => change(index, it => { it.span = Math.min(6, it.span + 1); })],
+            ["‹", "מקום אחד קודם", () => move(index, index - 1)],
+            ["›", "מקום אחד הבא", () => move(index, index + 2)],
+            ["✂", "חיתוך וזום", () => { selected = index; render(); panel.scrollIntoView({ block: "nearest", behavior: "smooth" }); }],
+            ["✕", "להסיר מהגריד", () => remove(index)],
+          ]));
+          // לחיצה על התמונה: החלפה בתמונה אחרת מהמחשב
+          figure.addEventListener("click", () => { selected = index; replace(index); });
+          makeDraggable(figure, index, move);
           preview.appendChild(figure);
         });
-        window.packGrid(preview);
+        packGrid(preview);
         showPanel();
       }
-
-      function move(from, to) {
-        if (from < 0 || from >= items.length) return;
-        const [item] = items.splice(from, 1);
-        if (to > from) to--;
-        to = Math.max(0, Math.min(items.length, to));
-        items.splice(to, 0, item);
-        selected = to;
+      function change(index, edit) { selected = index; edit(items[index]); render(); }
+      function move(from, to) { selected = moveItem(items, from, to); render(); }
+      function remove(index) {
+        if (!confirm("להסיר את התמונה הזאת מהגריד? (הקובץ עצמו לא נמחק)")) return;
+        items.splice(index, 1);
+        selected = -1;
         render();
       }
 
-      // ----- הכלים של הריבוע שנבחר -----
+      // החלפה / הוספה של תמונות מהמחשב
+      async function replace(index) {
+        const [file] = await pickFiles("image/*");
+        if (!file) { render(); return; }
+        try {
+          const { blob, ratio } = await imageForGrid(file);
+          const item = items[index];
+          item.tag = "img";
+          item.attrs = [["src", ""], ["alt", ""], ["loading", "lazy"]];
+          Object.assign(item, { blob, blobUrl: null, ratio, dx: 0, dy: 0, zoom: 1 });
+          render();
+        } catch (error) { statusLine.textContent = error.message; }
+      }
+      async function add() {
+        const files = await pickFiles("image/*", true);
+        for (const file of files) {
+          try {
+            const { blob, ratio } = await imageForGrid(file);
+            items.push({ tag: "img", attrs: [["src", ""], ["alt", ""], ["loading", "lazy"]], span: 2, shape: ratio >= 1 ? "land" : "port", ratio, dx: 0, dy: 0, zoom: 1, blob });
+          } catch (error) { statusLine.textContent = error.message; }
+        }
+        selected = items.length - 1;
+        render();
+        preview.lastElementChild && preview.lastElementChild.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+
+      // הכלים של הריבוע שנבחר
       const spans = document.getElementById("grid-spans");
       for (let n = 1; n <= 6; n++) spans.insertAdjacentHTML("beforeend", `<button type="button" data-span="${n}">${n}</button>`);
       function showPanel() {
@@ -383,14 +482,13 @@
       }
       panel.addEventListener("click", function (e) {
         const item = items[selected];
-        if (!item) return;
         const b = e.target.closest("button");
-        if (!b) return;
+        if (!item || !b) return;
         if (b.dataset.span) item.span = Number(b.dataset.span);
         else if (b.dataset.shape) item.shape = b.dataset.shape;
-        else if (b.id === "grid-reset-crop") { item.dx = 0; item.dy = 0; item.zoom = 1; }
-        else if (b.id === "grid-earlier") return move(selected, selected - 1);
-        else if (b.id === "grid-later") return move(selected, selected + 2);
+        else if (b.dataset.action === "reset") { item.dx = 0; item.dy = 0; item.zoom = 1; }
+        else if (b.dataset.action === "replace") return replace(selected);
+        else if (b.dataset.action === "remove") return remove(selected);
         else return;
         render();
       });
@@ -422,41 +520,250 @@
       crop.addEventListener("pointerup", () => { dragStart = null; });
       crop.addEventListener("pointercancel", () => { dragStart = null; });
 
-      // ----- שמירה -----
-      const escape = v => String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-      function tileHtml(item) {
-        const attrs = item.attrs.map(([name, value]) => value === "" ? ` ${name}` : ` ${name}="${escape(value)}"`).join("");
-        const style = mediaStyle(item);
-        const media = `<${item.tag} class="project-images__image"${attrs}${style ? ` style="${style}"` : ""}>${item.tag === "video" ? "</video>" : ""}`;
-        return `      <figure class="tile" data-span="${item.span}" data-shape="${item.shape}" style="--span: ${item.span}">${media}</figure>`;
-      }
-      document.getElementById("grid-save").addEventListener("click", async function () {
-        if (!pageFile || !items.length) { status.textContent = "צריך קודם לבחור פרויקט."; return; }
-        if (!readToken()) { status.textContent = "צריך קודם לשמור מפתח GitHub (למעלה)."; return; }
-        const button = this;
-        button.disabled = true;
-        status.textContent = "שומר…";
-        try {
-          const page = await currentFile(pageFile);
-          const html = base64ToText(page.content);
-          if (!SECTION.test(html)) throw new Error("לא מצאתי את הגריד בעמוד");
-          const section = `<section class="project-images project-grid">\n${items.map(tileHtml).join("\n")}\n    </section>`;
-          const updated = html.replace(SECTION, () => section);
-          await github(pageFile, { method: "PUT", body: JSON.stringify({ message: `${pageFile}: new grid (from the covers page)`, content: textToBase64(updated), branch: BRANCH, sha: page.sha }) });
-          status.textContent = "נשמר ✓ האתר יתעדכן תוך דקה-שתיים (אם לא רואים, Cmd+Shift+R).";
-        } catch (error) {
-          status.textContent = "לא נשמר: " + error.message;
+      // שמירה: התמונות החדשות עולות לתיקייה של הפרויקט
+      async function uploadFiles(report) {
+        const waiting = items.filter(item => item.blob);
+        for (let i = 0; i < waiting.length; i++) {
+          const item = waiting[i];
+          report(`מעלה תמונה ${i + 1} מתוך ${waiting.length}…`);
+          const path = `${folder}/${stamp()}-${i + 1}.jpg`;
+          await saveFile(path, await blobToBase64(item.blob), `${pageName}: new image (from the admin page)`);
+          item.attrs = item.attrs.map(([n, v]) => n === "src" ? ["src", path] : [n, v]);
+          item.blob = null;
         }
-        button.disabled = false;
-      });
-
-      function load() {
-        if (!pageSelect.value) return;
-        loadPage(pageSelect.value).catch(error => { status.textContent = "לא נטען: " + error.message; });
       }
-      pageSelect.addEventListener("change", load);
-      document.getElementById("grid-reload").addEventListener("click", load);
-      window.addEventListener("resize", () => { if (items.length) window.packGrid(preview); });
+      function writePage(html) {
+        if (!SECTION.test(html)) throw new Error("לא מצאתי את הגריד בעמוד");
+        const lines = items.map(function (item) {
+          const style = mediaStyle(item);
+          const media = `<${item.tag} class="project-images__image"${attrsHtml(item.attrs)}${style ? ` style="${style}"` : ""}>${item.tag === "video" ? "</video>" : ""}`;
+          return `      <figure class="tile" data-span="${item.span}" data-shape="${item.shape}" style="--span: ${item.span}">${media}</figure>`;
+        });
+        return html.replace(SECTION, () => `<section class="project-images project-grid">\n${lines.join("\n")}\n    </section>`);
+      }
+      return { load, add, uploadFiles, writePage };
+    })();
+
+    // ===================== עמוד סושיאל: הפיד (כמו באינסטגרם) =====================
+    // כל פוסט הוא אחד מ:
+    //   cover – סרטון לאורך (רילס): בפיד רואים פריים אחד קבוע (קאבר). data-video = הסרטון, אם הוא באתר
+    //   video – סרטון שכבר בצורה של פוסט (4 על 5): מתנגן בפיד
+    //   image – תמונה
+    const feedEditor = (function () {
+      const SECTION = /<section class="project-images project-feed">[\s\S]*?<\/section>/;
+      const panel = document.getElementById("cover-panel");
+      const video = document.getElementById("cover-video");
+      const canvas = document.getElementById("cover-canvas");
+      const timeLabel = document.getElementById("cover-time");
+      const note = document.getElementById("cover-note");
+      let items = [], selected = -1, alt = "";
+
+      function load(html) {
+        const match = html.match(SECTION);
+        if (!match) throw new Error("לא מצאתי את הפיד בעמוד");
+        const section = new DOMParser().parseFromString(match[0], "text/html").querySelector("section");
+        items = [...section.querySelectorAll(":scope > figure.tile")].map(function (figure) {
+          const media = figure.querySelector(".project-images__image");
+          const tag = media.tagName.toLowerCase();
+          return {
+            kind: tag === "video" ? "video" : figure.dataset.video ? "cover" : "image",
+            tag,
+            attrs: [...media.attributes].filter(a => a.name !== "class").map(a => [a.name, a.value]),
+            videoPath: figure.dataset.video || "",
+          };
+        });
+        const first = section.querySelector("[alt], [aria-label]");
+        alt = first ? first.getAttribute("alt") || first.getAttribute("aria-label") : pageName;
+        selected = -1;
+        panel.hidden = true;
+        document.getElementById("grid-panel").hidden = true;
+        preview.className = "project-images project-feed admin__grid";
+        preview.removeAttribute("style");
+        addButton.textContent = "+ הוספת פוסט (תמונה או סרטון)";
+        help.textContent = "לחיצה על פוסט: החלפה בקובץ אחר מהמחשב. הכפתורים על כל פוסט: ‹ › להזיז, 🎞 לבחור קאבר לסרטון, ✕ להסיר. אפשר גם לגרור פוסט למקום אחר. סרטון לאורך (רילס) מופיע בפיד כפריים אחד קבוע, כמו באינסטגרם; סרטון בצורה של פוסט (4 על 5) מתנגן.";
+        statusLine.textContent = "זה הפיד שיש עכשיו באתר.";
+        render();
+      }
+      const attr = (item, name) => (item.attrs.find(a => a[0] === name) || [])[1];
+      const setAttr = (item, name, value) => {
+        const found = item.attrs.find(a => a[0] === name);
+        if (found) found[1] = value; else item.attrs.push([name, value]);
+      };
+      const url = blob => URL.createObjectURL(blob);
+      function previewSrc(item) {
+        if (item.coverBlob) return item.coverUrl || (item.coverUrl = url(item.coverBlob));
+        if (item.posterBlob) return item.posterUrl || (item.posterUrl = url(item.posterBlob));
+        return item.tag === "video" ? attr(item, "poster") : attr(item, "src");
+      }
+
+      function render() {
+        preview.innerHTML = "";
+        items.forEach(function (item, index) {
+          const figure = document.createElement("figure");
+          figure.className = "tile" + (index === selected ? " is-selected" : "");
+          const img = document.createElement("img");
+          img.className = "project-images__image";
+          img.draggable = false;
+          img.src = previewSrc(item);
+          img.style.cssText = attr(item, "style") || "";
+          figure.appendChild(img);
+          const labels = { cover: "סרטון (קאבר)", video: "סרטון מתנגן", image: "תמונה" };
+          figure.insertAdjacentHTML("beforeend", `<span class="admin-size">${labels[item.kind]}</span>`);
+          const buttons = [
+            ["‹", "מקום אחד קודם", () => move(index, index - 1)],
+            ["›", "מקום אחד הבא", () => move(index, index + 2)],
+          ];
+          if (item.kind === "cover") buttons.push(["🎞", "לבחור קאבר", () => openCover(index)]);
+          buttons.push(["✕", "להסיר מהפיד", () => remove(index)]);
+          figure.appendChild(tools(buttons));
+          figure.addEventListener("click", () => replace(index));
+          makeDraggable(figure, index, move);
+          preview.appendChild(figure);
+        });
+      }
+      function move(from, to) { selected = moveItem(items, from, to); render(); }
+      function remove(index) {
+        if (!confirm("להסיר את הפוסט הזה מהפיד? (הקובץ עצמו לא נמחק)")) return;
+        items.splice(index, 1);
+        selected = -1;
+        panel.hidden = true;
+        render();
+      }
+
+      // פוסט חדש מקובץ: תמונה נחתכת לצורה של פוסט. סרטון בצורה של פוסט עולה ומתנגן,
+      // וסרטון לאורך (רילס) לא עולה בכלל: בוחרים לו פריים, ורק הקאבר עולה לאתר
+      async function fromFile(file) {
+        if (file.type.startsWith("image/")) {
+          const img = await loadImage(file);
+          const blob = await canvasToJpeg(cropToPost(img, img.naturalWidth, img.naturalHeight, document.createElement("canvas")), 0.9);
+          return { kind: "image", tag: "img", attrs: [["src", ""], ["alt", alt], ["loading", "lazy"], ["style", `--photo-ratio: ${round(POST_RATIO)}`]], coverBlob: blob, newImage: true };
+        }
+        const localUrl = url(file);
+        const probe = document.createElement("video");
+        probe.muted = true;
+        probe.src = localUrl;
+        await new Promise((resolve, reject) => { probe.onloadeddata = resolve; probe.onerror = () => reject(new Error("הדפדפן לא מצליח לפתוח את הסרטון. נסי לשמור אותו כ-MP4.")); });
+        const ratio = probe.videoWidth / probe.videoHeight;
+        if (Math.abs(ratio - POST_RATIO) < 0.03) {
+          // סרטון בצורה של פוסט: מתנגן בפיד
+          if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(`הסרטון גדול מ-${MAX_VIDEO_MB}MB. שלחי לי אותו ואכווץ אותו.`);
+          probe.currentTime = 0.1;
+          await new Promise(resolve => { probe.onseeked = resolve; });
+          const poster = await canvasToJpeg(cropToPost(probe, probe.videoWidth, probe.videoHeight, document.createElement("canvas")), 0.88);
+          return {
+            kind: "video", tag: "video", videoFile: file, posterBlob: poster,
+            attrs: [["src", ""], ["poster", ""], ["data-autoplay", ""], ["muted", ""], ["loop", ""], ["playsinline", ""], ["preload", "none"], ["aria-label", alt], ["style", `--photo-ratio: ${round(ratio)}`]],
+          };
+        }
+        // סרטון לאורך: בוחרים קאבר
+        return { kind: "cover", tag: "img", attrs: [["src", ""], ["alt", alt], ["loading", "lazy"], ["style", `--photo-ratio: ${round(POST_RATIO)}`]], videoPath: "", localVideo: localUrl, needsCover: true };
+      }
+      async function replace(index) {
+        const [file] = await pickFiles("image/*,video/*");
+        if (!file) return;
+        try {
+          items[index] = await fromFile(file);
+          selected = index;
+          render();
+          if (items[index].needsCover) openCover(index);
+        } catch (error) { statusLine.textContent = error.message; }
+      }
+      async function add() {
+        const files = await pickFiles("image/*,video/*", true);
+        for (const file of files) {
+          try { items.push(await fromFile(file)); } catch (error) { statusLine.textContent = error.message; }
+        }
+        selected = items.length - 1;
+        render();
+        preview.lastElementChild && preview.lastElementChild.scrollIntoView({ block: "center", behavior: "smooth" });
+        const last = items[items.length - 1];
+        if (last && last.needsCover) openCover(items.length - 1);
+      }
+
+      // ----- בחירת קאבר: מנגנים, עוצרים על פריים, ולוחצים "זה הקאבר" -----
+      function drawCover() {
+        if (!video.videoWidth) return;
+        cropToPost(video, video.videoWidth, video.videoHeight, canvas);
+        timeLabel.textContent = video.currentTime.toFixed(2) + " שניות";
+      }
+      function openCover(index) {
+        selected = index;
+        render();
+        const item = items[index];
+        panel.hidden = false;
+        const source = item.localVideo || item.videoPath;
+        note.textContent = source ? "" : "הסרטון של הפוסט הזה לא נמצא באתר. לחצי \"בחירת סרטון מהמחשב\".";
+        video.removeAttribute("src");
+        if (source) { video.src = source; video.load(); }
+        panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+      video.addEventListener("loadedmetadata", () => { video.currentTime = 0.01; });
+      ["loadeddata", "seeked", "pause"].forEach(name => video.addEventListener(name, drawCover));
+      panel.querySelectorAll("[data-step]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          video.pause();
+          video.currentTime = Math.max(0, Math.min(video.duration || 0, video.currentTime + Number(button.dataset.step) * FRAME));
+        });
+      });
+      document.getElementById("cover-use").addEventListener("click", async function () {
+        const item = items[selected];
+        if (!item || !video.videoWidth) return;
+        video.pause();
+        drawCover();
+        item.coverBlob = await canvasToJpeg(canvas, 0.88);
+        item.coverUrl = null;
+        item.needsCover = false;
+        note.textContent = `הקאבר נבחר (${video.currentTime.toFixed(2)} שניות) ✓ הוא יעלה לאתר כשלוחצים "שמור".`;
+        render();
+      });
+      document.getElementById("cover-file").addEventListener("click", async function () {
+        const [file] = await pickFiles("video/*");
+        if (!file || !items[selected]) return;
+        items[selected].localVideo = url(file);
+        openCover(selected);
+      });
+      document.getElementById("cover-close").addEventListener("click", () => { panel.hidden = true; video.pause(); });
+
+      // ----- שמירה -----
+      async function uploadFiles(report) {
+        const missing = items.findIndex(item => item.needsCover);
+        if (missing >= 0) throw new Error(`לפוסט ${missing + 1} עוד אין קאבר. לחצי עליו על 🎞 ובחרי פריים.`);
+        const folderName = folder;
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          const id = stamp() + "-" + (i + 1);
+          if (item.videoFile) {
+            report(`מעלה סרטון (פוסט ${i + 1})… זה יכול לקחת קצת זמן`);
+            const ext = (item.videoFile.name.split(".").pop() || "mp4").toLowerCase();
+            const videoPath = `${folderName}/post-${id}.${ext}`;
+            await saveFile(videoPath, await blobToBase64(item.videoFile), `${pageName}: new video post (from the admin page)`);
+            const posterPath = `${folderName}/post-${id}-poster.jpg`;
+            await saveFile(posterPath, await blobToBase64(item.posterBlob), `${pageName}: poster of the new video post`);
+            setAttr(item, "src", videoPath);
+            setAttr(item, "poster", posterPath);
+            item.videoFile = null; item.posterBlob = null;
+          }
+          if (item.coverBlob) {
+            report(`מעלה תמונה (פוסט ${i + 1})…`);
+            // קאבר של פוסט שכבר באתר נשמר באותו שם, עם ?c= חדש כדי שהדפדפנים יציגו את החדש
+            const old = (attr(item, "src") || "").split("?")[0];
+            const path = old && !item.newImage ? old : `${folderName}/post-${id}${item.kind === "cover" ? "-cover" : ""}.jpg`;
+            await saveFile(path, await blobToBase64(item.coverBlob), `${pageName}: new ${item.kind === "cover" ? "cover" : "image"} for post ${i + 1} (from the admin page)`);
+            setAttr(item, "src", `${path}?c=${Date.now()}`);
+            item.coverBlob = null; item.newImage = false;
+          }
+        }
+      }
+      function writePage(html) {
+        if (!SECTION.test(html)) throw new Error("לא מצאתי את הפיד בעמוד");
+        const lines = items.map(function (item) {
+          const media = `<${item.tag} class="project-images__image"${attrsHtml(item.attrs)}>${item.tag === "video" ? "</video>" : ""}`;
+          const data = item.kind === "cover" && item.videoPath ? ` data-video="${escapeAttr(item.videoPath)}"` : "";
+          return `      <figure class="tile"${data}>${media}</figure>`;
+        });
+        return html.replace(SECTION, () => `<section class="project-images project-feed">\n${lines.join("\n")}\n    </section>`);
+      }
+      return { load, add, uploadFiles, writePage };
     })();
   </script>
 </body>

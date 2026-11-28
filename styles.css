@@ -1568,20 +1568,160 @@ body {
 }
 
 /* התצוגה של הגריד */
-.grid-editor__grid {
+.admin__grid {
   margin-top: 20px;
 }
 
-.grid-editor__grid > .tile {
+/* בחירת העמוד */
+.admin__page-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+  direction: ltr;
+  justify-content: flex-end;
+}
+
+.covers .admin__page-list button {
+  background-color: transparent;
+  color: var(--color-home-text);
+  border: var(--line-width) solid var(--color-home-muted);
+}
+
+.covers .admin__page-list button.is-on {
+  background-color: var(--color-home-text);
+  color: var(--color-home-background);
+}
+
+/* השורה העליונה של העורך: שם העמוד, קישור, ביטול ושמירה. נשארת למעלה כשגוללים */
+.admin__bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  background-color: var(--color-home-background);
+  border-bottom: var(--line-width) solid var(--color-home-muted);
+}
+
+.admin__page-name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: normal;
+  direction: ltr;
+}
+
+.admin__open {
+  color: var(--color-home-muted);
+}
+
+.admin__help {
+  margin: 12px 0 0;
+  color: var(--color-home-muted);
+  font-size: 14px;
+}
+
+/* הכלים של הריבוע שנבחר נשארים מתחת לשורה העליונה כשגוללים */
+.admin .grid-editor__panel {
+  position: sticky;
+  top: 62px;
+  z-index: 15;
+  background-color: var(--color-home-background);
+}
+
+.admin .grid-editor__crop-wrap {
+  max-width: 240px;
+}
+
+/* בחירת קאבר: הסרטון, הקאבר והכפתורים */
+.feed-editor__panel {
+  grid-template-columns: 200px 160px 1fr;
+}
+
+.feed-editor__panel video,
+.feed-editor__panel canvas {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  background-color: #111;
+}
+
+/* הכפתורים הקטנים על כל ריבוע: מופיעים כשהעכבר עליו (ותמיד על הריבוע שנבחר) */
+.admin__grid > .tile {
   cursor: pointer;
 }
 
-.grid-editor__grid > .tile.is-selected {
+.admin-tools {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.admin__grid > .tile:hover .admin-tools,
+.admin__grid > .tile.is-selected .admin-tools {
+  opacity: 1;
+}
+
+.covers .admin-tools button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: var(--color-home-text);
+  font-size: 15px;
+  line-height: 28px;
+}
+
+.covers .admin-tools button:hover {
+  background-color: var(--color-home-text);
+  color: var(--color-home-background);
+}
+
+/* הגודל והכיוון של כל ריבוע, למטה */
+.admin-size {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  padding: 2px 6px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: var(--color-home-text);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+/* הכפתור להוספת תמונות / פוסטים, מתחת לגריד */
+.covers .admin__add {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 24px;
+  border: var(--line-width) dashed var(--color-home-muted);
+  border-radius: 0;
+  background-color: transparent;
+  color: var(--color-home-text);
+}
+
+.admin__grid > .tile {
+  cursor: pointer;
+}
+
+.admin__grid > .tile.is-selected {
   outline: 2px solid var(--color-marker);
   outline-offset: 2px;
 }
 
-.grid-editor__grid > .tile.is-dragging {
+.admin__grid > .tile.is-dragging {
   opacity: 0.4;
 }
 
@@ -1596,7 +1736,12 @@ body {
 }
 
 @media (max-width: 700px) {
-  .grid-editor__panel {
+  .grid-editor__panel,
+  .feed-editor__panel {
     grid-template-columns: 1fr;
+  }
+
+  .admin .grid-editor__panel {
+    position: static;
   }
 }
