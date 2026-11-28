@@ -420,17 +420,31 @@ if (page) {
     viewer.classList.add("is-open");
   }
 
-  // הקרוסלה: התמונה הנוכחית, והפסים עד אליה מלאים (כמו באינסטגרם)
+  // הקרוסלה: התמונה (או הסרטון) הנוכחית, והפסים עד אליה מלאים (כמו באינסטגרם).
+  // בקרוסלה יכולים להיות גם תמונות וגם סרטונים: סרטון מתנגן עם סאונד כשמגיעים אליו
+  const isVideo = path => /\.(mp4|mov|m4v|webm)(\?|$)/i.test(path);
   function showSlide() {
+    if (video) video.pause();
     mediaBox.innerHTML = "";
-    const img = document.createElement("img");
-    img.src = slides[slide];
-    img.alt = "";
-    img.addEventListener("load", () => setRatio(img.naturalWidth / img.naturalHeight));
-    mediaBox.appendChild(img);
+    video = null;
+    if (isVideo(slides[slide])) {
+      video = document.createElement("video");
+      video.src = slides[slide];
+      video.loop = true;
+      video.playsInline = true;
+      video.addEventListener("loadedmetadata", () => setRatio(video.videoWidth / video.videoHeight));
+      mediaBox.appendChild(video);
+      video.play().catch(function () { video.muted = true; video.play().catch(function () {}); });
+    } else {
+      const img = document.createElement("img");
+      img.src = slides[slide];
+      img.alt = "";
+      img.addEventListener("load", () => setRatio(img.naturalWidth / img.naturalHeight));
+      mediaBox.appendChild(img);
+    }
     [...bars.children].forEach((bar, i) => bar.classList.toggle("is-on", i <= slide));
     // טוענים מראש את התמונה הבאה, כדי שהמעבר יהיה מיידי
-    if (slides[slide + 1]) new Image().src = slides[slide + 1];
+    if (slides[slide + 1] && !isVideo(slides[slide + 1])) new Image().src = slides[slide + 1];
   }
   function step(direction) {
     if (!slides.length) return;

@@ -800,8 +800,8 @@
         img.src = previewSrc(item);
         img.style.cssText = attr(item, "style") || "";
         figure.appendChild(img);
-        const count = item.carouselBlobs ? item.carouselBlobs.length : item.carousel ? item.carousel.length : 0;
-        const labels = { cover: "סרטון (קאבר)", video: "סרטון שמתנגן", image: "תמונה", carousel: `קרוסלה (${count} תמונות)` };
+        const count = item.carouselParts ? item.carouselParts.length : item.carousel ? item.carousel.length : 0;
+        const labels = { cover: "סרטון (קאבר)", video: "סרטון שמתנגן", image: "תמונה", carousel: `קרוסלה (${count})` };
         figure.insertAdjacentHTML("beforeend", `<span class="edit-badge edit-badge--top">${labels[item.kind]}${item.needsCover ? " · צריך לבחור קאבר" : ""}</span>`);
         const handle = button("⠿", "גררי כדי להזיז למקום אחר", () => {}, "edit-handle");
         figure.appendChild(handle);
@@ -822,7 +822,7 @@
       g.appendChild(button("‹ קודם", "מקום אחד קודם", () => move(selected, selected - 1)));
       g.appendChild(button("הבא ›", "מקום אחד הבא", () => move(selected, selected + 2)));
       if (item.kind === "cover") g.appendChild(button("בחירת קאבר", "בוחרים פריים מהסרטון", () => openCover(selected), "is-on"));
-      g.appendChild(button(item.kind === "carousel" ? "תמונות הקרוסלה" : "הפיכה לקרוסלה", "בוחרים כמה תמונות (לפי הסדר), והפוסט הופך לקרוסלה שעוברים בה בין התמונות", () => makeCarousel(selected)));
+      g.appendChild(button(item.kind === "carousel" ? "התמונות והסרטונים של הקרוסלה" : "הפיכה לקרוסלה", "בוחרים כמה תמונות וסרטונים (לפי הסדר), והפוסט הופך לקרוסלה", () => makeCarousel(selected)));
       g.appendChild(button("החלפה", "קובץ אחר מהמחשב (תמונה או סרטון)", () => replace(selected)));
       g.appendChild(button("הסרה", "להסיר מהפיד (הקובץ עצמו לא נמחק)", () => remove(selected)));
       g.appendChild(button("✕", "סגירה", () => { selected = -1; render(); }));
@@ -862,21 +862,39 @@
       }
       return { kind: "cover", tag: "img", attrs: [["src", ""], ["alt", alt], ["loading", "lazy"], ["style", `--photo-ratio: ${round(POST_RATIO)}`]], videoPath: "", localVideo, needsCover: true };
     }
-    // קרוסלה: בוחרים כמה תמונות (הסדר = הסדר שבו הן נבחרו / השמות שלהן), כל אחת נחתכת לצורה של פוסט.
-    // בפיד רואים את הראשונה, ובלחיצה עוברים בין כולן
+    // קרוסלה: בוחרים כמה תמונות וסרטונים (כמו באינסטגרם). הסדר = לפי שמות הקבצים (1, 2, 3...).
+    // תמונה נחתכת לצורה של פוסט, סרטון עולה כמו שהוא. בפיד רואים את הראשון, ובלחיצה עוברים בין כולם
     async function makeCarousel(index) {
-      const files = (await pickFiles("image/*", true)).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+      const files = (await pickFiles("image/*,video/*", true)).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
       if (!files.length) return;
       try {
-        const blobs = [];
+        const parts = []; // { blob } לתמונה, { file } לסרטון
+        let cover = null;
         for (const file of files) {
-          const img = await loadImage(file);
-          blobs.push(await canvasToJpeg(cropToPost(img, img.naturalWidth, img.naturalHeight, document.createElement("canvas")), 0.9));
+          if (file.type.startsWith("video/")) {
+            if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(`הסרטון ${file.name} גדול מ-${MAX_VIDEO_MB}MB. שלחי לי אותו ואכווץ אותו.`);
+            parts.push({ file });
+            if (!cover) {
+              // הקאבר בפיד: הפריים הראשון של הסרטון
+              const probe = document.createElement("video");
+              probe.muted = true;
+              probe.src = url(file);
+              await new Promise((resolve, reject) => { probe.onloadeddata = resolve; probe.onerror = () => reject(new Error(`הדפדפן לא מצליח לפתוח את ${file.name}. נסי לשמור אותו כ-MP4.`)); });
+              probe.currentTime = 0.05;
+              await new Promise(resolve => { probe.onseeked = resolve; });
+              cover = await canvasToJpeg(cropToPost(probe, probe.videoWidth, probe.videoHeight, document.createElement("canvas")), 0.9);
+            }
+          } else {
+            const img = await loadImage(file);
+            const blob = await canvasToJpeg(cropToPost(img, img.naturalWidth, img.naturalHeight, document.createElement("canvas")), 0.9);
+            parts.push({ blob });
+            if (!cover) cover = blob;
+          }
         }
         items[index] = {
-          kind: "carousel", tag: "img", carousel: [], carouselBlobs: blobs,
+          kind: "carousel", tag: "img", carousel: [], carouselParts: parts,
           attrs: [["src", ""], ["alt", alt], ["loading", "lazy"], ["style", `--photo-ratio: ${round(POST_RATIO)}`]],
-          coverBlob: blobs[0], newImage: true,
+          coverBlob: cover, newImage: true,
         };
         selected = index;
         changedLayout();
@@ -990,18 +1008,20 @@
           setAttr(item, "poster", posterPath);
           item.videoFile = null; item.posterBlob = null;
         }
-        if (item.carouselBlobs) {
-          // התמונות של הקרוסלה. הראשונה היא גם מה שרואים בפיד
+        if (item.carouselParts) {
+          // התמונות והסרטונים של הקרוסלה. מה שרואים בפיד הוא הקאבר (הראשון)
           const paths = [];
-          for (let n = 0; n < item.carouselBlobs.length; n++) {
-            report(`מעלה את הקרוסלה (פוסט ${i + 1}, תמונה ${n + 1} מתוך ${item.carouselBlobs.length})…`);
-            const path = `${folder}/post-${id}-${n + 1}.jpg`;
-            await saveFile(path, await blobToBase64(item.carouselBlobs[n]), `${pageName}: carousel image ${n + 1} for post ${i + 1} (from the admin page)`);
+          for (let n = 0; n < item.carouselParts.length; n++) {
+            const part = item.carouselParts[n];
+            report(`מעלה את הקרוסלה (פוסט ${i + 1}, ${n + 1} מתוך ${item.carouselParts.length})…`);
+            const ext = part.file ? (part.file.name.split(".").pop() || "mp4").toLowerCase() : "jpg";
+            const path = `${folder}/post-${id}-${n + 1}.${ext}`;
+            await saveFile(path, await blobToBase64(part.file || part.blob), `${pageName}: carousel item ${n + 1} for post ${i + 1} (from the admin page)`);
             paths.push(path);
           }
           item.carousel = paths;
-          setAttr(item, "src", paths[0]);
-          item.carouselBlobs = null; item.coverBlob = null; item.newImage = false;
+          item.carouselParts = null;
+          if (!item.carouselParts && !/\.(mp4|mov|m4v|webm)$/i.test(paths[0])) { setAttr(item, "src", paths[0]); item.coverBlob = null; item.newImage = false; }
         }
         if (item.coverBlob) {
           report(`מעלה תמונה (פוסט ${i + 1})…`);
