@@ -715,6 +715,42 @@ body {
   margin: -12px 0 0 -10px;
 }
 
+/* בדימוי הגדול: הריבוע עם החץ מעמוד הבית (בדיוק כמו .explore-cursor) */
+.media-cursor__arrow {
+  display: none;
+  position: relative;
+  width: 36px;
+  height: 24px;
+  margin: -12px 0 0 -18px; /* מרכז הסמן בדיוק על העכבר */
+  border: var(--line-width) solid var(--color-home-text);
+}
+
+.media-cursor__arrow img {
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 17px;
+  height: 17px;
+  filter: invert(1);
+  clip-path: inset(0 0 0 5px);
+}
+
+/* הקודם: אותו חץ, הפוך לשמאל (ובמקום ההפוך בתוך הריבוע) */
+.media-cursor[data-kind="prev"] .media-cursor__arrow img {
+  left: calc(100% - 23px);
+  transform: scaleX(-1);
+}
+
+.media-cursor[data-kind="next"] .media-cursor__arrow,
+.media-cursor[data-kind="prev"] .media-cursor__arrow {
+  display: block;
+}
+
+.media-cursor[data-kind="next"] .media-cursor__icon,
+.media-cursor[data-kind="prev"] .media-cursor__icon {
+  display: none;
+}
+
 /* ===== דימוי שנפתח בגדול בלחיצה (project.js) ===== */
 .project-intro__image,
 .project-images__image {

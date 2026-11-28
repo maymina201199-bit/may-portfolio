@@ -174,7 +174,9 @@ if (page) {
 
 // ===== לחיצה על דימוי: הוא נפתח בגדול על כל המסך =====
 // הדימוי נפתח בדיוק עם החיתוך שיש לו בעמוד (אותה צורה, אותו זום ואותה הטיה),
-// רק גדול, על רקע שחור. לחיצה נוספת, Esc או גלילה סוגרים
+// רק גדול, על רקע שחור. כשהוא פתוח מדפדפים בין כל הדימויים של העמוד:
+// לחיצה על הצד הימני של המסך = הדימוי הבא, על הצד השמאלי = הקודם (וגם החיצים במקלדת,
+// או החלקה הצידה בטלפון). לחיצה על הרקע השחור, Esc או גלילה סוגרים
 (function () {
   const projectPage = document.querySelector(".project-page");
   if (!projectPage) return;
@@ -186,7 +188,13 @@ if (page) {
   const viewerBox = viewer.querySelector(".image-viewer__box");
   const viewerImage = viewer.querySelector("img");
 
+  // כל הדימויים בעמוד, לפי הסדר (בלי סרטונים, שמתנגנים במקום)
+  const images = [...projectPage.querySelectorAll(".project-intro__image, .project-images__image")]
+    .filter(el => el.tagName === "IMG" && !el.closest(".minimap"));
+  let currentIndex = 0;
+
   function open(img) {
+    currentIndex = Math.max(0, images.indexOf(img));
     // הצורה של המשבצת בעמוד (או של הדימוי עצמו, אם אין לו משבצת)
     const slot = img.closest(".tile, .project-intro__frame") || img;
     const box = slot.getBoundingClientRect();
@@ -198,6 +206,12 @@ if (page) {
 
   function close() {
     viewer.classList.remove("is-open");
+  }
+
+  // מעבר לדימוי הבא (+1) או הקודם (-1). אחרי האחרון חוזרים לראשון
+  function step(direction) {
+    if (!images.length) return;
+    open(images[(currentIndex + direction + images.length) % images.length]);
   }
 
   projectPage.querySelectorAll(".project-intro__image, .project-images__image").forEach(function (img) {
@@ -217,8 +231,27 @@ if (page) {
     });
   });
 
-  viewer.addEventListener("click", close);
-  document.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
+  // לחיצה על הדימוי: צד ימין של המסך = הבא, צד שמאל = הקודם. לחיצה על הרקע: סגירה
+  viewer.addEventListener("click", function (event) {
+    if (swiped) { swiped = false; return; }
+    if (!event.target.closest(".image-viewer__box")) { close(); return; }
+    step(event.clientX < window.innerWidth / 2 ? -1 : 1);
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") close();
+    if (!viewer.classList.contains("is-open")) return;
+    if (event.key === "ArrowRight") step(1);
+    if (event.key === "ArrowLeft") step(-1);
+  });
+  // בטלפון: החלקה שמאלה = הבא, החלקה ימינה = הקודם
+  let touchX = null, swiped = false;
+  viewer.addEventListener("touchstart", event => { touchX = event.touches[0].clientX; }, { passive: true });
+  viewer.addEventListener("touchend", function (event) {
+    if (touchX === null) return;
+    const dx = event.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 40) { swiped = true; step(dx < 0 ? 1 : -1); setTimeout(() => { swiped = false; }, 400); }
+  });
   window.addEventListener("wheel", close, { passive: true });
 })();
 
@@ -311,7 +344,8 @@ if (page) {
 })();
 
 // ===== הסמן מעל דימויים וסרטונים (האייקונים מהפיגמה) =====
-// מעל דימוי: פלוס (לחיצה מגדילה). בדימוי הגדול: מינוס (לחיצה מקטינה).
+// מעל דימוי: פלוס (לחיצה מגדילה). בדימוי הגדול: הריבוע עם החץ מעמוד הבית, שמצביע ימינה (הבא)
+// או שמאלה (הקודם) לפי הצד של המסך. על הרקע השחור מסביב: מינוס (לחיצה סוגרת).
 // מעל סרטון: שני קווים כשהוא מתנגן (לחיצה עוצרת), משולש כשהוא עצור (לחיצה מפעילה).
 // כמו הסמן בעמוד הבית: קווים לבנים שהופכים לשחורים על רקע בהיר
 (function () {
@@ -319,9 +353,9 @@ if (page) {
 
   const cursor = document.createElement("div");
   cursor.className = "media-cursor";
-  cursor.innerHTML = '<img alt="">';
+  cursor.innerHTML = '<img class="media-cursor__icon" alt=""><span class="media-cursor__arrow"><img src="images/arrow-right.png" alt=""></span>';
   document.body.appendChild(cursor);
-  const icon = cursor.querySelector("img");
+  const icon = cursor.querySelector(".media-cursor__icon");
 
   const ICONS = {
     "zoom-in": "images/cursor-zoom-in.svg",
@@ -335,7 +369,9 @@ if (page) {
   function update(target) {
     lastTarget = target;
     let kind = "";
-    if (target && target.closest(".image-viewer.is-open")) {
+    if (target && target.closest(".image-viewer.is-open .image-viewer__box")) {
+      kind = mouseX < window.innerWidth / 2 ? "prev" : "next";
+    } else if (target && target.closest(".image-viewer.is-open")) {
       kind = "zoom-out";
     } else if (target && !target.closest(".minimap")) {
       const media = target.closest(".project-page .project-intro__image, .project-page .project-images__image");
@@ -344,7 +380,7 @@ if (page) {
     if (kind !== current) {
       current = kind;
       cursor.dataset.kind = kind;
-      if (kind) icon.src = ICONS[kind];
+      if (ICONS[kind]) icon.src = ICONS[kind];
     }
     document.body.classList.toggle("has-media-cursor", kind !== "");
   }
