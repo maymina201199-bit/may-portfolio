@@ -2235,9 +2235,12 @@ body {
 }
 
 /* ===== פס הגלילה של העמוד: קו לבן דק (כמו הקווים של האייקונים), שמתעבה כשהעכבר עליו ===== */
-html {
-  scrollbar-color: var(--color-home-text) transparent; /* Firefox */
-  scrollbar-width: thin;
+/* Firefox בלבד (כרום וספארי מתעלמים מהעיצוב למטה אם ההגדרה הזאת קיימת) */
+@supports (-moz-appearance: none) {
+  html {
+    scrollbar-color: var(--color-home-text) transparent;
+    scrollbar-width: thin;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -2258,8 +2261,13 @@ html {
   background-clip: padding-box;
 }
 
-/* כשהעכבר על הקו או כשגוררים אותו: קצת יותר עבה, כדי שיהיה קל לתפוס */
+/* כשהעכבר על הקו או כשגוררים אותו: קצת יותר עבה (3px), כדי שיהיה קל לתפוס. בלי פינות מעוגלות */
 ::-webkit-scrollbar-thumb:hover,
 ::-webkit-scrollbar-thumb:active {
-  border-width: 3px;
+  border-width: 4px;
+}
+
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb:hover {
+  border-radius: 0;
 }

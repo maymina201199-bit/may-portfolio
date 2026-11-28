@@ -1,6 +1,6 @@
 // הגרף המונפש של הצמיחה באינסטגרם (3 חודשים) בעמוד של Manyone.
 // במחשב: הגרף משמאל והמספרים מימין לו, במיקום כמו בפיגמה. בטלפון: המספרים מתחת לגרף.
-// האנימציה מתחילה כשהגרף מגיע למסך, חוזרת על עצמה, ונעצרת כשהוא לא נראה.
+// האנימציה רצה פעם אחת כשהגרף מגיע למסך, ונשארת בסוף (מתחילה מחדש רק בכניסה מחדש לעמוד).
 (function () {
   const cv = document.getElementById("growth-chart");
   if (!cv) return;
@@ -240,15 +240,15 @@
 
   // ---------- הניגון ----------
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches; // מי שביקש פחות תנועה רואה את הגרף הגמור
-  let t0 = 0, running = false, lastT = reduced ? DURATION : 0;
+  // האנימציה רצה פעם אחת, כשהגרף מגיע למסך, ונשארת בסוף (סטטית).
+  // היא מתחילה מחדש רק כשנכנסים לעמוד שוב או מרעננים אותו
+  let t0 = 0, running = false, played = false, lastT = reduced ? DURATION : 0;
   function loop(now) {
-    if (!running) return;
     if (!t0) t0 = now;
-    let t = (now - t0) / 1000;
-    if (t > DURATION + 1.5) { t0 = now; t = 0; } // מתחיל מחדש
-    lastT = Math.min(t, DURATION);
+    lastT = Math.min((now - t0) / 1000, DURATION);
     render(lastT);
-    requestAnimationFrame(loop);
+    if (lastT < DURATION) requestAnimationFrame(loop);
+    else running = false;
   }
 
   // מחכים שהפונט ייטען לפני שמודדים ומציירים, אחרת הטקסט יופיע בפונט אחר
@@ -257,10 +257,20 @@
     render(lastT);
     window.addEventListener("resize", () => { layout(); render(lastT); });
     if (reduced) return;
-    new IntersectionObserver(function (entries) {
-      const visible = entries[0].isIntersecting;
-      if (visible && !running) { running = true; t0 = 0; requestAnimationFrame(loop); } // כל פעם שחוזרים אליו, מההתחלה
-      if (!visible) running = false;
+    new IntersectionObserver(function (entries, observer) {
+      if (!entries[0].isIntersecting || played) return;
+      played = true;
+      running = true;
+      t0 = 0;
+      requestAnimationFrame(loop);
+      observer.disconnect(); // רק פעם אחת
     }).observe(cv);
+    // חזרה לעמוד בכפתור "אחורה" של הדפדפן: גם זו כניסה מחדש, אז האנימציה מתחילה שוב
+    window.addEventListener("pageshow", function (event) {
+      if (!event.persisted || running) return;
+      running = true;
+      t0 = 0;
+      requestAnimationFrame(loop);
+    });
   });
 })();
