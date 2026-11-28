@@ -858,6 +858,11 @@ body {
   column-gap: 0;
 }
 
+/* הטקסט משמאל: ברוחב 453 מתוך 1440, כמו בפיגמה */
+.project-intro--stats .project-intro__description {
+  max-width: calc(100vw * 453 / 1440);
+}
+
 .project-stats {
   padding-left: calc(100vw * 6 / 1440);
   min-width: 0; /* כדי שהגרף לא ימתח את העמוד לרוחב */
@@ -1047,6 +1052,10 @@ body {
     column-gap: 24px;
     font-size: var(--home-text-size);
     line-height: 2;
+  }
+
+  .project-intro--stats .project-intro__description {
+    max-width: none;
   }
 
   .project-stats__chart {

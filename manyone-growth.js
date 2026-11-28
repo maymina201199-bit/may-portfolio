@@ -6,7 +6,14 @@
   if (!cv) return;
   const ctx = cv.getContext("2d");
   const W = 1080, H = 1920, DURATION = 9; // שניות
-  const FONT = '"Helvetica Neue", -apple-system, Arial, sans-serif';
+  // הפונט של הכותרות באתר, ובגודל של "manyone TLV" (18 בפיגמה), כפי שהוא נראה על המסך
+  const FONT = '"Polymath Display", Arial, sans-serif';
+  function screenTextSize() {
+    const px = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--home-text-size")) || 15;
+    return px * W / (cv.clientWidth || W); // הגרף מוקטן על המסך, אז מגדילים את הטקסט בהתאם
+  }
+  let FS = screenTextSize();
+  window.addEventListener("resize", () => { FS = screenTextSize(); });
 
   // ---------- הנתונים: 90 ימים של צמיחה (פי 17 בערך, כמו +1,614%) ----------
   let seed = 7;
@@ -34,9 +41,10 @@
   const easeInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   const fmt = (v, dec) => v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
 
+  // כל הטקסטים בגרף באותו פונט ובאותו גודל (FS)
   function text(str, x, y, size, weight, alpha, align = "left", spacing = 0) {
-    ctx.font = `${weight} ${size}px ${FONT}`;
-    ctx.letterSpacing = spacing + "px";
+    ctx.font = `${FS}px ${FONT}`;
+    ctx.letterSpacing = "0px";
     ctx.textAlign = align; ctx.fillStyle = `rgba(255,255,255,${alpha})`;
     ctx.fillText(str, x, y);
   }
@@ -140,7 +148,10 @@
 
   // ---------- הניגון ----------
   // מי שביקש פחות תנועה במחשב רואה מיד את הגרף הגמור
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { render(DURATION); return; }
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.fonts.load(`${FS}px ${FONT}`).then(() => { FS = screenTextSize(); render(DURATION); });
+    return;
+  }
 
   let t0 = 0, running = false;
   function loop(now) {
@@ -152,6 +163,8 @@
     requestAnimationFrame(loop);
   }
   render(0);
+  // מחכים שהפונט ייטען לפני שמתחילים, אחרת הטקסט יופיע בפונט אחר
+  document.fonts.load(`${FS}px ${FONT}`).then(() => { FS = screenTextSize(); render(0); });
   new IntersectionObserver(function (entries) {
     const visible = entries[0].isIntersecting;
     if (visible && !running) { running = true; t0 = 0; requestAnimationFrame(loop); } // כל פעם שחוזרים אליו, מההתחלה
