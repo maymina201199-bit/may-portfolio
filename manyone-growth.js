@@ -80,6 +80,23 @@
 
   // המיקומים לקוחים מהפיגמה (עמוד ברוחב 1440): הגרף מתחיל ב-726 ונגמר ב-1118,
   // המספרים בין 1193 ל-1416. הגבהים נמדדים מהשורה הראשונה של הטקסט משמאל (315 בפיגמה)
+  // איפה מתחילות האותיות של השורה הראשונה בטקסט משמאל (ביחס לראש ה-canvas)
+  function firstLineCapTop() {
+    const desc = document.querySelector(".project-intro__description");
+    const walker = desc && document.createTreeWalker(desc, NodeFilter.SHOW_TEXT, { acceptNode: n => n.textContent.trim() ? 1 : 3 });
+    const node = walker && walker.nextNode();
+    if (!node) return null;
+    const range = document.createRange();
+    const start = node.textContent.search(/\S/);
+    range.setStart(node, start); range.setEnd(node, start + 1);
+    const box = range.getClientRects()[0];
+    if (!box) return null;
+    ctx.font = `${getComputedStyle(desc).fontSize} ${FONT}`;
+    const m = ctx.measureText("S");
+    const top = cv.getBoundingClientRect().top - (parseFloat(cv.style.marginTop) || 0); // ראש ה-canvas בלי ההזזה
+    return box.top + m.fontBoundingBoxAscent - m.actualBoundingBoxAscent - top;
+  }
+
   function layout() {
     const cw = cv.clientWidth;
     const baseFS = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--home-text-size")) || 15; // כמו "manyone TLV"
@@ -139,6 +156,22 @@
                     100 * (l.NX1 - l.NX0) / ctx.measureText(HERO_TEXT).width); // לא רחב מהעמודה
     ctx.font = `${l.HS}px ${FONT}`;
     l.heroX = l.NX0 + (l.phoneInk || 0) + ctx.measureText("6").actualBoundingBoxLeft; // הדיו של ה-6 על הקו
+
+    // בלי שורת כותרת מעל הגרף: הגרף והמספרים עולים לשורה של הטקסט משמאל —
+    // הקו העליון של הגרף והראש של המספר הגדול בגובה הראש של השורה הראשונה בטקסט
+    if (wide && !TITLE_LEFT && !TITLE_RIGHT) {
+      const capTop = firstLineCapTop();
+      if (capTop !== null) {
+        const shift = l.GY0 - capTop;
+        l.GY0 -= shift; l.GY1 -= shift; l.monthsY -= shift;
+        ctx.font = `${l.HS}px ${FONT}`;
+        const heroTop = l.heroY - ctx.measureText(HERO_TEXT).actualBoundingBoxAscent;
+        const heroShift = heroTop - capTop;
+        l.heroY -= heroShift; l.labelY -= heroShift; l.rowsTop -= heroShift;
+        l.T = 0;
+        l.H = Math.max(l.monthsY + l.FS * 0.5, l.rowsTop + 3 * l.rowH + 4);
+      }
+    }
 
     // גודל ה-canvas: חד גם במסכים צפופים
     const dpr = Math.min(window.devicePixelRatio || 1, 3);
