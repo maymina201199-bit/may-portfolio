@@ -1,6 +1,5 @@
 // הגרף המונפש של הצמיחה באינסטגרם (3 חודשים) בעמוד של Manyone.
-// במחשב: הגרף משמאל והמספרים מימין לו. בטלפון: המספרים מתחת לגרף.
-// המילה INSTAGRAM יושבת על אותו קו כמו השורה הראשונה של הטקסט משמאל.
+// במחשב: הגרף משמאל והמספרים מימין לו, במיקום כמו בפיגמה. בטלפון: המספרים מתחת לגרף.
 // האנימציה מתחילה כשהגרף מגיע למסך, חוזרת על עצמה, ונעצרת כשהוא לא נראה.
 (function () {
   const cv = document.getElementById("growth-chart");
@@ -54,62 +53,53 @@
   // ---------- המיקומים (בפיקסלים של המסך) ----------
   let L = {};
 
-  // איפה עובר הקו של השורה הראשונה בטקסט משמאל, ביחס לראש הגרף
-  function firstLineBaseline() {
-    const desc = document.querySelector(".project-intro__description");
-    const node = desc && desc.firstChild;
-    if (!node || !node.textContent.trim()) return null;
-    const range = document.createRange();
-    range.setStart(node, 0); range.setEnd(node, 1);
-    const box = range.getClientRects()[0];
-    if (!box) return null;
-    ctx.font = `${getComputedStyle(desc).fontSize} ${FONT}`;
-    const ascent = ctx.measureText("S").fontBoundingBoxAscent;
-    return box.top + ascent - cv.getBoundingClientRect().top;
-  }
-
+  // המיקומים לקוחים מהפיגמה (עמוד ברוחב 1440): הגרף מתחיל ב-726 ונגמר ב-1118,
+  // המספרים בין 1193 ל-1416. הגבהים נמדדים מהשורה הראשונה של הטקסט משמאל (315 בפיגמה)
   function layout() {
     const cw = cv.clientWidth;
-    const FS = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--home-text-size")) || 15; // כמו "manyone TLV"
-    const wide = cw >= 500; // במחשב: המספרים מימין לגרף
-    const k = wide ? cw / 700 : 1;
-    const l = { cw, FS, wide };
-
-    const aligned = wide ? firstLineBaseline() : null;
-    l.yB = aligned !== null && aligned > FS ? aligned : FS; // הקו של INSTAGRAM
-    l.X0 = 0;
-    // עמודת המספרים: 230 מתוך 700, אבל לא צרה מ-240 פיקסלים (שהמילים לא יעלו על המספרים)
-    l.NX0 = wide ? cw - Math.max(230 * k, 240) : 0;
-    l.NX1 = cw;
-    l.X1 = wide ? l.NX0 - 50 * k : cw;
-    l.lineY = l.yB + 16;
-    l.GY0 = l.yB + 70 * k;
-    l.GY1 = l.GY0 + (wide ? 290 * k : cw * 0.62);
-    l.monthsY = l.GY1 + 16 + FS;
-
-    // המספר הגדול (כמו באנימציה המקורית) — בגודל שנכנס ברוחב
-    ctx.font = `100px ${FONT}`;
-    const w100 = ctx.measureText("68.7K").width;
-    l.HS = Math.min(wide ? 88 * k : cw * 0.194, (l.NX1 - l.NX0) * 100 / w100);
-    l.rowH = 3 * FS;
+    const baseFS = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--home-text-size")) || 15; // כמו "manyone TLV"
+    const wide = cw >= 500; // במחשב: המספרים מימין לגרף. בטלפון: מתחת
+    const l = { cw, wide };
 
     if (wide) {
-      // המספרים מימין: השורה האחרונה נגמרת בקו התחתון של הגרף
-      l.rowsTop = l.GY1 - 3 * l.rowH;
+      const u = cw / 700; // פיקסל אחד של הפיגמה, על המסך
+      const FS = baseFS * Math.min(1, u);
+      l.FS = FS;
+      l.T = Math.ceil(FS * 1.2); // מקום מעל INSTAGRAM (ה-canvas עולה למעלה באותה כמות)
+      l.X0 = 0; l.X1 = 392 * u;
+      l.yB = 2 * u; l.lineY = 15 * u;
+      l.GY0 = 66 * u; l.GY1 = 338 * u; l.monthsY = 367 * u;
+      l.NX0 = 467 * u; l.NX1 = 690 * u;
+      l.heroY = 39 * u; l.labelY = 63 * u;
+      l.rowsTop = 76 * u; l.rowH = 41.8 * u; l.rowText = 25 * u;
+      l.heroCap = 58 * u; // גובה הספרות של 68.7K
+      l.H = l.monthsY + FS * 0.5;
     } else {
-      // בטלפון: מתחת לגרף
-      l.rowsTop = l.monthsY + 48 + l.HS * 0.75 + FS + 24;
+      const FS = baseFS;
+      l.FS = FS; l.T = 0;
+      l.X0 = 0; l.X1 = cw;
+      l.yB = FS; l.lineY = l.yB + 16;
+      l.GY0 = l.yB + 70; l.GY1 = l.GY0 + cw * 0.62; l.monthsY = l.GY1 + 16 + FS;
+      l.NX0 = 0; l.NX1 = cw;
+      l.heroCap = cw * 0.14;
+      l.heroY = l.monthsY + 48 + l.heroCap;
+      l.labelY = l.heroY + FS + 10;
+      l.rowsTop = l.labelY + 24; l.rowH = 3 * FS; l.rowText = 1.5 * FS + FS * 0.35;
+      l.H = l.rowsTop + 3 * l.rowH + 8;
     }
-    l.labelY = l.rowsTop - 14;
-    l.heroY = l.labelY - FS - 12;
-    l.H = Math.ceil(Math.max(l.monthsY, l.rowsTop + 3 * l.rowH) + 8);
+    // גודל הפונט של 68.7K לפי גובה הספרות
+    ctx.font = `100px ${FONT}`;
+    l.HS = 100 * l.heroCap / ctx.measureText("68.7K").actualBoundingBoxAscent;
 
     // גודל ה-canvas: חד גם במסכים צפופים
     const dpr = Math.min(window.devicePixelRatio || 1, 3);
     l.dpr = dpr;
-    cv.style.height = l.H + "px";
+    const total = Math.ceil(l.H + l.T);
+    cv.style.height = total + "px";
+    cv.style.marginTop = -l.T + "px";
     cv.width = Math.round(cw * dpr);
-    cv.height = Math.round(l.H * dpr);
+    cv.height = Math.round(total * dpr);
+    l.total = total;
     L = l;
   }
 
@@ -119,7 +109,8 @@
     const gy = v => GY1 - (GY1 - GY0) * ((v - 1) / (maxV - 1)) * 0.92 - 2;
 
     ctx.setTransform(L.dpr, 0, 0, L.dpr, 0, 0);
-    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, L.cw, L.H);
+    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, L.cw, L.total);
+    ctx.translate(0, L.T);
     ctx.lineCap = "round"; ctx.lineJoin = "round";
 
     // הכותרת
@@ -182,7 +173,7 @@
     const heroA = easeOut(prog(t, 2.2, 1.0));
     const heroV = 68.7 * easeOutExpo(prog(t, 2.2, 3.2));
     const yOff = (1 - heroA) * 12;
-    text(`${fmt(heroV, 1)}K`, L.NX0 - L.HS * 0.03, L.heroY + yOff, L.HS, heroA);
+    text(`${fmt(heroV, 1)}K`, L.NX0 - L.HS * 0.02, L.heroY + yOff, L.HS, heroA);
     text("total views", L.NX0, L.labelY + yOff, FS, 0.6 * heroA);
 
     // שורות הנתונים
@@ -192,7 +183,7 @@
       const top = L.rowsTop + k * L.rowH;
       hline(L.NX0, L.NX0 + (L.NX1 - L.NX0) * easeInOut(prog(t, st - 0.1, 1.0)), top, 0.22);
       const v = s.v * easeOutExpo(prog(t, st, 2.8));
-      const y = top + L.rowH / 2 + FS * 0.35 + (1 - a) * 10;
+      const y = top + L.rowText + (1 - a) * 10;
       text(`+${fmt(v, s.dec)}%`, L.NX0, y, FS, a);
       text(s.label, L.NX1, y, FS, 0.6 * a, "right");
     });
