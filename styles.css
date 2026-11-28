@@ -2065,3 +2065,21 @@ body {
   font-size: 14px;
   cursor: pointer;
 }
+
+/* עמוד הניהול: תצוגת החיתוך של תמונה בעמוד הבית (זזה לכל הכיוונים, זום וסיבוב).
+   בשמירה אותו חיתוך נאפה לתמונה חדשה, כך שבעמוד הבית עצמו אין חיתוך בקוד */
+.admin__home-item .home-gallery__media {
+  container-type: size;
+}
+
+.admin__home-item .home-gallery__slide.admin-crop {
+  inset: auto;
+  left: calc(50% + var(--dx, 0%));
+  top: calc(50% + var(--dy, 0%));
+  width: max(100cqw, 100cqh * var(--r, 1));
+  height: max(100cqh, 100cqw / var(--r, 1));
+  max-width: none;
+  object-fit: fill;
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(var(--s, 1));
+  transition: none;
+}

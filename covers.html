@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>May Mina | ניהול</title>
-  <link rel="stylesheet" href="styles.css?v=20261128z">
+  <link rel="stylesheet" href="styles.css?v=20261129a">
 </head>
 <body class="home-page covers-page">
   <!--
@@ -15,7 +15,7 @@
   -->
   <main class="covers admin">
     <h1 class="covers__title">ניהול האתר</h1>
-    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261128z">← חזרה לאתר</a></p>
+    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261129a">← חזרה לאתר</a></p>
 
     <!-- המפתח של GitHub -->
     <section class="covers__key">
@@ -166,31 +166,56 @@
     const MEDIA = /<div class="home-gallery__media">[\s\S]*?<\/div>/g;
     let homeItems = [];
 
-    // ----- החיתוך של תמונה בריבוע: מה רואים (px, py באחוזים), זום וסיבוב -----
+    // ----- החיתוך של תמונה בריבוע של עמוד הבית -----
+    // dx, dy: כמה התמונה זזה מהאמצע (באחוזים מהריבוע), zoom: הגדלה, rot: סיבוב במעלות.
+    // בשמירה החיתוך "נאפה" לתמונה חדשה בדיוק בצורה של הריבוע (1440 על 1770), מהמקור באיכות מלאה,
+    // כך שבעמוד הבית התמונה חדה גם אחרי זום. המקור נשמר בצד (data-original) כדי שאפשר יהיה לשנות שוב
+    const BOX_W = 480, BOX_H = 590, BAKE_W = 1440, BAKE_H = Math.round(1440 * 590 / 480);
+    const MAX_ORIGINAL = 6000; // המקור נשמר עד 6000 פיקסלים בצד הארוך
     function readCrop(media) {
-      const crop = { px: 50, py: 50, zoom: 1, rot: 0 };
-      if (media.classList.contains("home-gallery__slide--face")) crop.px = 100;
-      if (media.classList.contains("home-gallery__slide--stone")) crop.py = 57;
-      const position = (media.style.objectPosition || "").match(/([\d.]+)%\s+([\d.]+)%/);
-      if (position) { crop.px = parseFloat(position[1]); crop.py = parseFloat(position[2]); }
-      const transform = media.style.transform || "";
-      const r = transform.match(/rotate\((-?[\d.]+)deg\)/), z = transform.match(/scale\(([\d.]+)\)/);
-      if (r) crop.rot = parseFloat(r[1]);
-      if (z) crop.zoom = parseFloat(z[1]);
+      const crop = { original: media.getAttribute("data-original") || media.getAttribute("src"), dx: 0, dy: 0, zoom: 1, rot: 0, ratio: 0 };
+      const saved = (media.getAttribute("data-crop") || "").split(/\s+/).map(Number);
+      if (saved.length === 4 && saved.every(n => !isNaN(n))) [crop.dx, crop.dy, crop.zoom, crop.rot] = saved;
       return crop;
     }
-    // כמה צריך להגדיל כדי שהסיבוב לא ישאיר פינות ריקות בריבוע (480 על 590)
+    // כמה צריך להגדיל כדי שהסיבוב לא ישאיר פינות ריקות בריבוע
     function coverScale(rot) {
-      const a = Math.abs(rot) * Math.PI / 180, w = 480, h = 590;
-      return Math.max((w * Math.cos(a) + h * Math.sin(a)) / w, (w * Math.sin(a) + h * Math.cos(a)) / h);
+      const a = Math.abs(rot) * Math.PI / 180;
+      return Math.max((BOX_W * Math.cos(a) + BOX_H * Math.sin(a)) / BOX_W, (BOX_W * Math.sin(a) + BOX_H * Math.cos(a)) / BOX_H);
     }
+    const scaleOf = item => Math.max(item.zoom, coverScale(item.rot));
     const round2 = v => Math.round(v * 100) / 100;
+    // לא מזיזים את התמונה מעבר לקצה של הריבוע
+    function clampCrop(item) {
+      const r = item.ratio || BOX_W / BOX_H;
+      const extra = scaleOf(item) / coverScale(item.rot); // ההגדלה מעבר למה שהסיבוב צריך
+      const coverW = Math.max(BOX_W, BOX_H * r) * extra, coverH = Math.max(BOX_H, BOX_W / r) * extra;
+      const lx = (coverW - BOX_W) / 2 / BOX_W * 100, ly = (coverH - BOX_H) / 2 / BOX_H * 100;
+      item.dx = Math.max(-lx, Math.min(lx, item.dx));
+      item.dy = Math.max(-ly, Math.min(ly, item.dy));
+    }
+    // התצוגה בעמוד הניהול (אותה חשבון כמו האפייה)
     function cropStyle(item) {
-      const scale = round2(Math.max(item.zoom, coverScale(item.rot)));
-      const parts = [`object-position: ${round2(item.px)}% ${round2(item.py)}%`];
-      // הסיבוב והזום סביב האמצע של הריבוע (כך הגודל מ-coverScale מספיק כדי שלא יישארו פינות ריקות)
-      if (item.rot || scale !== 1) parts.push(`transform: rotate(${round2(item.rot)}deg) scale(${scale})`);
-      return parts.join("; ");
+      return `--r: ${item.ratio || BOX_W / BOX_H}; --dx: ${round2(item.dx)}%; --dy: ${round2(item.dy)}%; --rot: ${round2(item.rot)}deg; --s: ${round2(scaleOf(item))}`;
+    }
+    const cropChanged = item => !!(round2(item.dx) || round2(item.dy) || round2(item.zoom) !== 1 || round2(item.rot));
+    // האפייה: מציירים את החיתוך על קנבס בגודל של הריבוע (פי 3), מהמקור
+    async function bakeCrop(item) {
+      const img = new Image();
+      img.src = item.originalBlob ? URL.createObjectURL(item.originalBlob) : item.original;
+      await img.decode();
+      const r = img.naturalWidth / img.naturalHeight;
+      const canvas = document.createElement("canvas");
+      canvas.width = BAKE_W;
+      canvas.height = BAKE_H;
+      const ctx = canvas.getContext("2d");
+      ctx.imageSmoothingQuality = "high";
+      const coverW = Math.max(BAKE_W, BAKE_H * r), coverH = Math.max(BAKE_H, BAKE_W / r);
+      ctx.translate(BAKE_W / 2 + item.dx / 100 * BAKE_W, BAKE_H / 2 + item.dy / 100 * BAKE_H);
+      ctx.rotate(item.rot * Math.PI / 180);
+      ctx.scale(scaleOf(item), scaleOf(item));
+      ctx.drawImage(img, -coverW / 2, -coverH / 2, coverW, coverH);
+      return canvasToJpeg(canvas, 0.92);
     }
 
     async function loadHome() {
@@ -235,8 +260,8 @@
         const card = document.createElement("div");
         card.className = "home-gallery__item admin__home-item" + (item.changed ? " is-changed" : "");
         const preview = item.posterBlob ? (item.posterUrl ||= URL.createObjectURL(item.posterBlob))
-                      : item.imageBlob ? (item.imageUrl ||= URL.createObjectURL(item.imageBlob))
-                      : item.isVideo ? item.poster : item.src;
+                      : item.originalBlob ? (item.originalUrl ||= URL.createObjectURL(item.originalBlob))
+                      : item.isVideo ? item.poster : item.original;
         card.innerHTML = `
           <div class="home-gallery__media"><img class="home-gallery__slide is-active" alt=""></div>
           <p class="home-gallery__name"></p>
@@ -248,7 +273,14 @@
         const img = card.querySelector("img");
         img.src = preview;
         img.draggable = false;
-        if (!item.isVideo) img.style.cssText = cropStyle(item);
+        if (!item.isVideo) {
+          img.classList.add("admin-crop");
+          img.style.cssText = cropStyle(item);
+          img.addEventListener("load", function () {
+            const r = img.naturalWidth / img.naturalHeight;
+            if (r && Math.abs(r - item.ratio) > 0.001) { item.ratio = r; clampCrop(item); img.style.cssText = cropStyle(item); }
+          });
+        }
         card.querySelector(".home-gallery__name").textContent = item.name;
         if (!item.isVideo) {
           card.classList.toggle("is-selected", index === selectedHome);
@@ -283,21 +315,18 @@
       const item = homeItems[index];
       const media = card.querySelector(".home-gallery__media");
       const box = media.getBoundingClientRect();
-      // כמה התמונה גולשת מהריבוע (במצב "cover"), כדי שהגרירה תזיז אותה בקצב של העכבר
-      const r = img.naturalWidth / img.naturalHeight || 1;
-      const overflowX = Math.max(1, box.height * r - box.width), overflowY = Math.max(1, box.width / r - box.height);
-      const start = { x: e.clientX, y: e.clientY, px: item.px, py: item.py };
+      const start = { x: e.clientX, y: e.clientY, dx: item.dx, dy: item.dy };
       media.setPointerCapture(e.pointerId);
       function move(ev) {
-        const scale = Math.max(item.zoom, coverScale(item.rot));
-        item.px = Math.max(0, Math.min(100, start.px - (ev.clientX - start.x) / overflowX * 100 / scale));
-        item.py = Math.max(0, Math.min(100, start.py - (ev.clientY - start.y) / overflowY * 100 / scale));
+        item.dx = start.dx + (ev.clientX - start.x) / box.width * 100;
+        item.dy = start.dy + (ev.clientY - start.y) / box.height * 100;
+        clampCrop(item);
         img.style.cssText = cropStyle(item);
       }
       function up() {
         media.removeEventListener("pointermove", move);
         media.removeEventListener("pointerup", up);
-        if (item.px !== start.px || item.py !== start.py) { item.changed = true; item.cropChanged = true; card.classList.add("is-changed"); }
+        if (item.dx !== start.dx || item.dy !== start.dy) { item.changed = true; card.classList.add("is-changed"); }
       }
       media.addEventListener("pointermove", move);
       media.addEventListener("pointerup", up);
@@ -321,7 +350,8 @@
         input.value = item[input.dataset.key];
         input.addEventListener("input", function () {
           item[input.dataset.key] = Number(input.value);
-          item.changed = true; item.cropChanged = true;
+          clampCrop(item);
+          item.changed = true;
           const img = homeGrid.children[selectedHome].querySelector("img");
           img.style.cssText = cropStyle(item);
           homeGrid.children[selectedHome].classList.add("is-changed");
@@ -335,9 +365,10 @@
       const item = homeItems[selectedHome];
       if (!b || !item) return;
       if (b.dataset.turn) item.rot = ((item.rot + Number(b.dataset.turn) + 540) % 360) - 180;
-      if (b.dataset.act === "reset") Object.assign(item, { px: 50, py: 50, zoom: 1, rot: 0 });
+      if (b.dataset.act === "reset") Object.assign(item, { dx: 0, dy: 0, zoom: 1, rot: 0 });
       if (b.dataset.act === "close") { selectedHome = -1; renderHome(); showHomeTools(); return; }
-      item.changed = true; item.cropChanged = true;
+      clampCrop(item);
+      item.changed = true;
       renderHome();
       showHomeTools();
     });
@@ -349,7 +380,14 @@
       img.src = URL.createObjectURL(file);
       try { await img.decode(); } catch (e) { homeStatus.textContent = "הדפדפן לא מצליח לפתוח את התמונה (אם זה HEIC, שמרי אותה קודם כ-JPG)"; return; }
       const item = homeItems[index];
-      Object.assign(item, { isVideo: false, imageBlob: await toJpeg(img, img.naturalWidth, img.naturalHeight), imageUrl: null, videoFile: null, posterBlob: null, posterUrl: null, changed: true, px: 50, py: 50, zoom: 1, rot: 0 });
+      // המקור באיכות מלאה (עד 6000 פיקסלים), ממנו נחתך הקאבר בשמירה
+      const scale = Math.min(1, MAX_ORIGINAL / Math.max(img.naturalWidth, img.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.naturalWidth * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      Object.assign(item, { isVideo: false, originalBlob: await canvasToJpeg(canvas, 0.92), originalUrl: null, ratio: canvas.width / canvas.height,
+        videoFile: null, posterBlob: null, posterUrl: null, changed: true, dx: 0, dy: 0, zoom: 1, rot: 0 });
       selectedHome = index;
       renderHome();
       showHomeTools();
@@ -368,7 +406,7 @@
         await new Promise(resolve => { video.onseeked = resolve; });
       } catch (e) { homeStatus.textContent = "הדפדפן לא מצליח לפתוח את הסרטון. נסי לשמור אותו כ-MP4."; return; }
       const item = homeItems[index];
-      Object.assign(item, { isVideo: true, videoFile: file, imageBlob: null, posterBlob: await toJpeg(video, video.videoWidth, video.videoHeight), posterUrl: null, changed: true });
+      Object.assign(item, { isVideo: true, videoFile: file, originalBlob: null, posterBlob: await toJpeg(video, video.videoWidth, video.videoHeight), posterUrl: null, changed: true });
       renderHome();
     }
 
@@ -381,10 +419,18 @@
       try {
         for (const item of homeItems.filter(it => it.changed)) {
           const id = stamp();
-          if (item.imageBlob) {
-            homeStatus.textContent = `מעלה תמונה (${item.name})…`;
+          if (!item.isVideo) {
+            if (item.originalBlob) {
+              homeStatus.textContent = `מעלה את התמונה המקורית (${item.name})…`;
+              const originalPath = `images/home-${id}-original.jpg`;
+              await saveFile(originalPath, await blobToBase64(item.originalBlob), `Home: original image for ${item.name} (from the admin page)`);
+              item.original = originalPath;
+            }
+            homeStatus.textContent = `חותך ומעלה את הקאבר (${item.name})…`;
+            const baked = await bakeCrop(item);
+            item.originalBlob = null;
             item.src = `images/home-${id}.jpg`;
-            await saveFile(item.src, await blobToBase64(item.imageBlob), `Home: new cover for ${item.name} (from the admin page)`);
+            await saveFile(item.src, await blobToBase64(baked), `Home: new cover for ${item.name} (from the admin page)`);
           }
           if (item.videoFile) {
             homeStatus.textContent = `מעלה סרטון (${item.name})… זה יכול לקחת קצת זמן`;
@@ -406,11 +452,11 @@
           if (!item || !item.changed) return block;
           const media = item.isVideo
             ? `<video class="home-gallery__slide is-active" src="${escapeAttr(item.src)}" poster="${escapeAttr(item.poster)}" autoplay muted loop playsinline aria-label="${escapeAttr(item.alt)}"></video>`
-            : `<img class="home-gallery__slide is-active" src="${escapeAttr(item.src)}" alt="${escapeAttr(item.alt)}" style="${cropStyle(item)}">`;
+            : `<img class="home-gallery__slide is-active" src="${escapeAttr(item.src)}" alt="${escapeAttr(item.alt)}" data-original="${escapeAttr(item.original)}" data-crop="${round2(item.dx)} ${round2(item.dy)} ${round2(item.zoom)} ${round2(item.rot)}">`;
           return `<div class="home-gallery__media">\n          ${media}\n        </div>`;
         });
         await github("index.html", { method: "PUT", body: JSON.stringify({ message: "Home: new covers (from the admin page)", content: textToBase64(html), branch: BRANCH, sha: page.sha }) });
-        homeItems.forEach(item => { item.changed = false; item.imageBlob = null; item.videoFile = null; item.posterBlob = null; });
+        homeItems.forEach(item => { item.changed = false; item.originalBlob = null; item.videoFile = null; item.posterBlob = null; });
         renderHome();
         homeStatus.textContent = "נשמר ✓ האתר יתעדכן תוך דקה-שתיים";
       } catch (error) {
