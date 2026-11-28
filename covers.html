@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>May Mina | ניהול</title>
-  <link rel="stylesheet" href="styles.css?v=20261128w">
+  <link rel="stylesheet" href="styles.css?v=20261128x">
 </head>
 <body class="home-page covers-page">
   <!--
@@ -15,7 +15,7 @@
   -->
   <main class="covers admin">
     <h1 class="covers__title">ניהול האתר</h1>
-    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261128w">← חזרה לאתר</a></p>
+    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261128x">← חזרה לאתר</a></p>
 
     <!-- המפתח של GitHub -->
     <section class="covers__key">
@@ -38,24 +38,10 @@
         <button type="button" id="home-cancel">בטל שינויים</button>
         <button type="button" id="home-save">שמור</button>
       </div>
-      <p class="covers__intro">לכל פרויקט: "תמונה" או "סרטון" מחליפים את הקאבר בקובץ מהמחשב. בסרטון בוחרים גם פריים לקאבר (מה שרואים עד שהסרטון מתחיל). כלום לא משתנה באתר עד שלוחצים "שמור".</p>
+      <p class="covers__intro">לכל פרויקט: "תמונה" או "סרטון" מחליפים את הקאבר בקובץ מהמחשב (סרטון פשוט מתנגן בעמוד הבית). כלום לא משתנה באתר עד שלוחצים "שמור".</p>
       <div class="home-gallery admin__home-grid" id="home-grid" dir="ltr"></div>
     </section>
 
-    <!-- בחירת פריים לסרטון -->
-    <div class="edit-modal" id="frame-modal" hidden>
-      <div class="edit-modal__box">
-        <div><p>הסרטון: מנגנים ועוצרים על הפריים שרוצים</p><video id="frame-video" controls muted playsinline preload="metadata"></video></div>
-        <div><p>הקאבר</p><canvas id="frame-canvas"></canvas></div>
-        <div class="edit-modal__actions">
-          <button type="button" data-step="-1">‹ פריים אחורה</button>
-          <button type="button" data-step="1">פריים קדימה ›</button>
-          <span id="frame-time">0.00 שניות</span>
-          <button type="button" data-act="use" class="is-main">זה הקאבר</button>
-          <button type="button" data-act="close">ביטול</button>
-        </div>
-      </div>
-    </div>
     <input type="file" id="file-input" hidden>
   </main>
 
@@ -95,7 +81,6 @@
     const REPO = "maymina201199-bit/may-portfolio";
     const BRANCH = "main";
     const MAX_VIDEO_MB = 40;
-    const FRAME = 1 / 30;
     async function github(path, options) {
       const response = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
         ...options,
@@ -187,7 +172,6 @@
           <div class="admin__home-tools">
             <button type="button" data-act="image">תמונה</button>
             <button type="button" data-act="video">סרטון</button>
-            ${item.isVideo ? '<button type="button" data-act="frame">בחירת קאבר</button>' : ""}
           </div>
           <span class="edit-badge edit-badge--top">${item.isVideo ? "סרטון" : "תמונה"}${item.changed ? " · שונה" : ""}</span>`;
         card.querySelector("img").src = preview;
@@ -197,7 +181,6 @@
           if (!b) return;
           if (b.dataset.act === "image") chooseImage(index);
           if (b.dataset.act === "video") chooseVideo(index);
-          if (b.dataset.act === "frame") openFrame(index);
         });
         homeGrid.appendChild(card);
       });
@@ -213,64 +196,28 @@
       Object.assign(item, { isVideo: false, imageBlob: await toJpeg(img, img.naturalWidth, img.naturalHeight), imageUrl: null, videoFile: null, posterBlob: null, posterUrl: null, changed: true });
       renderHome();
     }
+    // סרטון: מתנגן בעמוד הבית. הפריים הראשון נשמר לבד כתמונה שרואים עד שהסרטון נטען
     async function chooseVideo(index) {
       const file = await pickFile("video/*");
       if (!file) return;
       if (file.size > MAX_VIDEO_MB * 1024 * 1024) { homeStatus.textContent = `הסרטון גדול מ-${MAX_VIDEO_MB}MB. שלחי לי אותו ואכווץ אותו.`; return; }
+      const video = document.createElement("video");
+      video.muted = true;
+      video.src = URL.createObjectURL(file);
+      try {
+        await new Promise((resolve, reject) => { video.onloadeddata = resolve; video.onerror = reject; });
+        video.currentTime = 0.05;
+        await new Promise(resolve => { video.onseeked = resolve; });
+      } catch (e) { homeStatus.textContent = "הדפדפן לא מצליח לפתוח את הסרטון. נסי לשמור אותו כ-MP4."; return; }
       const item = homeItems[index];
-      Object.assign(item, { isVideo: true, videoFile: file, localVideo: URL.createObjectURL(file), imageBlob: null, posterBlob: null, posterUrl: null, changed: true, needsFrame: true });
+      Object.assign(item, { isVideo: true, videoFile: file, imageBlob: null, posterBlob: await toJpeg(video, video.videoWidth, video.videoHeight), posterUrl: null, changed: true });
       renderHome();
-      openFrame(index);
     }
-
-    // ----- בחירת פריים לקאבר של סרטון -----
-    const modal = document.getElementById("frame-modal");
-    const video = document.getElementById("frame-video");
-    const canvas = document.getElementById("frame-canvas");
-    const timeLabel = document.getElementById("frame-time");
-    let frameIndex = -1;
-    function drawFrame() {
-      if (!video.videoWidth) return;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext("2d").drawImage(video, 0, 0);
-      timeLabel.textContent = video.currentTime.toFixed(2) + " שניות";
-    }
-    function openFrame(index) {
-      frameIndex = index;
-      const item = homeItems[index];
-      video.src = item.localVideo || item.src;
-      video.load();
-      modal.hidden = false;
-    }
-    video.addEventListener("loadedmetadata", () => { video.currentTime = 0.01; });
-    ["loadeddata", "seeked", "pause"].forEach(name => video.addEventListener(name, drawFrame));
-    modal.addEventListener("click", async function (e) {
-      const b = e.target.closest("button");
-      if (e.target === modal || (b && b.dataset.act === "close")) { modal.hidden = true; video.pause(); return; }
-      if (!b) return;
-      if (b.dataset.step) {
-        video.pause();
-        video.currentTime = Math.max(0, Math.min(video.duration || 0, video.currentTime + Number(b.dataset.step) * FRAME));
-      }
-      if (b.dataset.act === "use" && video.videoWidth) {
-        video.pause();
-        const item = homeItems[frameIndex];
-        item.posterBlob = await toJpeg(video, video.videoWidth, video.videoHeight);
-        item.posterUrl = null;
-        item.needsFrame = false;
-        item.changed = true;
-        modal.hidden = true;
-        renderHome();
-      }
-    });
 
     // ----- שמירה -----
     document.getElementById("home-cancel").addEventListener("click", loadHome);
     document.getElementById("home-save").addEventListener("click", async function () {
       if (!readToken()) { homeStatus.textContent = "צריך קודם לשמור מפתח GitHub (למעלה)."; return; }
-      const waiting = homeItems.filter(item => item.needsFrame);
-      if (waiting.length) { homeStatus.textContent = `ל"${waiting[0].name}" עוד לא נבחר קאבר לסרטון.`; return; }
       const button = this;
       button.disabled = true;
       try {
