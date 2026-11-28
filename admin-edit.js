@@ -442,11 +442,9 @@
           ? '<span class="edit-badge">עכשיו לחצי על התמונה שאיתה להחליף</span>'
           : '<span class="edit-badge">גררי את התמונה כדי לבחור מה רואים</span>');
         if (swapping && index !== selected) figure.classList.add("is-swap-target");
-        // ידית לגרירה למקום אחר
-        const handle = button("⠿", "גררי כדי להזיז למקום אחר", () => {}, "edit-handle");
-        figure.appendChild(handle);
-        makeMovable(figure, handle, index, move);
-        // לחיצה בוחרת. בריבוע שנבחר: גרירה מזיזה את התמונה בתוכו
+        if (item === dragging) figure.classList.add("is-dragging");
+        // לחיצה בוחרת. גרירה של ריבוע מזיזה אותו למקום אחר בגריד.
+        // בריבוע שנבחר: גרירה מזיזה את התמונה בתוכו (חיתוך)
         figure.addEventListener("pointerdown", e => startCrop(e, index, figure, img));
         section.appendChild(figure);
       });
@@ -462,9 +460,69 @@
       showTools();
     }
 
+    // ----- גרירה של ריבוע למקום אחר בגריד -----
+    // הריבוע זז עם העכבר (תמונה קטנה שעוקבת אחריו), ושאר הריבועים מפנים לו מקום בזמן אמת.
+    // נכנסים עם העכבר לריבוע אחר = הריבוע שגוררים עובר למקום שלו. על שטח ריק = אחרי הריבוע שלפניו
+    let dragging = null;
+    function startMove(e, index, figure, img) {
+      const item = items[index];
+      const start = { x: e.clientX, y: e.clientY };
+      let ghost = null, lastTarget = null;
+      e.preventDefault();
+      function onMove(ev) {
+        if (!dragging) {
+          if (Math.hypot(ev.clientX - start.x, ev.clientY - start.y) < 6) return; // עוד לא גרירה, אולי לחיצה
+          dragging = item;
+          selected = -1;
+          ghost = document.createElement("img");
+          ghost.className = "edit-ghost";
+          ghost.src = img.src;
+          document.body.appendChild(ghost);
+          document.body.classList.add("is-dragging-tile");
+          render();
+        }
+        ghost.style.transform = `translate(${ev.clientX}px, ${ev.clientY}px)`;
+        const under = document.elementFromPoint(ev.clientX, ev.clientY);
+        const tile = under && under.closest(".edit-grid > .tile");
+        const from = items.indexOf(item);
+        let to = -1, target = null;
+        if (tile) {
+          target = items[[...section.children].indexOf(tile)];
+          if (target && target !== item && target !== lastTarget) to = items.indexOf(target) + (items.indexOf(target) > from ? 1 : 0);
+        } else if (under && section.contains(under) || under === section) {
+          // שטח ריק בגריד: אחרי הריבוע האחרון שמתחיל לפני העכבר (לפי שורות, ואז משמאל לימין)
+          const boxes = [...section.children].map((f, i) => ({ i, b: f.getBoundingClientRect() }));
+          const before = boxes.filter(({ b }) => b.top <= ev.clientY && (b.bottom <= ev.clientY || b.left <= ev.clientX));
+          const last = before.length ? Math.max(...before.map(({ i }) => i)) : -1;
+          target = "space-" + last;
+          if (target !== lastTarget && last !== from) to = last + 1;
+        }
+        if (to >= 0) {
+          lastTarget = target;
+          moveItem(items, from, to);
+          render();
+        } else if (!tile) lastTarget = target;
+      }
+      function onUp() {
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        if (ghost) ghost.remove();
+        document.body.classList.remove("is-dragging-tile");
+        if (dragging) {
+          dragging = null;
+          selected = items.indexOf(item);
+          changedLayout();
+        } else {
+          selected = index; // לחיצה בלי גרירה: בוחרים את הריבוע
+        }
+        render();
+      }
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp);
+    }
+
     // ----- חיתוך: גרירה בתוך הריבוע שנבחר -----
     function startCrop(e, index, figure, img) {
-      if (e.target.closest(".edit-handle")) return;
       if (swapping && selected >= 0) {
         if (index !== selected) swapImages(selected, index);
         swapping = false;
@@ -472,7 +530,7 @@
         render();
         return;
       }
-      if (index !== selected) { selected = index; render(); return; }
+      if (index !== selected) { startMove(e, index, figure, img); return; }
       const item = items[index];
       const start = { x: e.clientX, y: e.clientY, dx: item.dx, dy: item.dy };
       const box = figure.getBoundingClientRect();

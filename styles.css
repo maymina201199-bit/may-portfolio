@@ -2111,3 +2111,33 @@ body {
   right: 46px;
   transform: none;
 }
+
+/* מצב עריכה: גוררים ריבוע כדי להזיז אותו (ריבוע שנבחר: גרירה = חיתוך) */
+.is-editing .edit-grid > .tile:not(.is-selected) {
+  cursor: grab;
+  touch-action: none;
+}
+
+.is-editing .edit-grid > .tile.is-dragging {
+  opacity: 0.25;
+  outline: 2px dashed var(--color-marker);
+  outline-offset: 2px;
+}
+
+/* התמונה הקטנה שעוקבת אחרי העכבר בזמן הגרירה */
+.edit-ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 120;
+  width: 140px;
+  margin: -40px 0 0 -70px;
+  opacity: 0.85;
+  outline: 2px solid var(--color-marker);
+  pointer-events: none;
+}
+
+.is-dragging-tile,
+.is-dragging-tile * {
+  cursor: grabbing !important;
+}
