@@ -1962,3 +1962,25 @@ body {
   background-color: var(--color-marker);
   color: var(--color-ink);
 }
+
+/* התמונה שנבחרה לחיתוך: מסגרת צהובה, וגוררים אותה */
+.admin__home-item.is-selected .home-gallery__media {
+  outline: 3px solid var(--color-marker);
+  outline-offset: 2px;
+  cursor: move;
+  touch-action: none;
+}
+
+.admin__home-item:not(.is-selected) .home-gallery__media {
+  cursor: pointer;
+}
+
+.admin__home-hint {
+  bottom: auto;
+  top: 50%;
+}
+
+/* בעמוד הניהול הפס התחתון לא מסתיר את הגריד */
+.covers-page {
+  padding-bottom: 80px;
+}
