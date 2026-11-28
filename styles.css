@@ -859,12 +859,12 @@ body {
   display: none !important;
 }
 
-/* האייקון (27 על 40, חצי מהפיגמה), ממורכז על העכבר */
+/* האייקון (14 על 20, רבע מהפיגמה), ממורכז על העכבר */
 .copy-cursor__icon {
   display: none;
-  width: 27px;
-  height: 40px;
-  margin: -20px 0 0 -13px;
+  width: 14px;
+  height: 20px;
+  margin: -10px 0 0 -7px;
 }
 
 .copy-cursor[data-state="icon"] .copy-cursor__icon {
@@ -872,10 +872,13 @@ body {
 }
 
 /* "copied!" במקום הסמן, ל-2 שניות */
+/* בנגטיב: טקסט שחור על ריבוע לבן בדיוק בגודל של הטקסט */
 .copy-cursor__text {
   display: none;
   transform: translate(-50%, -50%);
-  color: var(--color-home-text);
+  background-color: var(--color-home-text);
+  color: var(--color-home-background);
+  line-height: 1;
   font-family: var(--font-home);
   font-size: var(--home-text-size);
   white-space: nowrap;
@@ -883,6 +886,11 @@ body {
 
 .copy-cursor[data-state="copied"] .copy-cursor__text {
   display: block;
+}
+
+/* ב-"copied!" הצבעים קבועים (שחור על לבן) ולא מתהפכים לפי הרקע */
+.copy-cursor[data-state="copied"] {
+  mix-blend-mode: normal;
 }
 
 /* בטלפון: פרטי הקשר אחד מתחת לשני בצד ימין למעלה, ליד העיגול (שלא ייצאו מהמסך) */

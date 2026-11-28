@@ -1,5 +1,5 @@
-<svg width="27" height="40" viewBox="0 0 27 40" fill="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-<!-- אייקון ההעתקה מהפיגמה (54 על 80, כאן בחצי, כמו שאר הסמנים): דף מלפנים ומאחוריו דף נוסף -->
-<path d="M4.5 0.5H26.5V35.5H4.5Z" stroke="white" stroke-width="1"/>
-<path d="M0.5 4.5V39.5H22.5" stroke="white" stroke-width="1"/>
+<svg width="14" height="20" viewBox="0 0 14 20" fill="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+<!-- אייקון ההעתקה מהפיגמה (54 על 80, כאן ברבע): דף מלפנים ומאחוריו דף נוסף -->
+<path d="M2.5 0.5H13.5V17.5H2.5Z" stroke="white" stroke-width="1"/>
+<path d="M0.5 2.5V19.5H11.5" stroke="white" stroke-width="1"/>
 </svg>
