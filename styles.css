@@ -860,6 +860,13 @@ body {
   color: var(--color-home-muted);
 }
 
+/* טקסט מסומן: בנגטיב (טקסט שחור על לבן), כמו "copied!".
+   ככה גם הסמן של ההעתקה (שמתהפך לפי הרקע) יוצא שחור וברור מעל הסימון, ולא אפור על אפור */
+::selection {
+  background-color: var(--color-home-text);
+  color: var(--color-home-background);
+}
+
 /* ===== הסמן של ההעתקה (copy.js): על המייל, הטלפון וטקסט מסומן ===== */
 .copy-cursor {
   position: fixed;
