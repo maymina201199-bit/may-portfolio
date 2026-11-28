@@ -66,14 +66,23 @@
       const u = cw / 706; // פיקסל אחד של הפיגמה, על המסך (העמודה: 720 עד 1426)
       const FS = baseFS * Math.min(1, u);
       l.FS = FS;
-      l.T = Math.ceil(FS * 1.2); // מקום מעל INSTAGRAM (ה-canvas עולה למעלה באותה כמות)
       // הגרף מתחיל בדיוק בקו של "SM / PHOTOGRAPHY", והמספר הגדול בדיוק בקו של מספר הטלפון
       const left = cv.getBoundingClientRect().left;
-      const field = document.querySelector(".project-meta--field");
+      const title = document.querySelector(".project-meta--title"); // "manyone TLV"
       const phone = document.querySelector(".project-contact--phone");
-      l.X0 = field ? Math.max(0, field.getBoundingClientRect().left - left) : 0;
+      l.X0 = 0; // הגרף מתחיל בקצה של העמודה הימנית
       l.X1 = l.X0 + 392 * u;
-      l.yB = 2 * u; l.lineY = 15 * u;
+      // INSTAGRAM / 3 MONTHS: על אותו קו כמו "manyone TLV" (ה-canvas עולה למעלה עד לשם)
+      l.yB = 2 * u;
+      if (title && title.firstChild) {
+        const range = document.createRange();
+        range.selectNodeContents(title);
+        const box = range.getClientRects()[0];
+        ctx.font = `${getComputedStyle(title).fontSize} ${FONT}`;
+        const top = cv.getBoundingClientRect().top - (parseFloat(cv.style.marginTop) || 0); // ראש ה-canvas בלי ההזזה
+        if (box) l.yB = box.top + ctx.measureText("M").fontBoundingBoxAscent - top;
+      }
+      l.T = Math.ceil(Math.max(0, -l.yB) + FS * 1.2); // מקום מעל INSTAGRAM
       l.GY0 = 66 * u; l.GY1 = 338 * u; l.monthsY = 367 * u;
       l.NX0 = phone ? phone.getBoundingClientRect().left - left : 473 * u;
       l.NX1 = 696 * u;
@@ -90,7 +99,7 @@
       const FS = baseFS;
       l.FS = FS; l.T = 0;
       l.X0 = 0; l.X1 = cw;
-      l.yB = FS; l.lineY = l.yB + 16;
+      l.yB = FS;
       l.GY0 = l.yB + 70; l.GY1 = l.GY0 + cw * 0.62; l.monthsY = l.GY1 + 16 + FS;
       l.NX0 = 0; l.NX1 = cw;
       l.heroCap = cw * 0.14;
@@ -131,7 +140,6 @@
     const hA = easeOut(prog(t, 0, 0.8));
     text("INSTAGRAM", X0, L.yB, FS, 0.85 * hA);
     text("3 MONTHS", X1, L.yB, FS, 0.55 * hA, "right");
-    hline(X0, X0 + (X1 - X0) * easeInOut(prog(t, 0.1, 1.0)), L.lineY, 0.35);
 
     // קווי הרשת
     const gA = easeOut(prog(t, 0.3, 0.9));
