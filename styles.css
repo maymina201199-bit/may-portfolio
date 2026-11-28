@@ -193,6 +193,16 @@ body {
   background-color: var(--color-home-text);
 }
 
+/* זמני: ריבוע אדום קטן משמאל לעיגול, שמוביל לעמוד הניהול (נוריד אותו כשהאתר יהיה מוכן) */
+.admin-link {
+  position: absolute;
+  top: var(--space-home-top);
+  right: calc(var(--space-home-edge) + var(--process-link-size) + 8px);
+  width: var(--process-link-size);
+  height: var(--process-link-size);
+  background-color: #ff0000;
+}
+
 /* התפריט מתחיל באמצע המסך, כמו בפיגמה */
 .home-menu {
   position: absolute;
@@ -812,6 +822,82 @@ body {
 
 .project-contact--email { left: calc(100% * 960 / 1440); }
 .project-contact--phone { left: calc(100% * 1201 / 1440); }
+
+/* בעמוד הבית: פרטי הקשר לבנים, וכשהעכבר עליהם אפורים עם קו תחתון */
+.project-contact--light {
+  color: var(--color-home-text);
+  transition: color 300ms ease;
+}
+
+.project-contact--light:hover {
+  color: var(--color-home-muted);
+}
+
+/* ===== הסמן של ההעתקה (copy.js): על המייל, הטלפון וטקסט מסומן ===== */
+.copy-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 70;
+  mix-blend-mode: difference; /* לבן על רקע כהה, שחור על רקע בהיר, כמו שאר הסמנים */
+  pointer-events: none;
+  display: none;
+}
+
+.has-copy-cursor,
+.has-copy-cursor * {
+  cursor: none !important;
+}
+
+.has-copy-cursor .copy-cursor {
+  display: block;
+}
+
+/* כשהסמן של ההעתקה מופיע, הסמנים האחרים מוסתרים */
+.has-copy-cursor .media-cursor,
+.has-copy-cursor .explore-cursor {
+  display: none !important;
+}
+
+/* האייקון (27 על 40, חצי מהפיגמה), ממורכז על העכבר */
+.copy-cursor__icon {
+  display: none;
+  width: 27px;
+  height: 40px;
+  margin: -20px 0 0 -13px;
+}
+
+.copy-cursor[data-state="icon"] .copy-cursor__icon {
+  display: block;
+}
+
+/* "copied!" במקום הסמן, ל-2 שניות */
+.copy-cursor__text {
+  display: none;
+  transform: translate(-50%, -50%);
+  color: var(--color-home-text);
+  font-family: var(--font-home);
+  font-size: var(--home-text-size);
+  white-space: nowrap;
+}
+
+.copy-cursor[data-state="copied"] .copy-cursor__text {
+  display: block;
+}
+
+/* בטלפון: פרטי הקשר אחד מתחת לשני בצד ימין למעלה, ליד העיגול (שלא ייצאו מהמסך) */
+@media (max-width: 700px) {
+  .project-contact--email,
+  .project-contact--phone {
+    left: auto;
+    right: calc(var(--space-home-edge) + 2 * var(--process-link-size) + 20px);
+    text-align: right;
+  }
+
+  .project-contact--phone {
+    top: calc(var(--space-home-top) + 1.3em);
+  }
+}
 
 /* בעמוד פרויקט הסמן העגול של "תהליך" יושב מימין לטלפון, אז לא צריך לזוז */
 
