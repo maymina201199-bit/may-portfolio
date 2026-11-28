@@ -622,7 +622,8 @@
       }
     }
     function writePage(html) {
-      const SECTION = /<section class="project-images(?! project-feed)[^"]*">[\s\S]*?<\/section>/;
+      // (גם כשיש עוד הגדרות אחרי ה-class, כמו בסידור הישן של Hevel)
+      const SECTION = /<section class="project-images(?! project-feed)[^"]*"[^>]*>[\s\S]*?<\/section>/;
       if (!SECTION.test(html)) throw new Error("לא מצאתי את הגריד בעמוד");
       const lines = items.map(function (item) {
         const style = mediaStyle(item);
@@ -862,7 +863,7 @@
       }
     }
     function writePage(html) {
-      const SECTION = /<section class="project-images project-feed">[\s\S]*?<\/section>/;
+      const SECTION = /<section class="project-images project-feed"[^>]*>[\s\S]*?<\/section>/;
       if (!SECTION.test(html)) throw new Error("לא מצאתי את הפיד בעמוד");
       const lines = items.map(function (item) {
         const media = `<${item.tag} class="project-images__image"${attrsHtml(item.attrs)}>${item.tag === "video" ? "</video>" : ""}`;

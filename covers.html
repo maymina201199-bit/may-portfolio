@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>May Mina | ניהול</title>
-  <link rel="stylesheet" href="styles.css?v=20261129f">
+  <link rel="stylesheet" href="styles.css?v=20261129g">
 </head>
 <body class="home-page covers-page">
   <!--
@@ -15,7 +15,7 @@
   -->
   <main class="covers admin">
     <h1 class="covers__title">ניהול האתר</h1>
-    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261129f">← חזרה לאתר</a></p>
+    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261129g">← חזרה לאתר</a></p>
 
     <!-- המפתח של GitHub -->
     <section class="covers__key">
@@ -622,7 +622,7 @@
           .replace(/<p class="project-meta project-meta--title">[\s\S]*?<\/p>/, `<p class="project-meta project-meta--title">${esc(title)}</p>`)
           .replace(/<p class="project-meta project-meta--field">[\s\S]*?<\/p>/, `<p class="project-meta project-meta--field">${esc(field || "IMAGES")}</p>`)
           .replace(/<section class="project-intro">[\s\S]*?<\/section>/, `<section class="project-intro">\n      ${introMedia}\n      <p class="project-intro__description">\n        Write the project text here (in the admin page).\n      </p>\n    </section>`)
-          .replace(/<section class="project-images[^"]*">[\s\S]*?<\/section>/, `<section class="project-images project-grid">\n    </section>`);
+          .replace(/<section class="project-images[^"]*"[^>]*>[\s\S]*?<\/section>/, `<section class="project-images project-grid">\n    </section>`);
         await github(`${slug}.html`, { method: "PUT", body: JSON.stringify({ message: `${slug}: new project page (from the admin page)`, content: textToBase64(page), branch: BRANCH }) });
 
         // 3. עמוד הבית: הפרויקט נוסף בסוף הגריד
