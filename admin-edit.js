@@ -393,7 +393,8 @@
     }
     // לא מזיזים את התמונה מעבר לקצה של הריבוע
     function clampCrop(item) {
-      const tw = 100, th = item.shape === "port" ? 125 : item.shape === "orig" ? 100 / boxRatioOf(item) : 80, r = item.ratio || 1.5;
+      // הצורה האמיתית של הריבוע (אחרי הסידור הוא יכול להיות בגובה של השורה)
+      const tw = 100, th = item.actualRatio ? 100 / item.actualRatio : item.shape === "port" ? 125 : item.shape === "orig" ? 100 / boxRatioOf(item) : 80, r = item.ratio || 1.5;
       const lx = (Math.max(tw, th * r) * item.zoom - tw) / 2 / tw * 100;
       const ly = (Math.max(th, tw / r) * item.zoom - th) / 2 / th * 100;
       item.dx = Math.max(-lx, Math.min(lx, item.dx));
@@ -450,6 +451,14 @@
         section.appendChild(figure);
       });
       packGrid(section);
+      // אחרי הסידור: הצורה האמיתית של כל ריבוע, בשביל הגבולות של החיתוך
+      [...section.children].forEach(function (figure, i) {
+        const item = items[i];
+        if (!item || !figure.offsetHeight) return;
+        item.actualRatio = figure.offsetWidth / figure.offsetHeight;
+        clampCrop(item);
+        figure.querySelector("img").style.cssText = mediaStyle(item);
+      });
       showTools();
     }
 
