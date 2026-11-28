@@ -1753,6 +1753,16 @@ body {
   touch-action: none;
 }
 
+/* בזמן החלפה: כל משבצת אחרת מסומנת, כדי שיהיה ברור שלוחצים עליה */
+.is-editing .project-images > .tile.is-swap-target {
+  cursor: copy;
+}
+
+.is-editing .project-images > .tile.is-swap-target:hover {
+  outline: 3px dashed var(--color-marker);
+  outline-offset: 2px;
+}
+
 .is-editing .project-images > .tile.is-dragging {
   opacity: 0.4;
 }

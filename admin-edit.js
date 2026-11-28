@@ -277,6 +277,7 @@
   function gridEditor(source) {
     let items = [...source.querySelectorAll(":scope > figure.tile")].map(readTile);
     let selected = -1;
+    let swapping = false; // מחכים ללחיצה על המשבצת שאיתה מחליפים את התמונה
     const isGrid = source.classList.contains("project-grid");
     section.className = "project-images project-grid edit-grid";
     say(isGrid ? "לחצי על ריבוע כדי לערוך אותו" : "העמוד עוד בסידור הישן: ככה הוא ייראה בגריד החדש. כלום לא משתנה באתר עד שלוחצים \"שמור\".");
@@ -353,7 +354,10 @@
         });
         figure.appendChild(img);
         if (item.tag === "video") figure.insertAdjacentHTML("beforeend", '<span class="edit-badge edit-badge--top">סרטון</span>');
-        if (index === selected) figure.insertAdjacentHTML("beforeend", '<span class="edit-badge">גררי את התמונה כדי לבחור מה רואים</span>');
+        if (index === selected) figure.insertAdjacentHTML("beforeend", swapping
+          ? '<span class="edit-badge">עכשיו לחצי על התמונה שאיתה להחליף</span>'
+          : '<span class="edit-badge">גררי את התמונה כדי לבחור מה רואים</span>');
+        if (swapping && index !== selected) figure.classList.add("is-swap-target");
         // ידית לגרירה למקום אחר
         const handle = button("⠿", "גררי כדי להזיז למקום אחר", () => {}, "edit-handle");
         figure.appendChild(handle);
@@ -369,6 +373,13 @@
     // ----- חיתוך: גרירה בתוך הריבוע שנבחר -----
     function startCrop(e, index, figure, img) {
       if (e.target.closest(".edit-handle")) return;
+      if (swapping && selected >= 0) {
+        if (index !== selected) swapImages(selected, index);
+        swapping = false;
+        say("");
+        render();
+        return;
+      }
       if (index !== selected) { selected = index; render(); return; }
       const item = items[index];
       const start = { x: e.clientX, y: e.clientY, dx: item.dx, dy: item.dy };
@@ -389,6 +400,17 @@
       }
       figure.addEventListener("pointermove", onMove);
       figure.addEventListener("pointerup", onUp);
+    }
+
+    // החלפה בין תמונות: המשבצות נשארות במקום (גודל וכיוון), רק התמונות מתחלפות.
+    // החיתוך של שתיהן חוזר למרכז, כי הצורה של המשבצת השתנתה
+    const IMAGE_KEYS = ["tag", "attrs", "ratio", "blob", "blobUrl"];
+    function swapImages(a, b) {
+      const first = items[a], second = items[b];
+      IMAGE_KEYS.forEach(function (key) { const t = first[key]; first[key] = second[key]; second[key] = t; });
+      [first, second].forEach(item => { item.dx = 0; item.dy = 0; item.zoom = 1; });
+      selected = b;
+      changedLayout();
     }
 
     function change(edit) { edit(items[selected]); changedLayout(); render(); }
@@ -428,9 +450,10 @@
       group("",
         button("‹ קודם", "מקום אחד קודם", () => move(selected, selected - 1)),
         button("הבא ›", "מקום אחד הבא", () => move(selected, selected + 2)),
-        button("החלפת תמונה", "בחירת תמונה אחרת מהמחשב", () => replace(selected)),
+        button("החלפה עם תמונה אחרת בעמוד", "התמונה עוברת למשבצת אחרת, והתמונה משם עוברת לכאן", () => { swapping = true; say("לחצי על התמונה שאיתה להחליף (Esc לביטול)"); render(); }, swapping ? "is-on" : ""),
+        button("החלפת תמונה מהמחשב", "בחירת תמונה אחרת מהמחשב", () => replace(selected)),
         button("הסרה", "להסיר מהגריד (הקובץ עצמו לא נמחק)", () => remove(selected)),
-        button("✕", "סגירה", () => { selected = -1; render(); }));
+        button("✕", "סגירה", () => { selected = -1; swapping = false; render(); }));
     }
 
     function remove(index) {
@@ -488,7 +511,11 @@
     }
 
     window.addEventListener("resize", () => packGrid(section));
-    document.addEventListener("keydown", e => { if (e.key === "Escape" && selected >= 0) { selected = -1; render(); } });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      if (swapping) { swapping = false; say(""); render(); }
+      else if (selected >= 0) { selected = -1; render(); }
+    });
     render();
     return { add, uploadFiles, writePage };
   }
