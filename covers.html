@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>May Mina | ניהול</title>
-  <link rel="stylesheet" href="styles.css?v=20261129a">
+  <link rel="stylesheet" href="styles.css?v=20261129b">
 </head>
 <body class="home-page covers-page">
   <!--
@@ -15,7 +15,7 @@
   -->
   <main class="covers admin">
     <h1 class="covers__title">ניהול האתר</h1>
-    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261129a">← חזרה לאתר</a></p>
+    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261129b">← חזרה לאתר</a></p>
 
     <!-- המפתח של GitHub -->
     <section class="covers__key">
@@ -165,6 +165,7 @@
     const homeStatus = document.getElementById("home-status");
     const MEDIA = /<div class="home-gallery__media">[\s\S]*?<\/div>/g;
     let homeItems = [];
+    let orderChanged = false;
 
     // ----- החיתוך של תמונה בריבוע של עמוד הבית -----
     // dx, dy: כמה התמונה זזה מהאמצע (באחוזים מהריבוע), zoom: הגדלה, rot: סיבוב במעלות.
@@ -226,9 +227,11 @@
                            : await (await fetch("index.html?t=" + Date.now(), { cache: "no-store" })).text();
       } catch (error) { homeStatus.textContent = "לא נטען: " + error.message; return; }
       const doc = new DOMParser().parseFromString(html, "text/html");
-      homeItems = [...doc.querySelectorAll(".home-gallery > .home-gallery__item")].map(function (item) {
+      orderChanged = false;
+      homeItems = [...doc.querySelectorAll(".home-gallery > .home-gallery__item")].map(function (item, orig) {
         const media = item.querySelector(".home-gallery__slide");
         return {
+          orig, // המקום המקורי בעמוד (כדי לסדר מחדש בשמירה)
           page: ((item.getAttribute("href") || "").match(/^([\w-]+)\.html/) || [])[1] || "",
           name: (item.querySelector(".home-gallery__name") || {}).textContent || "",
           isVideo: media.tagName === "VIDEO",
@@ -266,9 +269,12 @@
           <div class="home-gallery__media"><img class="home-gallery__slide is-active" alt=""></div>
           <p class="home-gallery__name"></p>
           <div class="admin__home-tools">
+            <button type="button" data-act="earlier" title="מקום אחד קודם">‹</button>
             <button type="button" data-act="image">תמונה</button>
             <button type="button" data-act="video">סרטון</button>
+            <button type="button" data-act="later" title="מקום אחד הבא">›</button>
           </div>
+          <button type="button" class="edit-handle" title="גררי כדי להזיז למקום אחר">⠿</button>
           <span class="edit-badge edit-badge--top">${item.isVideo ? "סרטון" : "תמונה"}${item.changed ? " · שונה" : ""}</span>`;
         const img = card.querySelector("img");
         img.src = preview;
@@ -292,6 +298,18 @@
           if (!b) return;
           if (b.dataset.act === "image") chooseImage(index);
           if (b.dataset.act === "video") chooseVideo(index);
+          if (b.dataset.act === "earlier") moveHome(index, index - 1);
+          if (b.dataset.act === "later") moveHome(index, index + 2);
+        });
+        // גרירה למקום אחר בעזרת הידית ⠿ (גרירה על התמונה עצמה היא חיתוך)
+        card.querySelector(".edit-handle").addEventListener("pointerdown", () => { card.draggable = true; });
+        card.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", index); card.classList.add("is-dragging"); });
+        card.addEventListener("dragend", () => { card.draggable = false; card.classList.remove("is-dragging"); });
+        card.addEventListener("dragover", e => e.preventDefault());
+        card.addEventListener("drop", function (e) {
+          e.preventDefault();
+          const box = card.getBoundingClientRect();
+          moveHome(Number(e.dataTransfer.getData("text/plain")), index + (e.clientX > box.left + box.width / 2 ? 1 : 0));
         });
         homeGrid.appendChild(card);
       });
@@ -373,6 +391,38 @@
       showHomeTools();
     });
 
+    // הסדר החדש בקוד של עמוד הבית: כל פרויקט (עם ההערה שמעליו, אם יש) עובר כיחידה אחת
+    function reorderHome(html) {
+      const start = html.indexOf('<div class="home-gallery">');
+      const end = html.lastIndexOf("\n    </div>\n  </main>");
+      if (start < 0 || end < 0) throw new Error("לא מצאתי את הגריד בעמוד הבית");
+      const open = start + '<div class="home-gallery">'.length;
+      const inner = html.slice(open, end);
+      const starts = [];
+      const itemStart = /\n(?:[ \t]*<!--[^\n]*-->\n)?[ \t]*<(?:a|div) class="home-gallery__item"/g;
+      let m;
+      while ((m = itemStart.exec(inner))) starts.push(m.index);
+      if (starts.length !== homeItems.length) throw new Error("מספר הפרויקטים בעמוד הבית לא תואם. רעננו את העמוד ונסו שוב");
+      const head = inner.slice(0, starts[0]);
+      const chunks = starts.map((at, i) => inner.slice(at, i + 1 < starts.length ? starts[i + 1] : inner.length).replace(/\s+$/, ""));
+      const ordered = homeItems.map(item => chunks[item.orig]).join("\n");
+      return html.slice(0, open) + head + ordered + html.slice(end);
+    }
+
+    // שינוי הסדר בגריד של עמוד הבית
+    function moveHome(from, to) {
+      if (from < 0 || from >= homeItems.length) return;
+      const selectedItem = homeItems[selectedHome]; // התמונה שנבחרה נשארת בחורה גם אחרי ההזזה
+      const [item] = homeItems.splice(from, 1);
+      if (to > from) to--;
+      to = Math.max(0, Math.min(homeItems.length, to));
+      homeItems.splice(to, 0, item);
+      selectedHome = selectedItem ? homeItems.indexOf(selectedItem) : -1;
+      orderChanged = homeItems.some((it, i) => it.orig !== i);
+      homeStatus.textContent = orderChanged ? "הסדר השתנה (עוד לא נשמר)" : "";
+      renderHome();
+    }
+
     async function chooseImage(index) {
       const file = await pickFile("image/*");
       if (!file) return;
@@ -447,15 +497,29 @@
         homeStatus.textContent = "שומר את עמוד הבית…";
         const page = await currentFile("index.html");
         let n = -1;
-        const html = base64ToText(page.content).replace(MEDIA, function (block) {
-          const item = homeItems[++n];
+        const byOrig = [];
+        homeItems.forEach(item => { byOrig[item.orig] = item; });
+        let html = base64ToText(page.content).replace(MEDIA, function (block) {
+          const item = byOrig[++n];
           if (!item || !item.changed) return block;
           const media = item.isVideo
             ? `<video class="home-gallery__slide is-active" src="${escapeAttr(item.src)}" poster="${escapeAttr(item.poster)}" autoplay muted loop playsinline aria-label="${escapeAttr(item.alt)}"></video>`
             : `<img class="home-gallery__slide is-active" src="${escapeAttr(item.src)}" alt="${escapeAttr(item.alt)}" data-original="${escapeAttr(item.original)}" data-crop="${round2(item.dx)} ${round2(item.dy)} ${round2(item.zoom)} ${round2(item.rot)}">`;
           return `<div class="home-gallery__media">\n          ${media}\n        </div>`;
         });
-        await github("index.html", { method: "PUT", body: JSON.stringify({ message: "Home: new covers (from the admin page)", content: textToBase64(html), branch: BRANCH, sha: page.sha }) });
+        if (orderChanged) html = reorderHome(html);
+        await github("index.html", { method: "PUT", body: JSON.stringify({ message: orderChanged ? "Home: new order and covers (from the admin page)" : "Home: new covers (from the admin page)", content: textToBase64(html), branch: BRANCH, sha: page.sha }) });
+        if (orderChanged) {
+          // "Next project" עובר בין הפרויקטים לפי הסדר בעמוד הבית
+          homeStatus.textContent = "מעדכן את הסדר של Next project…";
+          const script = await currentFile("project.js");
+          const code = base64ToText(script.content);
+          const order = homeItems.map(item => item.page).filter(Boolean);
+          const updatedCode = code.replace(/const PROJECT_ORDER = \[[^\]]*\];/, `const PROJECT_ORDER = [${order.map(p => `"${p}"`).join(", ")}];`);
+          if (updatedCode !== code) await github("project.js", { method: "PUT", body: JSON.stringify({ message: "Next project order follows the home grid (from the admin page)", content: textToBase64(updatedCode), branch: BRANCH, sha: script.sha }) });
+          homeItems.forEach((item, i) => { item.orig = i; });
+          orderChanged = false;
+        }
         homeItems.forEach(item => { item.changed = false; item.originalBlob = null; item.videoFile = null; item.posterBlob = null; });
         renderHome();
         homeStatus.textContent = "נשמר ✓ האתר יתעדכן תוך דקה-שתיים";

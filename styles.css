@@ -2083,3 +2083,17 @@ body {
   transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(var(--s, 1));
   transition: none;
 }
+
+/* עמוד הניהול: הידית לגרירה של פרויקט בגריד של עמוד הבית */
+.admin__home-item .edit-handle {
+  z-index: 3;
+}
+
+.admin__home-item:hover .edit-handle,
+.admin__home-item.is-selected .edit-handle {
+  opacity: 1;
+}
+
+.admin__home-item.is-dragging {
+  opacity: 0.4;
+}
