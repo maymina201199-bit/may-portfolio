@@ -157,9 +157,9 @@
     ctx.font = `${l.HS}px ${FONT}`;
     l.heroX = l.NX0 + (l.phoneInk || 0) + ctx.measureText("6").actualBoundingBoxLeft; // הדיו של ה-6 על הקו
 
-    // בלי שורת כותרת מעל הגרף: הגרף והמספרים עולים לשורה של הטקסט משמאל —
-    // הקו העליון של הגרף והראש של המספר הגדול בגובה הראש של השורה הראשונה בטקסט
-    if (wide && !TITLE_LEFT && !TITLE_RIGHT) {
+    // הגרף והמספרים בשורה של הטקסט משמאל: הקו העליון של הגרף והראש של המספר הגדול
+    // בגובה הראש של השורה הראשונה בטקסט (הכותרת, אם יש, נשארת על הקו של שם הפרויקט)
+    if (wide) {
       const capTop = firstLineCapTop();
       if (capTop !== null) {
         const shift = l.GY0 - capTop;
@@ -168,7 +168,7 @@
         const heroTop = l.heroY - ctx.measureText(HERO_TEXT).actualBoundingBoxAscent;
         const heroShift = heroTop - capTop;
         l.heroY -= heroShift; l.labelY -= heroShift; l.rowsTop -= heroShift;
-        l.T = 0;
+        if (!TITLE_LEFT && !TITLE_RIGHT) l.T = 0; // בלי כותרת לא צריך מקום מעליה
         l.H = Math.max(l.monthsY + l.FS * 0.5, l.rowsTop + 3 * l.rowH + 4);
       }
     }

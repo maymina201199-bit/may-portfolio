@@ -289,8 +289,11 @@ if (page) {
   blocks.forEach(function (block) {
     const credit = block.querySelector(".project-intro__credit");
     if (credit) credit.remove();
+    // רווחים בתוך תגיות (למשל <span class="text-arabic" lang="ar">) מוחלפים זמנית בסימן מיוחד,
+    // כדי שהתגית לא תתפרק לכמה "מילים"
     block.dataset.words = JSON.stringify(
-      block.innerHTML.replace(/<br\s*\/?>/gi, " ").trim().split(/\s+/).filter(Boolean));
+      block.innerHTML.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]+>/g, tag => tag.replace(/\s+/g, "\u0001"))
+        .trim().split(/\s+/).filter(Boolean));
     block.credit = credit;
   });
 
@@ -302,7 +305,8 @@ if (page) {
     const probe = document.createElement("span");
     probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap";
     block.appendChild(probe);
-    const width = words.map(w => { probe.innerHTML = w; return probe.getBoundingClientRect().width; });
+    const html = text => text.replace(/\u0001/g, " "); // הרווחים בתוך התגיות חוזרים
+    const width = words.map(w => { probe.innerHTML = html(w); return probe.getBoundingClientRect().width; });
     probe.innerHTML = "a&nbsp;a"; const withSpace = probe.getBoundingClientRect().width;
     probe.innerHTML = "aa"; const space = withSpace - probe.getBoundingClientRect().width;
     probe.remove();
@@ -333,11 +337,11 @@ if (page) {
 
     const { breaks, cost } = solve(0, 0);
     if (!isFinite(cost)) {                    // אם אי אפשר (טקסט קצר מאוד), רק מחברים את שתי המילים האחרונות
-      block.innerHTML = words.slice(0, -1).join(" ") + "&nbsp;" + words[words.length - 1];
+      block.innerHTML = html(words.slice(0, -1).join(" ") + "&nbsp;" + words[words.length - 1]);
     } else {
       let start = 0;
       block.innerHTML = breaks.map(end => {
-        const line = words.slice(start, end).join(" ");
+        const line = html(words.slice(start, end).join(" "));
         start = end;
         return `<span class="balanced-line">${line}</span>`;
       }).join("");
