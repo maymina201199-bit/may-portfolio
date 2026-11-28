@@ -347,17 +347,34 @@
     const canvas = document.getElementById("growth-chart");
     const sourceCanvas = doc.getElementById("growth-chart");
     if (!canvas || !sourceCanvas) return { apply: html => html };
+    // השדות של הטופס (וה-data-... ב-canvas)
     const FIELDS = [
-      ["platform", "הפלטפורמה (מעל הגרף)", "INSTAGRAM"],
-      ["months", "כמה חודשים", "3"],
-      ["total", "סך הצפיות (המספר הגדול, בלי האות)", ""],
-      ["unit", "האות אחרי המספר (K = אלפים, M = מיליונים, או ריק)", "K"],
-      ["views", "views: אחוז הצמיחה (בלי % ובלי +)", ""],
-      ["viewers", "viewers: אחוז הצמיחה", ""],
-      ["nonfollowers", "non-follower views: אחוז הצמיחה", ""],
+      ["titleLeft", "כותרת מעל הגרף, משמאל (ריק = בלי כותרת)"],
+      ["titleRight", "כותרת מעל הגרף, מימין (ריק = בלי)"],
+      ["months", "כמה חודשים (MONTH 1, MONTH 2...)"],
+      ["growth", "כמה העקומה עולה, באחוזים (המספר בקצה שלה)"],
+      ["total", "המספר הגדול (בלי פסיקים)"],
+      ["unit", "אות אחרי המספר הגדול (K / M, או ריק)"],
+      ["totalLabel", "מה כתוב מתחת למספר הגדול"],
+      ["row1Label", "שורה 1: השם"], ["row1Value", "שורה 1: האחוז"],
+      ["row2Label", "שורה 2: השם"], ["row2Value", "שורה 2: האחוז"],
+      ["row3Label", "שורה 3: השם"], ["row3Value", "שורה 3: האחוז"],
     ];
-    const data = {};
-    FIELDS.forEach(([key, , fallback]) => { data[key] = sourceCanvas.dataset[key] !== undefined ? sourceCanvas.dataset[key] : fallback; });
+    const sd = sourceCanvas.dataset;
+    const legacyMonths = sd.months || "3";
+    const rowOf = (key, label, value) => {
+      const [l, v] = (sd[key] || "").split("|");
+      return v !== undefined ? [l.trim(), v.trim()] : [label, value];
+    };
+    const r1 = rowOf("row1", "views", sd.views || ""), r2 = rowOf("row2", "viewers", sd.viewers || ""), r3 = rowOf("row3", "non-follower views", sd.nonfollowers || "");
+    const data = {
+      titleLeft: sd.titleLeft !== undefined ? sd.titleLeft : sd.platform || "INSTAGRAM",
+      titleRight: sd.titleRight !== undefined ? sd.titleRight : `${legacyMonths} MONTHS`,
+      months: legacyMonths,
+      growth: sd.growth || sd.views || "",
+      total: sd.total || "", unit: sd.unit !== undefined ? sd.unit : "K", totalLabel: sd.totalLabel || "total views",
+      row1Label: r1[0], row1Value: r1[1], row2Label: r2[0], row2Value: r2[1], row3Label: r3[0], row3Value: r3[1],
+    };
     let edited = false;
     const stats = canvas.closest(".project-stats");
     stats.appendChild(button(sourceCanvas.dataset.empty ? "הוספת נתונים לגרף" : "עריכת נתוני הגרף", "המספרים שבגרף", openForm, "edit-intro-button edit-chart-button"));
@@ -377,9 +394,9 @@
     modal.addEventListener("click", e => { if (e.target === modal || e.target.closest('[data-act="close"]')) modal.hidden = true; });
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      const clean = v => v.trim().replace(/[+%,\s]/g, "");
-      FIELDS.forEach(([key]) => { data[key] = key === "platform" || key === "unit" ? form[key].value.trim() : clean(form[key].value); });
-      if (!data.total || !data.views) { alert("צריך לפחות את סך הצפיות ואת אחוז הצמיחה של views"); return; }
+      const NUMBERS = ["months", "growth", "total", "row1Value", "row2Value", "row3Value"];
+      FIELDS.forEach(([key]) => { data[key] = NUMBERS.includes(key) ? form[key].value.trim().replace(/[+%,\s]/g, "") : form[key].value.trim(); });
+      if (!data.total || !data.growth) { alert("צריך לפחות את המספר הגדול ואת כמה העקומה עולה"); return; }
       edited = true;
       modal.hidden = true;
       changed();
@@ -388,8 +405,11 @@
     return {
       apply(html) {
         if (!edited) return html;
-        const attrs = FIELDS.map(([key]) => ` data-${key}="${escapeAttr(data[key])}"`).join("");
-        const label = `${data.platform}, ${data.months} months: +${data.views}% views, +${data.viewers}% viewers, +${data.nonfollowers}% non-follower views, ${data.total}${data.unit} total views`;
+        const attr = (name, value) => ` data-${name}="${escapeAttr(value)}"`;
+        const attrs = attr("title-left", data.titleLeft) + attr("title-right", data.titleRight) + attr("months", data.months)
+          + attr("growth", data.growth) + attr("total", data.total) + attr("unit", data.unit) + attr("total-label", data.totalLabel)
+          + attr("row1", `${data.row1Label}|${data.row1Value}`) + attr("row2", `${data.row2Label}|${data.row2Value}`) + attr("row3", `${data.row3Label}|${data.row3Value}`);
+        const label = `${data.titleLeft || "Social media"} growth, ${data.months} months: ${data.total}${data.unit} ${data.totalLabel}, +${data.row1Value}% ${data.row1Label}, +${data.row2Value}% ${data.row2Label}, +${data.row3Value}% ${data.row3Label}`;
         edited = false;
         return html.replace(/<canvas class="project-stats__chart"[^>]*>/, () =>
           `<canvas class="project-stats__chart" id="growth-chart" role="img"\n         ${attrs}\n          aria-label="${escapeAttr(label)}">`);

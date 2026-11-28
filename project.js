@@ -233,8 +233,14 @@ if (page) {
     if (img.closest(".project-feed")) return; // בפיד לחיצה פותחת את הפוסט (ראו למטה)
     img.addEventListener("click", function () {
       if (img.tagName === "VIDEO") {
-        // סרטון: לחיצה עוצרת או מפעילה אותו (ולא פותחת אותו בגדול)
+        // סרטון: מתנגן בעמוד בלי סאונד (הדפדפנים לא מרשים סאונד לבד).
+        // לחיצה ראשונה מדליקה את הסאונד, ואחר כך לחיצה עוצרת או מפעילה אותו
+        if (img.muted && !img.paused) {
+          img.muted = false;
+          return;
+        }
         if (img.paused) {
+          img.muted = false;
           delete img.dataset.userPaused;
           img.play().catch(function () {});
         } else {

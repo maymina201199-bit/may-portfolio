@@ -15,11 +15,15 @@
   const d = cv.dataset;
   const num = (value, fallback) => { const n = parseFloat(value); return isNaN(n) ? fallback : n; };
   const decimals = (value, fallback) => (String(value || fallback).split(".")[1] || "").length;
-  const PLATFORM = (d.platform || "INSTAGRAM").toUpperCase();
   const MONTHS = Math.max(1, Math.round(num(d.months, 3)));
+  // הכותרת מעל הגרף (משמאל ומימין). ריקה = בלי שורת כותרת
+  const TITLE_LEFT = (d.titleLeft !== undefined ? d.titleLeft : d.platform || "INSTAGRAM").toUpperCase();
+  const TITLE_RIGHT = (d.titleRight !== undefined ? d.titleRight : `${MONTHS} MONTH${MONTHS === 1 ? "" : "S"}`).toUpperCase();
   const TOTAL = num(d.total, 68.7), TOTAL_DEC = decimals(d.total, "68.7"), UNIT = d.unit !== undefined ? d.unit : "K";
+  const TOTAL_LABEL = d.totalLabel || "total views";
   const VIEWS = num(d.views, 1614.1);
-  const GROWTH = Math.max(1.05, 1 + VIEWS / 100); // כמה פעמים העקומה עולה מההתחלה עד הסוף
+  const GROWTH_PCT = num(d.growth, VIEWS);         // כמה העקומה עולה (באחוזים), והמספר בקצה שלה
+  const GROWTH = Math.max(1.05, 1 + GROWTH_PCT / 100); // כמה פעמים העקומה עולה מההתחלה עד הסוף
 
   // ---------- העקומה: 90 ימים של צמיחה, עד הצמיחה של הצפיות ----------
   let seed = 7;
@@ -38,11 +42,17 @@
   pts[0] = 1; pts[N - 1] = GROWTH;
   const maxV = Math.max(GROWTH, ...pts);
 
+  // שלוש השורות: data-row1/2/3 = "השם|המספר" (למשל "viewers|4815"). בלי זה: views, viewers, non-follower views
+  const row = (key, label, value) => {
+    const [l, v] = (d[key] || "").split("|");
+    return v !== undefined ? { v: num(v, 0), dec: decimals(v, "0"), label: l.trim() } : { v: num(value, 0), dec: decimals(value, "0"), label };
+  };
   const stats = [
-    { v: VIEWS,                        dec: decimals(d.views, "1614.1"),        label: "views" },
-    { v: num(d.viewers, 4815),         dec: decimals(d.viewers, "4815"),        label: "viewers" },
-    { v: num(d.nonfollowers, 852.2),   dec: decimals(d.nonfollowers, "852.2"),  label: "non-follower views" },
+    row("row1", "views", d.views !== undefined ? d.views : "1614.1"),
+    row("row2", "viewers", d.viewers !== undefined ? d.viewers : "4815"),
+    row("row3", "non-follower views", d.nonfollowers !== undefined ? d.nonfollowers : "852.2"),
   ];
+  const GROWTH_DEC = decimals(d.growth !== undefined ? d.growth : d.views, "1614.1");
 
 
   // ---------- עזרים ----------
@@ -154,8 +164,8 @@
 
     // הכותרת
     const hA = easeOut(prog(t, 0, 0.8));
-    text(PLATFORM, X0, L.yB, FS, 0.85 * hA);
-    text(`${MONTHS} MONTH${MONTHS === 1 ? "" : "S"}`, X1, L.yB, FS, 0.55 * hA, "right");
+    text(TITLE_LEFT, X0, L.yB, FS, 0.85 * hA);
+    text(TITLE_RIGHT, X1, L.yB, FS, 0.55 * hA, "right");
 
     // קווי הרשת
     const gA = easeOut(prog(t, 0.3, 0.9));
@@ -204,7 +214,7 @@
       // האחוז שרץ ליד הקצה
       const growth = (pts[i0] + (pts[i1] - pts[i0]) * f - 1) * 100;
       const la = easeOut(prog(t, 1.4, 0.6));
-      text(`+${fmt(dp >= 1 ? VIEWS : growth, stats[0].dec)}%`, Math.min(tx, X1 - 4) - 10, ty - 12, FS, 0.95 * la, "right");
+      text(`+${fmt(dp >= 1 ? GROWTH_PCT : growth, GROWTH_DEC)}%`, Math.min(tx, X1 - 4) - 10, ty - 12, FS, 0.95 * la, "right");
     }
 
     // המספר הגדול: סך הצפיות
@@ -212,7 +222,7 @@
     const heroV = TOTAL * easeOutExpo(prog(t, 2.2, 3.2));
     const yOff = (1 - heroA) * 12;
     text(`${fmt(heroV, TOTAL_DEC)}${UNIT}`, L.heroX, L.heroY + yOff, L.HS, heroA);
-    text("total views", L.NX0, L.labelY + yOff, FS, 0.6 * heroA);
+    text(TOTAL_LABEL, L.NX0, L.labelY + yOff, FS, 0.6 * heroA);
 
     // שורות הנתונים
     stats.forEach((s, k) => {
