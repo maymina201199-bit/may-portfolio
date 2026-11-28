@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>May Mina | ניהול</title>
-  <link rel="stylesheet" href="styles.css?v=20261128y">
+  <link rel="stylesheet" href="styles.css?v=20261128z">
 </head>
 <body class="home-page covers-page">
   <!--
@@ -15,7 +15,7 @@
   -->
   <main class="covers admin">
     <h1 class="covers__title">ניהול האתר</h1>
-    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261128y">← חזרה לאתר</a></p>
+    <p class="covers__intro"><a class="admin__back" href="index.html?v=20261128z">← חזרה לאתר</a></p>
 
     <!-- המפתח של GitHub -->
     <section class="covers__key">
@@ -42,6 +42,37 @@
       <div class="home-gallery admin__home-grid" id="home-grid" dir="ltr"></div>
     </section>
 
+    <!-- פרויקט חדש: הטופס נפתח מה-"+" בסוף הגריד של עמוד הבית -->
+    <div class="edit-modal" id="new-modal" hidden>
+      <form class="edit-modal__box admin__new" id="new-form">
+        <h2>פרויקט חדש</h2>
+        <label>שם הפרויקט (מתחת לתמונה בעמוד הבית ובראש העמוד)
+          <input name="title" required autocomplete="off" dir="ltr"></label>
+        <label>השם בכתובת (באנגלית, בלי רווחים: למשל my-project)
+          <input name="slug" required autocomplete="off" dir="ltr" pattern="[a-z0-9-]+"></label>
+        <label>התחום (השורה ליד השם, למשל GRAPHIC DESIGN)
+          <input name="field" autocomplete="off" dir="ltr"></label>
+        <fieldset>
+          <legend>קטגוריות בתפריט</legend>
+          <label><input type="checkbox" name="cat" value="graphic-design"> graphic design</label>
+          <label><input type="checkbox" name="cat" value="digital"> digital</label>
+          <label><input type="checkbox" name="cat" value="photography"> photography</label>
+          <label><input type="checkbox" name="cat" value="visual-identity"> visual Identity</label>
+          <label><input type="checkbox" name="cat" value="social-media"> social media</label>
+        </fieldset>
+        <div class="edit-modal__actions">
+          <span>קאבר:</span>
+          <button type="button" data-cover="image">תמונה</button>
+          <button type="button" data-cover="video">סרטון</button>
+          <span id="new-cover-name">עוד לא נבחר</span>
+        </div>
+        <div class="edit-modal__actions">
+          <button type="submit" class="is-main">צור פרויקט</button>
+          <button type="button" data-act="close">ביטול</button>
+        </div>
+        <p class="edit-modal__note" id="new-status"></p>
+      </form>
+    </div>
     <input type="file" id="file-input" hidden>
   </main>
 
@@ -173,6 +204,7 @@
       homeItems = [...doc.querySelectorAll(".home-gallery > .home-gallery__item")].map(function (item) {
         const media = item.querySelector(".home-gallery__slide");
         return {
+          page: ((item.getAttribute("href") || "").match(/^([\w-]+)\.html/) || [])[1] || "",
           name: (item.querySelector(".home-gallery__name") || {}).textContent || "",
           isVideo: media.tagName === "VIDEO",
           src: media.getAttribute("src"),
@@ -183,6 +215,17 @@
         };
       });
       homeStatus.textContent = "";
+      // רשימת העמודים לעריכה: כל הפרויקטים שיש להם עמוד, לפי הסדר בעמוד הבית
+      const pages = homeItems.map(item => item.page).filter(Boolean);
+      if (pages.length) {
+        pageList.innerHTML = "";
+        pages.forEach(function (name) {
+          const link = document.createElement("a");
+          link.textContent = name;
+          link.href = `${name}.html?edit=1&t=${Date.now()}`;
+          pageList.appendChild(link);
+        });
+      }
       renderHome();
     }
 
@@ -220,6 +263,12 @@
         });
         homeGrid.appendChild(card);
       });
+      const plus = document.createElement("button");
+      plus.type = "button";
+      plus.className = "admin__home-new";
+      plus.innerHTML = '<span>+</span>פרויקט חדש';
+      plus.addEventListener("click", openNewProject);
+      homeGrid.appendChild(plus);
     }
 
     // ----- בחירת תמונה, גרירה, זום וסיבוב -----
@@ -369,6 +418,129 @@
       }
       button.disabled = false;
     });
+    // ===================== פרויקט חדש =====================
+    // יוצר עמוד פרויקט חדש (לפי התבנית של עמוד קיים), מוסיף אותו לסוף הגריד של עמוד הבית
+    // ולסדר של "Next project". אחר כך עורכים אותו כרגיל (תמונות, טקסט) מהרשימה למעלה
+    const newModal = document.getElementById("new-modal");
+    const newForm = document.getElementById("new-form");
+    const newStatus = document.getElementById("new-status");
+    let newCover = null; // { kind: "image" | "video", file, blob, poster }
+    const toSlug = text => text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    function openNewProject() {
+      if (!readToken()) { homeStatus.textContent = "צריך קודם לשמור מפתח GitHub (למעלה)."; return; }
+      newForm.reset();
+      newCover = null;
+      document.getElementById("new-cover-name").textContent = "עוד לא נבחר";
+      newStatus.textContent = "";
+      newModal.hidden = false;
+      newForm.title.focus();
+    }
+    newForm.title.addEventListener("input", () => { if (!newForm.slug.dataset.touched) newForm.slug.value = toSlug(newForm.title.value); });
+    newForm.slug.addEventListener("input", () => { newForm.slug.dataset.touched = "1"; });
+    newModal.addEventListener("click", async function (e) {
+      const b = e.target.closest("button");
+      if (e.target === newModal || (b && b.dataset.act === "close")) { newModal.hidden = true; return; }
+      if (!b || !b.dataset.cover) return;
+      const file = await pickFile(b.dataset.cover === "image" ? "image/*" : "video/*");
+      if (!file) return;
+      try {
+        if (b.dataset.cover === "image") {
+          const img = new Image();
+          img.src = URL.createObjectURL(file);
+          await img.decode();
+          newCover = { kind: "image", blob: await toJpeg(img, img.naturalWidth, img.naturalHeight) };
+        } else {
+          if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(`הסרטון גדול מ-${MAX_VIDEO_MB}MB. שלחי לי אותו ואכווץ אותו.`);
+          const video = document.createElement("video");
+          video.muted = true;
+          video.src = URL.createObjectURL(file);
+          await new Promise((resolve, reject) => { video.onloadeddata = resolve; video.onerror = () => reject(new Error("הדפדפן לא מצליח לפתוח את הסרטון. נסי לשמור אותו כ-MP4.")); });
+          video.currentTime = 0.05;
+          await new Promise(resolve => { video.onseeked = resolve; });
+          newCover = { kind: "video", file, poster: await toJpeg(video, video.videoWidth, video.videoHeight) };
+        }
+        document.getElementById("new-cover-name").textContent = file.name + " ✓";
+      } catch (error) { newStatus.textContent = error.message || "הדפדפן לא מצליח לפתוח את הקובץ (אם זו תמונת HEIC, שמרי אותה קודם כ-JPG)"; }
+    });
+
+    newForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const title = newForm.title.value.trim();
+      const slug = toSlug(newForm.slug.value);
+      const field = newForm.field.value.trim();
+      const cats = [...newForm.querySelectorAll('input[name="cat"]:checked')].map(c => c.value);
+      if (!slug) { newStatus.textContent = "צריך שם בכתובת (אותיות באנגלית, מספרים ומקפים)."; return; }
+      if (!newCover) { newStatus.textContent = "צריך לבחור קאבר (תמונה או סרטון)."; return; }
+      if (!cats.length) { newStatus.textContent = "צריך לבחור לפחות קטגוריה אחת."; return; }
+      const button = newForm.querySelector('[type="submit"]');
+      button.disabled = true;
+      try {
+        // העמוד לא קיים כבר?
+        let exists = true;
+        try { await currentFile(slug + ".html"); } catch (err) { exists = false; }
+        if (exists) throw new Error(`כבר יש עמוד בשם ${slug}. בחרי שם אחר בכתובת.`);
+        const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const folder = `images/projects/${slug}`;
+
+        // 1. הקאבר
+        newStatus.textContent = "מעלה את הקאבר…";
+        let coverImage, homeMedia, introMedia;
+        if (newCover.kind === "image") {
+          coverImage = `${folder}/00-cover.jpg`;
+          await saveFile(coverImage, await blobToBase64(newCover.blob), `${slug}: cover (new project from the admin page)`);
+          homeMedia = `<img class="home-gallery__slide is-active" src="${coverImage}" alt="${escapeAttr(title)}">`;
+          introMedia = `<img class="project-intro__image" src="${coverImage}" alt="${escapeAttr(title)}">`;
+        } else {
+          const ext = (newCover.file.name.split(".").pop() || "mp4").toLowerCase();
+          const videoPath = `${folder}/00-cover.${ext}`;
+          coverImage = `${folder}/00-cover-poster.jpg`;
+          newStatus.textContent = "מעלה את הסרטון… זה יכול לקחת קצת זמן";
+          await saveFile(videoPath, await blobToBase64(newCover.file), `${slug}: cover video (new project from the admin page)`);
+          await saveFile(coverImage, await blobToBase64(newCover.poster), `${slug}: cover poster`);
+          homeMedia = `<video class="home-gallery__slide is-active" src="${videoPath}" poster="${coverImage}" autoplay muted loop playsinline aria-label="${escapeAttr(title)}"></video>`;
+          introMedia = `<video class="project-intro__image" src="${videoPath}" poster="${coverImage}" autoplay muted loop playsinline aria-label="${escapeAttr(title)}"></video>`;
+        }
+
+        // 2. העמוד: לפי התבנית של עמוד sela (כותרת, תפריט, פרטי קשר וסקריפטים), עם התוכן של הפרויקט החדש
+        newStatus.textContent = "יוצר את העמוד…";
+        let page = base64ToText((await currentFile("sela.html")).content);
+        page = page
+          .replace(/<title>[^<]*<\/title>/, `<title>May Mina | ${esc(title)}</title>`)
+          .replace(/<!--\s*\n\s*עמוד פרויקט[\s\S]*?-->/, `<!--\n    עמוד פרויקט (נוצר מעמוד הניהול). את התמונות, הטקסטים והגריד עורכים בעמוד הניהול (covers.html).\n    הדימויים של הפרויקט נמצאים בתיקייה ${folder}.\n  -->`)
+          .replace(/ class="home-menu__item--current"/g, "")
+          .replace(new RegExp(`(<a)( href="index\\.html\\?v=[^"&]*&category=${cats[0]}")`), `$1 class="home-menu__item--current"$2`)
+          .replace(/<p class="project-meta project-meta--title">[\s\S]*?<\/p>/, `<p class="project-meta project-meta--title">${esc(title)}</p>`)
+          .replace(/<p class="project-meta project-meta--field">[\s\S]*?<\/p>/, `<p class="project-meta project-meta--field">${esc(field || "IMAGES")}</p>`)
+          .replace(/<section class="project-intro">[\s\S]*?<\/section>/, `<section class="project-intro">\n      ${introMedia}\n      <p class="project-intro__description">\n        Write the project text here (in the admin page).\n      </p>\n    </section>`)
+          .replace(/<section class="project-images[^"]*">[\s\S]*?<\/section>/, `<section class="project-images project-grid">\n    </section>`);
+        await github(`${slug}.html`, { method: "PUT", body: JSON.stringify({ message: `${slug}: new project page (from the admin page)`, content: textToBase64(page), branch: BRANCH }) });
+
+        // 3. עמוד הבית: הפרויקט נוסף בסוף הגריד
+        newStatus.textContent = "מוסיף לעמוד הבית…";
+        const home = await currentFile("index.html");
+        const homeHtml = base64ToText(home.content);
+        const version = (homeHtml.match(/styles\.css\?v=([^"]+)"/) || [])[1] || "";
+        const item = `\n      <a class="home-gallery__item" href="${slug}.html${version ? "?v=" + version : ""}" data-categories="${cats.join(" ")}" data-preview="${coverImage}">\n        <div class="home-gallery__media">\n          ${homeMedia}\n        </div>\n        <p class="home-gallery__name">${esc(title)}</p>\n      </a>`;
+        const end = homeHtml.lastIndexOf("\n    </div>\n  </main>");
+        if (end < 0) throw new Error("לא מצאתי את הסוף של הגריד בעמוד הבית");
+        await github("index.html", { method: "PUT", body: JSON.stringify({ message: `Home: add ${slug} (new project from the admin page)`, content: textToBase64(homeHtml.slice(0, end) + "\n" + item + homeHtml.slice(end)), branch: BRANCH, sha: home.sha }) });
+
+        // 4. הסדר של "Next project"
+        const script = await currentFile("project.js");
+        const code = base64ToText(script.content);
+        const updatedCode = code.replace(/const PROJECT_ORDER = \[([^\]]*)\];/, (all, list) => `const PROJECT_ORDER = [${list}, "${slug}"];`);
+        if (updatedCode !== code) await github("project.js", { method: "PUT", body: JSON.stringify({ message: `Next project order: add ${slug}`, content: textToBase64(updatedCode), branch: BRANCH, sha: script.sha }) });
+
+        newStatus.textContent = "נוצר ✓";
+        newModal.hidden = true;
+        homeStatus.textContent = `הפרויקט ${slug} נוצר ✓ הוא יופיע באתר תוך דקה-שתיים. אפשר לערוך אותו מהרשימה למעלה.`;
+        loadHome();
+      } catch (error) {
+        newStatus.textContent = "לא נוצר: " + error.message;
+      }
+      button.disabled = false;
+    });
+
     loadHome();
   </script>
 </body>

@@ -131,7 +131,7 @@
   addButton.textContent = isFeed ? "+ הוספת פוסט (תמונה או סרטון)" : "+ הוספת תמונות";
   section.after(addButton);
 
-  let editor, texts;
+  let editor, texts, introImage;
   let dirty = false;
   const changed = () => { dirty = true; say("יש שינויים שלא נשמרו"); };
   // שינוי בגריד / בפיד (ולא רק בטקסט). רק אז שומרים את הגריד מחדש
@@ -145,11 +145,12 @@
     const button = this;
     button.disabled = true;
     try {
+      await introImage.upload(say);
       await editor.uploadFiles(say);
       say("שומר את העמוד…");
       const page = await currentFile(pageFile);
       const html = base64ToText(page.content);
-      const updated = texts.apply(layoutChanged ? editor.writePage(html) : html);
+      const updated = introImage.apply(texts.apply(layoutChanged ? editor.writePage(html) : html));
       await github(pageFile, { method: "PUT", body: JSON.stringify({ message: `${pageFile}: updated from the admin page`, content: textToBase64(updated), branch: BRANCH, sha: page.sha }) });
       dirty = false;
       layoutChanged = false;
@@ -270,6 +271,72 @@
           html = html.replace(field.pattern, () => field.html(value));
         });
         return html;
+      },
+    };
+  }
+
+  // ===================== התמונה הגדולה בראש העמוד =====================
+  // כפתור "החלפת התמונה הגדולה": תמונה (או סרטון) מהמחשב. נשמר רק אם החליפו
+  function introEditor() {
+    const intro = document.querySelector(".project-intro");
+    let media = intro && intro.querySelector(".project-intro__image");
+    if (!media) return { upload: async () => {}, apply: html => html };
+    let replacement = null; // { blob } לתמונה, או { file, poster } לסרטון
+    const buttonEl = button("החלפת התמונה הגדולה", "תמונה או סרטון מהמחשב", async function () {
+      const [file] = await pickFiles("image/*,video/*");
+      if (!file) return;
+      try {
+        let preview;
+        if (file.type.startsWith("image/")) {
+          const { blob } = await imageForGrid(file);
+          replacement = { blob };
+          preview = document.createElement("img");
+          preview.src = URL.createObjectURL(blob);
+        } else {
+          if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(`הסרטון גדול מ-${MAX_VIDEO_MB}MB. שלחי לי אותו ואכווץ אותו.`);
+          replacement = { file };
+          preview = document.createElement("video");
+          preview.src = URL.createObjectURL(file);
+          preview.muted = true; preview.loop = true; preview.autoplay = true; preview.playsInline = true;
+          await new Promise((resolve, reject) => { preview.onloadeddata = resolve; preview.onerror = () => reject(new Error("הדפדפן לא מצליח לפתוח את הסרטון. נסי לשמור אותו כ-MP4.")); });
+          const canvas = document.createElement("canvas");
+          canvas.width = preview.videoWidth; canvas.height = preview.videoHeight;
+          canvas.getContext("2d").drawImage(preview, 0, 0);
+          replacement.poster = await canvasToJpeg(canvas, 0.9);
+        }
+        preview.className = "project-intro__image";
+        media.replaceWith(preview);
+        media = preview;
+        changed();
+      } catch (error) { say(error.message); }
+    }, "edit-intro-button");
+    intro.appendChild(buttonEl);
+    const alt = media.getAttribute("alt") || media.getAttribute("aria-label") || pageName;
+    let newHtml = null;
+    return {
+      async upload(report) {
+        if (!replacement) return;
+        const id = stamp();
+        if (replacement.blob) {
+          report("מעלה את התמונה הגדולה…");
+          const path = `${folder}/intro-${id}.jpg`;
+          await saveFile(path, await blobToBase64(replacement.blob), `${pageName}: new main image (from the admin page)`);
+          newHtml = `<img class="project-intro__image" src="${path}" alt="${escapeAttr(alt)}">`;
+        } else {
+          report("מעלה את הסרטון הגדול… זה יכול לקחת קצת זמן");
+          const ext = (replacement.file.name.split(".").pop() || "mp4").toLowerCase();
+          const path = `${folder}/intro-${id}.${ext}`, poster = `${folder}/intro-${id}-poster.jpg`;
+          await saveFile(path, await blobToBase64(replacement.file), `${pageName}: new main video (from the admin page)`);
+          await saveFile(poster, await blobToBase64(replacement.poster), `${pageName}: poster of the main video`);
+          newHtml = `<video class="project-intro__image" src="${path}" poster="${poster}" autoplay muted loop playsinline aria-label="${escapeAttr(alt)}"></video>`;
+        }
+        replacement = null;
+      },
+      apply(html) {
+        if (!newHtml) return html;
+        const result = html.replace(/<(img|video) class="project-intro__image"[^>]*>(<\/video>)?/, () => newHtml);
+        newHtml = null;
+        return result;
       },
     };
   }
@@ -761,6 +828,7 @@
     const selector = isFeed ? "section.project-images.project-feed" : "section.project-images:not(.project-feed)";
     const source = doc.querySelector(".project-page " + selector) || doc.querySelector(selector) || section;
     texts = textEditor(doc);
+    introImage = introEditor();
     editor = isFeed ? feedEditor(source) : gridEditor(source);
     addButton.addEventListener("click", () => editor.add());
     if (!readToken()) say("אין מפתח GitHub בדפדפן הזה: אפשר לנסות, אבל כדי לשמור צריך לשמור מפתח בעמוד הניהול.");

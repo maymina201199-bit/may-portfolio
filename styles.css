@@ -1984,3 +1984,84 @@ body {
 .covers-page {
   padding-bottom: 80px;
 }
+
+/* ה-"+" בסוף הגריד של עמוד הבית: פרויקט חדש */
+.covers .admin__home-new {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  aspect-ratio: 480 / 590;
+  border: 2px dashed var(--color-marker);
+  border-radius: 0;
+  background-color: transparent;
+  color: var(--color-marker);
+  font-size: 18px;
+}
+
+.admin__home-new span {
+  font-size: 64px;
+  line-height: 1;
+}
+
+/* הטופס של פרויקט חדש */
+.admin__new {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(480px, 90vw);
+}
+
+.admin__new h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.admin__new label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin__new input:not([type="checkbox"]) {
+  padding: 6px 8px;
+  border: var(--line-width) solid var(--color-ink);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.admin__new fieldset {
+  margin: 0;
+  padding: 8px;
+  border: var(--line-width) solid var(--color-ink);
+}
+
+.admin__new fieldset label {
+  flex-direction: row;
+  align-items: center;
+  direction: ltr;
+  justify-content: flex-end;
+}
+
+/* מצב עריכה: הכפתור להחלפת התמונה הגדולה בראש העמוד */
+.is-editing .project-intro {
+  position: relative;
+}
+
+.edit-intro-button {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 16px;
+  background-color: var(--color-marker);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
