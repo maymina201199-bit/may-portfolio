@@ -205,7 +205,7 @@ if (page) {
 
   // כל הדימויים בעמוד, לפי הסדר (בלי סרטונים, שמתנגנים במקום)
   const images = [...projectPage.querySelectorAll(".project-intro__image, .project-images__image")]
-    .filter(el => el.tagName === "IMG" && !el.closest(".minimap"));
+    .filter(el => el.tagName === "IMG" && !el.closest(".minimap") && !el.closest(".project-feed"));
   let currentIndex = 0;
 
   function open(img) {
@@ -230,6 +230,7 @@ if (page) {
   }
 
   projectPage.querySelectorAll(".project-intro__image, .project-images__image").forEach(function (img) {
+    if (img.closest(".project-feed")) return; // בפיד לחיצה פותחת את הפוסט (ראו למטה)
     img.addEventListener("click", function () {
       if (img.tagName === "VIDEO") {
         // סרטון: לחיצה עוצרת או מפעילה אותו (ולא פותחת אותו בגדול)
@@ -358,6 +359,126 @@ if (page) {
   document.addEventListener("visibilitychange", function () { if (!document.hidden) playAllVideos(); });
 })();
 
+// ===== פיד של סושיאל (Manyone וכו'): לחיצה על פוסט פותחת אותו בגדול, כמו באינסטגרם =====
+// סרטון (data-video, או סרטון שמתנגן בפיד): מתנגן בגדול, עם סאונד. לחיצה עוצרת / מפעילה.
+// קרוסלה (data-carousel = רשימת התמונות): עוברים בין התמונות בלחיצה על הצד הימני / השמאלי,
+// בחיצים במקלדת או בהחלקה בטלפון, ולמטה יש פס התקדמות (פס לכל תמונה).
+// תמונה רגילה: פשוט גדולה. לחיצה מחוץ לפוסט, Esc או גלילה סוגרים
+(function () {
+  const feed = document.querySelector(".project-page .project-feed");
+  if (!feed || EDIT_MODE) return;
+
+  const viewer = document.createElement("div");
+  viewer.className = "feed-viewer";
+  viewer.innerHTML = '<div class="feed-viewer__post"><div class="feed-viewer__media"></div><div class="feed-viewer__bars"></div></div>';
+  document.body.appendChild(viewer);
+  const post = viewer.querySelector(".feed-viewer__post");
+  const mediaBox = viewer.querySelector(".feed-viewer__media");
+  const bars = viewer.querySelector(".feed-viewer__bars");
+  const POST_RATIO = 455 / 568;
+  let slides = [], slide = 0, video = null;
+
+  // הגודל של הפוסט: הכי גדול שנכנס במסך, בצורה של התמונה / הסרטון
+  const setRatio = ratio => post.style.setProperty("--post-ratio", ratio || POST_RATIO);
+
+  function open(figure) {
+    const media = figure.querySelector(".project-images__image");
+    const carousel = (figure.dataset.carousel || "").split(",").map(s => s.trim()).filter(Boolean);
+    const videoSrc = figure.dataset.video || (media.tagName === "VIDEO" ? media.getAttribute("src") : "");
+    mediaBox.innerHTML = "";
+    bars.innerHTML = "";
+    video = null;
+    slides = [];
+    if (carousel.length) {
+      viewer.dataset.kind = "carousel";
+      slides = carousel;
+      slide = 0;
+      carousel.forEach(() => bars.insertAdjacentHTML("beforeend", "<span></span>"));
+      showSlide();
+    } else if (videoSrc) {
+      viewer.dataset.kind = "video";
+      video = document.createElement("video");
+      video.src = videoSrc;
+      video.loop = true;
+      video.playsInline = true;
+      video.poster = media.tagName === "VIDEO" ? media.poster : media.currentSrc || media.src;
+      video.addEventListener("loadedmetadata", () => setRatio(video.videoWidth / video.videoHeight));
+      video.addEventListener("play", () => viewer.dispatchEvent(new Event("mediachange")));
+      video.addEventListener("pause", () => viewer.dispatchEvent(new Event("mediachange")));
+      mediaBox.appendChild(video);
+      setRatio(media.tagName === "VIDEO" && media.videoWidth ? media.videoWidth / media.videoHeight : POST_RATIO);
+      video.play().catch(function () { video.muted = true; video.play().catch(function () {}); }); // אם הדפדפן חוסם סאונד: בלי סאונד
+    } else {
+      viewer.dataset.kind = "image";
+      const img = document.createElement("img");
+      img.src = media.currentSrc || media.src;
+      img.alt = media.alt || "";
+      img.addEventListener("load", () => setRatio(img.naturalWidth / img.naturalHeight));
+      mediaBox.appendChild(img);
+      setRatio(POST_RATIO);
+    }
+    viewer.classList.add("is-open");
+  }
+
+  // הקרוסלה: התמונה הנוכחית, והפסים עד אליה מלאים (כמו באינסטגרם)
+  function showSlide() {
+    mediaBox.innerHTML = "";
+    const img = document.createElement("img");
+    img.src = slides[slide];
+    img.alt = "";
+    img.addEventListener("load", () => setRatio(img.naturalWidth / img.naturalHeight));
+    mediaBox.appendChild(img);
+    [...bars.children].forEach((bar, i) => bar.classList.toggle("is-on", i <= slide));
+    // טוענים מראש את התמונה הבאה, כדי שהמעבר יהיה מיידי
+    if (slides[slide + 1]) new Image().src = slides[slide + 1];
+  }
+  function step(direction) {
+    if (!slides.length) return;
+    const next = slide + direction;
+    if (next < 0 || next >= slides.length) return; // כמו באינסטגרם: לא מסתובבים מהאחרונה לראשונה
+    slide = next;
+    showSlide();
+  }
+
+  function close() {
+    if (!viewer.classList.contains("is-open")) return;
+    viewer.classList.remove("is-open");
+    if (video) video.pause();
+    mediaBox.innerHTML = "";
+    video = null;
+  }
+
+  feed.querySelectorAll(":scope > .tile").forEach(function (figure) {
+    figure.addEventListener("click", () => open(figure));
+  });
+
+  viewer.addEventListener("click", function (event) {
+    if (swiped) { swiped = false; return; }
+    if (!event.target.closest(".feed-viewer__post")) { close(); return; }
+    if (viewer.dataset.kind === "video" && video) {
+      if (video.paused) video.play().catch(function () {}); else video.pause();
+    } else if (viewer.dataset.kind === "carousel") {
+      const box = post.getBoundingClientRect();
+      step(event.clientX < box.left + box.width / 2 ? -1 : 1);
+    } else close();
+  });
+  document.addEventListener("keydown", function (event) {
+    if (!viewer.classList.contains("is-open")) return;
+    if (event.key === "Escape") close();
+    if (event.key === "ArrowRight") step(1);
+    if (event.key === "ArrowLeft") step(-1);
+  });
+  let touchX = null, swiped = false;
+  viewer.addEventListener("touchstart", event => { touchX = event.touches[0].clientX; }, { passive: true });
+  viewer.addEventListener("touchend", function (event) {
+    if (touchX === null) return;
+    const dx = event.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 40 && slides.length) { swiped = true; step(dx < 0 ? 1 : -1); setTimeout(() => { swiped = false; }, 400); }
+  });
+  window.addEventListener("wheel", close, { passive: true });
+})();
+
 // ===== הסמן מעל דימויים וסרטונים (האייקונים מהפיגמה) =====
 // מעל דימוי: פלוס (לחיצה מגדילה). בדימוי הגדול: הריבוע עם החץ מעמוד הבית, שמצביע ימינה (הבא)
 // או שמאלה (הקודם) לפי הצד של המסך. על הרקע השחור מסביב: מינוס (לחיצה סוגרת).
@@ -384,7 +505,19 @@ if (page) {
   function update(target) {
     lastTarget = target;
     let kind = "";
-    if (target && target.closest(".image-viewer.is-open .image-viewer__box")) {
+    const feedViewer = target && target.closest && target.closest(".feed-viewer.is-open");
+    if (feedViewer) {
+      // בפוסט הפתוח: קרוסלה = חץ לצד, סרטון = עצירה / הפעלה, מחוץ לפוסט = סגירה
+      const postBox = target.closest(".feed-viewer__post");
+      const playing = feedViewer.querySelector("video");
+      if (postBox && feedViewer.dataset.kind === "carousel") {
+        const box = postBox.getBoundingClientRect();
+        kind = mouseX < box.left + box.width / 2 ? "prev" : "next";
+      } else if (postBox && playing) kind = playing.paused ? "play" : "pause";
+      else kind = "zoom-out";
+    } else if (target && target.closest(".project-page .project-feed > .tile")) {
+      kind = "zoom-in"; // פוסט בפיד: לחיצה פותחת אותו
+    } else if (target && target.closest(".image-viewer.is-open .image-viewer__box")) {
       kind = mouseX < window.innerWidth / 2 ? "prev" : "next";
     } else if (target && target.closest(".image-viewer.is-open")) {
       kind = "zoom-out";
@@ -416,6 +549,8 @@ if (page) {
     video.addEventListener("play", () => update(lastTarget));
     video.addEventListener("pause", () => update(lastTarget));
   });
+  const feedViewer = document.querySelector(".feed-viewer");
+  if (feedViewer) feedViewer.addEventListener("mediachange", () => update(lastTarget));
 })();
 
 // ===== סרטונים בפיד: נטענים ומתנגנים רק כשהם קרובים למסך =====

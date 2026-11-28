@@ -709,7 +709,8 @@
       const media = figure.querySelector(".project-images__image");
       const tag = media.tagName.toLowerCase();
       return {
-        kind: tag === "video" ? "video" : figure.dataset.video ? "cover" : "image",
+        kind: figure.dataset.carousel ? "carousel" : tag === "video" ? "video" : figure.dataset.video ? "cover" : "image",
+        carousel: (figure.dataset.carousel || "").split(",").map(s => s.trim()).filter(Boolean), // התמונות של קרוסלה
         tag,
         attrs: [...media.attributes].filter(a => a.name !== "class").map(a => [a.name, a.value]),
         videoPath: figure.dataset.video || "",
@@ -743,7 +744,8 @@
         img.src = previewSrc(item);
         img.style.cssText = attr(item, "style") || "";
         figure.appendChild(img);
-        const labels = { cover: "סרטון (קאבר)", video: "סרטון שמתנגן", image: "תמונה" };
+        const count = item.carouselBlobs ? item.carouselBlobs.length : item.carousel ? item.carousel.length : 0;
+        const labels = { cover: "סרטון (קאבר)", video: "סרטון שמתנגן", image: "תמונה", carousel: `קרוסלה (${count} תמונות)` };
         figure.insertAdjacentHTML("beforeend", `<span class="edit-badge edit-badge--top">${labels[item.kind]}${item.needsCover ? " · צריך לבחור קאבר" : ""}</span>`);
         const handle = button("⠿", "גררי כדי להזיז למקום אחר", () => {}, "edit-handle");
         figure.appendChild(handle);
@@ -764,6 +766,7 @@
       g.appendChild(button("‹ קודם", "מקום אחד קודם", () => move(selected, selected - 1)));
       g.appendChild(button("הבא ›", "מקום אחד הבא", () => move(selected, selected + 2)));
       if (item.kind === "cover") g.appendChild(button("בחירת קאבר", "בוחרים פריים מהסרטון", () => openCover(selected), "is-on"));
+      g.appendChild(button(item.kind === "carousel" ? "תמונות הקרוסלה" : "הפיכה לקרוסלה", "בוחרים כמה תמונות (לפי הסדר), והפוסט הופך לקרוסלה שעוברים בה בין התמונות", () => makeCarousel(selected)));
       g.appendChild(button("החלפה", "קובץ אחר מהמחשב (תמונה או סרטון)", () => replace(selected)));
       g.appendChild(button("הסרה", "להסיר מהפיד (הקובץ עצמו לא נמחק)", () => remove(selected)));
       g.appendChild(button("✕", "סגירה", () => { selected = -1; render(); }));
@@ -803,6 +806,28 @@
       }
       return { kind: "cover", tag: "img", attrs: [["src", ""], ["alt", alt], ["loading", "lazy"], ["style", `--photo-ratio: ${round(POST_RATIO)}`]], videoPath: "", localVideo, needsCover: true };
     }
+    // קרוסלה: בוחרים כמה תמונות (הסדר = הסדר שבו הן נבחרו / השמות שלהן), כל אחת נחתכת לצורה של פוסט.
+    // בפיד רואים את הראשונה, ובלחיצה עוברים בין כולן
+    async function makeCarousel(index) {
+      const files = (await pickFiles("image/*", true)).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+      if (!files.length) return;
+      try {
+        const blobs = [];
+        for (const file of files) {
+          const img = await loadImage(file);
+          blobs.push(await canvasToJpeg(cropToPost(img, img.naturalWidth, img.naturalHeight, document.createElement("canvas")), 0.9));
+        }
+        items[index] = {
+          kind: "carousel", tag: "img", carousel: [], carouselBlobs: blobs,
+          attrs: [["src", ""], ["alt", alt], ["loading", "lazy"], ["style", `--photo-ratio: ${round(POST_RATIO)}`]],
+          coverBlob: blobs[0], newImage: true,
+        };
+        selected = index;
+        changedLayout();
+        render();
+      } catch (error) { say(error.message); }
+    }
+
     async function replace(index) {
       const [file] = await pickFiles("image/*,video/*");
       if (!file) return;
@@ -909,6 +934,19 @@
           setAttr(item, "poster", posterPath);
           item.videoFile = null; item.posterBlob = null;
         }
+        if (item.carouselBlobs) {
+          // התמונות של הקרוסלה. הראשונה היא גם מה שרואים בפיד
+          const paths = [];
+          for (let n = 0; n < item.carouselBlobs.length; n++) {
+            report(`מעלה את הקרוסלה (פוסט ${i + 1}, תמונה ${n + 1} מתוך ${item.carouselBlobs.length})…`);
+            const path = `${folder}/post-${id}-${n + 1}.jpg`;
+            await saveFile(path, await blobToBase64(item.carouselBlobs[n]), `${pageName}: carousel image ${n + 1} for post ${i + 1} (from the admin page)`);
+            paths.push(path);
+          }
+          item.carousel = paths;
+          setAttr(item, "src", paths[0]);
+          item.carouselBlobs = null; item.coverBlob = null; item.newImage = false;
+        }
         if (item.coverBlob) {
           report(`מעלה תמונה (פוסט ${i + 1})…`);
           // קאבר של פוסט שכבר באתר נשמר באותו שם, עם ?c= חדש כדי שהדפדפנים יציגו את החדש
@@ -925,7 +963,8 @@
       if (!SECTION.test(html)) throw new Error("לא מצאתי את הפיד בעמוד");
       const lines = items.map(function (item) {
         const media = `<${item.tag} class="project-images__image"${attrsHtml(item.attrs)}>${item.tag === "video" ? "</video>" : ""}`;
-        const data = item.kind === "cover" && item.videoPath ? ` data-video="${escapeAttr(item.videoPath)}"` : "";
+        const data = item.kind === "carousel" && item.carousel.length ? ` data-carousel="${escapeAttr(item.carousel.join(", "))}"`
+                   : item.kind === "cover" && item.videoPath ? ` data-video="${escapeAttr(item.videoPath)}"` : "";
         return `      <figure class="tile"${data}>${media}</figure>`;
       });
       return html.replace(SECTION, () => `<section class="project-images project-feed">\n${lines.join("\n")}\n    </section>`);
