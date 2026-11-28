@@ -107,6 +107,7 @@
   topBar.innerHTML = `
     <span class="edit-bar__title">עריכה: ${pageName}</span>
     <a class="edit-bar__link" href="covers.html">← חזרה לניהול</a>
+    <a class="edit-bar__link" href="${pageFile}?t=${Date.now()}">חזרה לאתר (העמוד הזה)</a>
     <span class="edit-bar__status" id="edit-status"></span>
     <button type="button" id="edit-cancel">בטל שינויים</button>
     <button type="button" id="edit-save" class="is-main">שמור</button>`;

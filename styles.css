@@ -1629,6 +1629,10 @@ body {
 }
 
 /* ===== עמוד הניהול: בחירת העמוד ===== */
+.admin__back {
+  color: var(--color-home-text);
+}
+
 .admin__page-list {
   display: flex;
   flex-wrap: wrap;
