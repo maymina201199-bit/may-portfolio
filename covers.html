@@ -4,21 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>May Mina | קאברים</title>
-  <link rel="stylesheet" href="styles.css?v=20261128i">
+  <title>May Mina | ניהול</title>
+  <link rel="stylesheet" href="styles.css?v=20261128j">
 </head>
 <body class="home-page covers-page">
   <!--
-    עמוד נסתר (לא בתפריט): בחירת הקאבר של הסרטונים בפיד של Manyone.
+    עמוד נסתר (לא בתפריט): סידור הגריד בעמודי הפרויקטים, ובחירת הקאבר של הסרטונים בפיד של Manyone.
     מנגנים סרטון, עוצרים על הפריים הרצוי ולוחצים "שמור קאבר".
     הפריים נחתך לצורה של הריבוע בגריד (4 על 5) ונשמר ישר ב-GitHub, והאתר מתעדכן לבד.
     בשביל השמירה צריך "מפתח" של GitHub (token), שנשמר רק בדפדפן הזה.
   -->
   <main class="covers">
-    <h1 class="covers__title">קאברים לפיד של Manyone</h1>
-    <p class="covers__intro">מנגנים סרטון, עוצרים על הפריים שרוצים (אפשר גם עם החיצים ‹ › פריים אחרי פריים), ולוחצים "שמור קאבר". האתר מתעדכן תוך דקה בערך.</p>
-
-    <!-- המפתח של GitHub -->
+    <!-- המפתח של GitHub (בשביל השמירה של הגריד ושל הקאברים) -->
     <section class="covers__key">
       <label for="token">מפתח GitHub</label>
       <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
@@ -27,6 +24,59 @@
       <p class="covers__status" id="token-status"></p>
     </section>
 
+    <!-- ===== סידור הגריד בעמודי הפרויקטים ===== -->
+    <h1 class="covers__title">הגריד בעמודי הפרויקטים</h1>
+    <p class="covers__intro">בוחרים פרויקט. לוחצים על ריבוע כדי לשנות לו גודל (1 עד 6 טורים), כיוון (שוכב 5:4 או עומד 4:5) ואיזה חלק מהתמונה רואים (גוררים את התמונה בתצוגה הגדולה). גוררים ריבוע כדי להזיז אותו למקום אחר. הריבועים מסתדרים לבד, כמו בפיגמה. בסוף לוחצים "שמור גריד".</p>
+    <section class="covers__card grid-editor">
+      <div class="covers__actions">
+        <label for="grid-page">פרויקט:</label>
+        <select id="grid-page" class="grid-editor__select">
+          <option value="">בחרי פרויקט…</option>
+          <option value="modern-warfare.html">Modern Warfare</option>
+          <option value="hevel.html">Hevel</option>
+          <option value="eat-and-drink.html">Eat &amp; Drink</option>
+          <option value="sabra.html">Sabra</option>
+          <option value="sela.html">Sela</option>
+          <option value="portrait.html">Portrait</option>
+          <option value="1984-2025.html">1984 / 2025</option>
+          <option value="lifta.html">Lifta</option>
+        </select>
+        <button type="button" id="grid-reload">בטל שינויים</button>
+        <button type="button" id="grid-save">שמור גריד</button>
+      </div>
+      <p class="covers__status" id="grid-status"></p>
+
+      <!-- הכלים של הריבוע שנבחר -->
+      <div class="grid-editor__panel" id="grid-panel" hidden>
+        <div class="grid-editor__crop-wrap">
+          <p>גררי את התמונה כדי לבחור מה רואים</p>
+          <figure class="tile grid-editor__crop" id="grid-crop"><img class="project-images__image" alt="" draggable="false"></figure>
+        </div>
+        <div class="grid-editor__controls">
+          <p>גודל (כמה טורים מתוך 6):</p>
+          <div class="grid-editor__buttons" id="grid-spans"></div>
+          <p>כיוון:</p>
+          <div class="grid-editor__buttons">
+            <button type="button" data-shape="land">שוכב 5:4</button>
+            <button type="button" data-shape="port">עומד 4:5</button>
+          </div>
+          <p>זום: <span id="grid-zoom-value">100%</span></p>
+          <input type="range" id="grid-zoom" min="1" max="3" step="0.01" value="1">
+          <div class="grid-editor__buttons">
+            <button type="button" id="grid-reset-crop">איפוס חיתוך</button>
+            <button type="button" id="grid-earlier">→ מקום אחד קודם</button>
+            <button type="button" id="grid-later">מקום אחד הבא ←</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- התצוגה של הגריד: אותו עיצוב כמו בעמוד עצמו -->
+      <section class="project-images project-grid grid-editor__grid" id="grid-preview" dir="ltr"></section>
+    </section>
+
+    <!-- ===== קאברים לפיד של Manyone ===== -->
+    <h1 class="covers__title">קאברים לפיד של Manyone</h1>
+    <p class="covers__intro">מנגנים סרטון, עוצרים על הפריים שרוצים (אפשר גם עם החיצים ‹ › פריים אחרי פריים), ולוחצים "שמור קאבר". האתר מתעדכן תוך דקה בערך.</p>
     <section class="covers__list" id="list"></section>
   </main>
 
@@ -170,6 +220,244 @@
         button.disabled = false;
       });
     });
+  </script>
+  <script src="grid.js?v=20261128j"></script>
+  <script>
+    // ===== עריכת הגריד בעמודי הפרויקטים =====
+    // קוראים את העמוד מ-GitHub, מציגים את הריבועים שלו, ושומרים בחזרה רק את החלק של הגריד.
+    // כל ריבוע: גודל (1–6 טורים), כיוון (land = שוכב 5:4, port = עומד 4:5) וחיתוך (--dx, --dy, --zoom).
+    (function () {
+      const pageSelect = document.getElementById("grid-page");
+      const preview = document.getElementById("grid-preview");
+      const panel = document.getElementById("grid-panel");
+      const crop = document.getElementById("grid-crop");
+      const cropImage = crop.querySelector("img");
+      const zoomInput = document.getElementById("grid-zoom");
+      const zoomValue = document.getElementById("grid-zoom-value");
+      const status = document.getElementById("grid-status");
+      const SECTION = /<section class="project-images(?! project-feed)[^"]*">[\s\S]*?<\/section>/;
+
+      let items = [];      // הריבועים, לפי הסדר
+      let selected = -1;   // הריבוע שנבחר
+      let pageFile = "";
+
+      // ----- קריאה של העמוד -----
+      async function loadPage(file) {
+        status.textContent = "טוען…";
+        pageFile = file;
+        let html;
+        if (readToken()) html = base64ToText((await currentFile(file)).content); // הגרסה הכי עדכנית
+        else html = await (await fetch(file + "?t=" + Date.now(), { cache: "no-store" })).text();
+        const match = html.match(SECTION);
+        if (!match) throw new Error("לא מצאתי את הגריד בעמוד");
+        const section = new DOMParser().parseFromString(match[0], "text/html").querySelector("section");
+        items = [...section.querySelectorAll(":scope > figure.tile")].map(readTile);
+        selected = -1;
+        render();
+        status.textContent = section.classList.contains("project-grid")
+          ? "זה הגריד שיש עכשיו באתר."
+          : "הדף הזה עוד בסידור הישן. ככה הוא ייראה בגריד החדש. כלום לא משתנה באתר עד שלוחצים \"שמור גריד\".";
+      }
+
+      // ריבוע מהעמוד: הגודל והכיוון שלו. אם הוא עוד בסידור הישן, מתרגמים בערך
+      function readTile(figure) {
+        const media = figure.querySelector(".project-images__image");
+        const attrs = [...media.attributes].filter(a => a.name !== "class" && a.name !== "style").map(a => [a.name, a.value]);
+        const css = name => media.style.getPropertyValue(name).trim();
+        let span = parseInt(figure.dataset.span, 10);
+        let shape = figure.dataset.shape;
+        const isGrid = !!span;
+        if (!isGrid) {
+          const c = figure.className;
+          const w = parseFloat(figure.style.getPropertyValue("--w")), h = parseFloat(figure.style.getPropertyValue("--h"));
+          if (w) { span = Math.round(w / 233); shape = w >= h ? "land" : "port"; }
+          else if (/tile--full/.test(c)) span = 6;
+          else if (/tile--big/.test(c)) span = 4;
+          else if (/tile--wide/.test(c)) span = 5;
+          else if (/tile--half/.test(c)) span = 3;
+          else span = 2;
+          span = Math.min(6, Math.max(1, span));
+          shape = shape || "land";
+        }
+        return {
+          tag: media.tagName.toLowerCase(),
+          attrs,
+          span,
+          shape,
+          ratio: parseFloat(css("--photo-ratio")) || 0,
+          // בסידור הישן החיתוך היה לצורה אחרת, אז מתחילים מהמרכז
+          dx: isGrid ? parseFloat(css("--dx")) || 0 : 0,
+          dy: isGrid ? parseFloat(css("--dy")) || 0 : 0,
+          zoom: isGrid ? parseFloat(css("--zoom")) || 1 : 1,
+        };
+      }
+
+      const attr = (item, name) => (item.attrs.find(a => a[0] === name) || [])[1];
+      const previewSrc = item => item.tag === "video" ? attr(item, "poster") : attr(item, "src");
+
+      // ----- החיתוך: לא מזיזים את התמונה מעבר לקצה של הריבוע -----
+      function limits(item) {
+        const tw = 100, th = item.shape === "port" ? 125 : 80, r = item.ratio || 1.5;
+        const iw = Math.max(tw, th * r) * item.zoom, ih = Math.max(th, tw / r) * item.zoom;
+        return { x: (iw - tw) / 2 / tw * 100, y: (ih - th) / 2 / th * 100 };
+      }
+      function clampCrop(item) {
+        const l = limits(item);
+        item.dx = Math.max(-l.x, Math.min(l.x, item.dx));
+        item.dy = Math.max(-l.y, Math.min(l.y, item.dy));
+      }
+      const round = v => Math.round(v * 100) / 100;
+      function mediaStyle(item) {
+        const parts = [];
+        if (item.ratio) parts.push(`--photo-ratio: ${round(item.ratio)}`);
+        if (round(item.dx)) parts.push(`--dx: ${round(item.dx)}%`);
+        if (round(item.dy)) parts.push(`--dy: ${round(item.dy)}%`);
+        if (round(item.zoom) !== 1) parts.push(`--zoom: ${round(item.zoom)}`);
+        return parts.join("; ");
+      }
+
+      // ----- התצוגה -----
+      function render() {
+        preview.innerHTML = "";
+        items.forEach(function (item, index) {
+          clampCrop(item);
+          const figure = document.createElement("figure");
+          figure.className = "tile" + (index === selected ? " is-selected" : "");
+          figure.dataset.span = item.span;
+          figure.dataset.shape = item.shape;
+          figure.style.setProperty("--span", item.span);
+          figure.draggable = true;
+          const img = document.createElement("img");
+          img.className = "project-images__image";
+          img.draggable = false;
+          img.src = previewSrc(item);
+          img.style.cssText = mediaStyle(item);
+          img.addEventListener("load", function () {
+            const r = img.naturalWidth / img.naturalHeight;
+            if (r && Math.abs(r - item.ratio) > 0.001) { item.ratio = r; img.style.cssText = mediaStyle(item); if (index === selected) showPanel(); }
+          });
+          figure.appendChild(img);
+          if (item.tag === "video") figure.insertAdjacentHTML("beforeend", '<span class="grid-editor__badge">סרטון</span>');
+          figure.addEventListener("click", () => { selected = index; render(); });
+          // גרירה למקום אחר
+          figure.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", index); figure.classList.add("is-dragging"); });
+          figure.addEventListener("dragend", () => figure.classList.remove("is-dragging"));
+          figure.addEventListener("dragover", e => e.preventDefault());
+          figure.addEventListener("drop", function (e) {
+            e.preventDefault();
+            const from = Number(e.dataTransfer.getData("text/plain"));
+            const box = figure.getBoundingClientRect();
+            let to = index + (e.clientX > box.left + box.width / 2 ? 1 : 0); // חצי ימני = אחריו
+            move(from, to);
+          });
+          preview.appendChild(figure);
+        });
+        window.packGrid(preview);
+        showPanel();
+      }
+
+      function move(from, to) {
+        if (from < 0 || from >= items.length) return;
+        const [item] = items.splice(from, 1);
+        if (to > from) to--;
+        to = Math.max(0, Math.min(items.length, to));
+        items.splice(to, 0, item);
+        selected = to;
+        render();
+      }
+
+      // ----- הכלים של הריבוע שנבחר -----
+      const spans = document.getElementById("grid-spans");
+      for (let n = 1; n <= 6; n++) spans.insertAdjacentHTML("beforeend", `<button type="button" data-span="${n}">${n}</button>`);
+      function showPanel() {
+        const item = items[selected];
+        panel.hidden = !item;
+        if (!item) return;
+        crop.dataset.shape = item.shape;
+        cropImage.src = previewSrc(item);
+        cropImage.style.cssText = mediaStyle(item);
+        zoomInput.value = item.zoom;
+        zoomValue.textContent = Math.round(item.zoom * 100) + "%";
+        panel.querySelectorAll("[data-span]").forEach(b => b.classList.toggle("is-on", Number(b.dataset.span) === item.span));
+        panel.querySelectorAll("[data-shape]").forEach(b => b.classList.toggle("is-on", b.dataset.shape === item.shape));
+      }
+      panel.addEventListener("click", function (e) {
+        const item = items[selected];
+        if (!item) return;
+        const b = e.target.closest("button");
+        if (!b) return;
+        if (b.dataset.span) item.span = Number(b.dataset.span);
+        else if (b.dataset.shape) item.shape = b.dataset.shape;
+        else if (b.id === "grid-reset-crop") { item.dx = 0; item.dy = 0; item.zoom = 1; }
+        else if (b.id === "grid-earlier") return move(selected, selected - 1);
+        else if (b.id === "grid-later") return move(selected, selected + 2);
+        else return;
+        render();
+      });
+      zoomInput.addEventListener("input", function () {
+        const item = items[selected];
+        if (!item) return;
+        item.zoom = Number(zoomInput.value);
+        render();
+      });
+      // גרירה של התמונה בתוך התצוגה הגדולה
+      let dragStart = null;
+      crop.addEventListener("pointerdown", function (e) {
+        const item = items[selected];
+        if (!item) return;
+        crop.setPointerCapture(e.pointerId);
+        dragStart = { x: e.clientX, y: e.clientY, dx: item.dx, dy: item.dy };
+      });
+      crop.addEventListener("pointermove", function (e) {
+        const item = items[selected];
+        if (!dragStart || !item) return;
+        const box = crop.getBoundingClientRect();
+        item.dx = dragStart.dx + (e.clientX - dragStart.x) / box.width * 100;
+        item.dy = dragStart.dy + (e.clientY - dragStart.y) / box.height * 100;
+        clampCrop(item);
+        cropImage.style.cssText = mediaStyle(item);
+        const tileImage = preview.children[selected] && preview.children[selected].querySelector("img");
+        if (tileImage) tileImage.style.cssText = mediaStyle(item);
+      });
+      crop.addEventListener("pointerup", () => { dragStart = null; });
+      crop.addEventListener("pointercancel", () => { dragStart = null; });
+
+      // ----- שמירה -----
+      const escape = v => String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+      function tileHtml(item) {
+        const attrs = item.attrs.map(([name, value]) => value === "" ? ` ${name}` : ` ${name}="${escape(value)}"`).join("");
+        const style = mediaStyle(item);
+        const media = `<${item.tag} class="project-images__image"${attrs}${style ? ` style="${style}"` : ""}>${item.tag === "video" ? "</video>" : ""}`;
+        return `      <figure class="tile" data-span="${item.span}" data-shape="${item.shape}" style="--span: ${item.span}">${media}</figure>`;
+      }
+      document.getElementById("grid-save").addEventListener("click", async function () {
+        if (!pageFile || !items.length) { status.textContent = "צריך קודם לבחור פרויקט."; return; }
+        if (!readToken()) { status.textContent = "צריך קודם לשמור מפתח GitHub (למעלה)."; return; }
+        const button = this;
+        button.disabled = true;
+        status.textContent = "שומר…";
+        try {
+          const page = await currentFile(pageFile);
+          const html = base64ToText(page.content);
+          if (!SECTION.test(html)) throw new Error("לא מצאתי את הגריד בעמוד");
+          const section = `<section class="project-images project-grid">\n${items.map(tileHtml).join("\n")}\n    </section>`;
+          const updated = html.replace(SECTION, () => section);
+          await github(pageFile, { method: "PUT", body: JSON.stringify({ message: `${pageFile}: new grid (from the covers page)`, content: textToBase64(updated), branch: BRANCH, sha: page.sha }) });
+          status.textContent = "נשמר ✓ האתר יתעדכן תוך דקה-שתיים (אם לא רואים, Cmd+Shift+R).";
+        } catch (error) {
+          status.textContent = "לא נשמר: " + error.message;
+        }
+        button.disabled = false;
+      });
+
+      function load() {
+        if (!pageSelect.value) return;
+        loadPage(pageSelect.value).catch(error => { status.textContent = "לא נטען: " + error.message; });
+      }
+      pageSelect.addEventListener("change", load);
+      document.getElementById("grid-reload").addEventListener("click", load);
+      window.addEventListener("resize", () => { if (items.length) window.packGrid(preview); });
+    })();
   </script>
 </body>
 </html>

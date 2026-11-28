@@ -1028,6 +1028,22 @@ body {
 /* חצי: 3 עמודות, כשנשארים בסוף רק שני דימויים */
 .tile--half  { grid-column: span 3; aspect-ratio: 452 / 362; }
 
+/* גריד שמסדרים בעמוד הקאברים: כל ריבוע 5 על 4 או 4 על 5, ברוחב של 1 עד 6 טורים.
+   grid.js מחשב לכל ריבוע את הגובה ואת השורות, כך שהם מסתדרים אחד ליד השני כמו בפיגמה */
+.project-grid > .tile {
+  grid-column: span var(--span, 2);
+  aspect-ratio: 5 / 4;
+}
+
+.project-grid > .tile[data-shape="port"] {
+  aspect-ratio: 4 / 5;
+}
+
+.project-grid.is-packed > .tile {
+  aspect-ratio: auto; /* הגובה מגיע מ-grid.js */
+  align-self: start;
+}
+
 /* טלפון: הכול בעמודה אחת */
 @media (max-width: 700px) {
   .project-meta {
@@ -1478,6 +1494,109 @@ body {
 
 @media (max-width: 700px) {
   .covers__media {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== עריכת הגריד בעמוד הקאברים ===== */
+.grid-editor__select {
+  padding: 8px;
+  border: var(--line-width) solid var(--color-home-muted);
+  background: var(--color-home-background);
+  color: inherit;
+  font: inherit;
+}
+
+/* הכלים של הריבוע שנבחר: התצוגה הגדולה לחיתוך, ולידה הכפתורים */
+.grid-editor__panel {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  margin: 20px 0;
+  padding: 16px;
+  border: var(--line-width) solid var(--color-home-muted);
+}
+
+.grid-editor__panel[hidden] {
+  display: none;
+}
+
+.grid-editor__panel p {
+  margin: 0 0 8px;
+  color: var(--color-home-muted);
+  font-size: 14px;
+}
+
+.grid-editor__crop {
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.grid-editor__crop[data-shape="port"] {
+  width: 80%;
+  aspect-ratio: 4 / 5;
+}
+
+.grid-editor__crop:active {
+  cursor: grabbing;
+}
+
+.grid-editor__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.covers .grid-editor__buttons button {
+  background-color: transparent;
+  color: var(--color-home-text);
+  border: var(--line-width) solid var(--color-home-muted);
+}
+
+.covers .grid-editor__buttons button.is-on {
+  background-color: var(--color-home-text);
+  color: var(--color-home-background);
+}
+
+#grid-zoom {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* התצוגה של הגריד */
+.grid-editor__grid {
+  margin-top: 20px;
+}
+
+.grid-editor__grid > .tile {
+  cursor: pointer;
+}
+
+.grid-editor__grid > .tile.is-selected {
+  outline: 2px solid var(--color-marker);
+  outline-offset: 2px;
+}
+
+.grid-editor__grid > .tile.is-dragging {
+  opacity: 0.4;
+}
+
+.grid-editor__badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 2px 6px;
+  background-color: var(--color-home-background);
+  color: var(--color-home-text);
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .grid-editor__panel {
     grid-template-columns: 1fr;
   }
 }
