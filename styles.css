@@ -1169,6 +1169,11 @@ body {
   aspect-ratio: 4 / 5;
 }
 
+/* בצורה המקורית של התמונה (למשל פס רחב) */
+.project-grid > .tile[data-shape="orig"] {
+  aspect-ratio: var(--ratio, 1.25);
+}
+
 .project-grid.is-packed > .tile {
   aspect-ratio: auto; /* הגובה מגיע מ-grid.js */
   align-self: start;

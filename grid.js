@@ -1,5 +1,6 @@
 // ===== הגריד של 6 טורים בעמודי הפרויקטים (section.project-grid) =====
-// כל ריבוע הוא 5 על 4 (שוכב, data-shape="land") או 4 על 5 (עומד, data-shape="port"),
+// כל ריבוע הוא 5 על 4 (שוכב, data-shape="land"), 4 על 5 (עומד, data-shape="port"),
+// או בצורה המקורית של התמונה (data-shape="orig", והיחס רוחב/גובה ב-data-ratio),
 // ברוחב של 1 עד 6 טורים (data-span). את הסידור קובעים בעמוד הקאברים (covers.html).
 // הריבועים מסתדרים לבד אחד ליד השני, כמו בפיגמה, גם כשהגבהים שונים:
 // הגריד מחולק לשורות דקות, וכל ריבוע תופס כמה שורות שהגובה שלו צריך.
@@ -26,7 +27,7 @@
     grid.classList.add("is-packed");
     grid.style.gridAutoRows = unit + "px";
     grid.style.rowGap = "0px";
-    layout(grid, [...tiles].map(tile => ({ span: tile.dataset.span, shape: tile.dataset.shape, newRow: tile.dataset.break === "1" })))
+    layout(grid, [...tiles].map(tile => ({ span: tile.dataset.span, shape: tile.dataset.shape, ratio: tile.dataset.ratio, newRow: tile.dataset.break === "1" })))
       .forEach(function (spot, i) {
         const tile = tiles[i];
         tile.style.gridColumn = `${spot.column + 1} / span ${spot.span}`;
@@ -45,7 +46,9 @@
     const free = (c0, c1, r0, r1) => placed.every(p => c1 <= p.c0 || c0 >= p.c1 || r1 <= p.r0 || r0 >= p.r1);
     return specs.map(function (spec) {
       const span = Math.min(cols, Math.max(1, parseInt(spec.span, 10) || 2));
-      const heightRatio = spec.shape === "port" ? 5 / 4 : 4 / 5; // גובה חלקי רוחב
+      const heightRatio = spec.shape === "port" ? 5 / 4                                   // גובה חלקי רוחב
+                        : spec.shape === "orig" ? 1 / (parseFloat(spec.ratio) || 1.25)
+                        : 4 / 5;
       const rows = Math.max(1, Math.round((widthOf(span) * heightRatio + gap) / unit));
       if (spec.newRow) floor = Math.max(floor, ...placed.map(p => p.r1));
       // המקומות האפשריים: הרצפה, או מתחת לריבוע שכבר במקום

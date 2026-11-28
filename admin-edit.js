@@ -361,7 +361,12 @@
         // סידור ישן: מתרגמים את הגודל בערך, והחיתוך מתחיל מהמרכז
         const c = figure.className;
         const w = parseFloat(figure.style.getPropertyValue("--w")), h = parseFloat(figure.style.getPropertyValue("--h"));
-        if (w) { span = Math.round(w / 233); shape = w >= h ? "land" : "port"; }
+        if (w) {
+          span = Math.round(w / 233);
+          const r = w / h;
+          // צורה רגילה (קרובה ל-5:4 או 4:5) או צורה מיוחדת (למשל פס רחב) שנשארת כמו שהיא
+          shape = Math.abs(r - 1.25) < 0.2 ? "land" : Math.abs(r - 0.8) < 0.15 ? "port" : "orig";
+        }
         else if (/tile--full/.test(c)) span = 6;
         else if (/tile--big/.test(c)) span = 4;
         else if (/tile--wide/.test(c)) span = 5;
@@ -373,6 +378,7 @@
       return {
         tag: media.tagName.toLowerCase(), attrs, span, shape,
         newRow: figure.dataset.break === "1", // מתחיל שורה חדשה (יורד מתחת לכל מה שלפניו)
+        boxRatio: parseFloat(figure.dataset.ratio) || 0, // בצורה המקורית: רוחב חלקי גובה של הריבוע
         ratio: parseFloat(css("--photo-ratio")) || 0,
         dx: known ? parseFloat(css("--dx")) || 0 : 0,
         dy: known ? parseFloat(css("--dy")) || 0 : 0,
@@ -387,12 +393,14 @@
     }
     // לא מזיזים את התמונה מעבר לקצה של הריבוע
     function clampCrop(item) {
-      const tw = 100, th = item.shape === "port" ? 125 : 80, r = item.ratio || 1.5;
+      const tw = 100, th = item.shape === "port" ? 125 : item.shape === "orig" ? 100 / boxRatioOf(item) : 80, r = item.ratio || 1.5;
       const lx = (Math.max(tw, th * r) * item.zoom - tw) / 2 / tw * 100;
       const ly = (Math.max(th, tw / r) * item.zoom - th) / 2 / th * 100;
       item.dx = Math.max(-lx, Math.min(lx, item.dx));
       item.dy = Math.max(-ly, Math.min(ly, item.dy));
     }
+    // בצורה המקורית הריבוע בצורה של התמונה (אלא אם נקבע אחרת)
+    const boxRatioOf = item => item.boxRatio || item.ratio || 1.25;
     function mediaStyle(item) {
       const r2 = v => Math.round(v * 100) / 100;
       const parts = [];
@@ -413,6 +421,7 @@
         figure.dataset.shape = item.shape;
         if (item.newRow) figure.dataset.break = "1";
         figure.style.setProperty("--span", item.span);
+        if (item.shape === "orig") { figure.dataset.ratio = round(boxRatioOf(item)); figure.style.setProperty("--ratio", round(boxRatioOf(item))); }
         const img = document.createElement("img");
         img.className = "project-images__image";
         img.draggable = false;
@@ -420,7 +429,10 @@
         img.style.cssText = mediaStyle(item);
         img.addEventListener("load", function () {
           const r = img.naturalWidth / img.naturalHeight;
-          if (r && Math.abs(r - item.ratio) > 0.001) { item.ratio = r; clampCrop(item); img.style.cssText = mediaStyle(item); }
+          if (r && Math.abs(r - item.ratio) > 0.001) {
+            item.ratio = r; clampCrop(item); img.style.cssText = mediaStyle(item);
+            if (item.shape === "orig" && !item.boxRatio) { figure.dataset.ratio = round(r); figure.style.setProperty("--ratio", round(r)); packGrid(section); }
+          }
         });
         if (item.newRow) figure.insertAdjacentHTML("beforeend", '<span class="edit-badge edit-badge--row">↵ שורה חדשה</span>');
         figure.appendChild(img);
@@ -487,7 +499,7 @@
     // ↑ שורה למעלה: אם התמונה מתחילה שורה חדשה, מבטלים את זה. אחרת מקדימים אותה בסדר
     // רק כמה שצריך כדי שתעלה (ממלאת משבצת פנויה למעלה)
     function moveUpRow(index) {
-      const specs = list => list.map(it => ({ span: it.span, shape: it.shape, newRow: it.newRow }));
+      const specs = list => list.map(it => ({ span: it.span, shape: it.shape, ratio: boxRatioOf(it), newRow: it.newRow }));
       const topOf = (list, i) => gridLayout(section, specs(list))[i].top;
       const item = items[index];
       const now = topOf(items, index);
@@ -531,7 +543,8 @@
       group("טורים:", ...spans);
       group("כיוון:",
         button("שוכב 5:4", "", () => change(it => { it.shape = "land"; }), item.shape === "land" ? "is-on" : ""),
-        button("עומד 4:5", "", () => change(it => { it.shape = "port"; }), item.shape === "port" ? "is-on" : ""));
+        button("עומד 4:5", "", () => change(it => { it.shape = "port"; }), item.shape === "port" ? "is-on" : ""),
+        button("צורה מקורית", "הריבוע בצורה של התמונה עצמה (למשל פס רחב)", () => change(it => { it.shape = "orig"; it.boxRatio = 0; it.dx = 0; it.dy = 0; }), item.shape === "orig" ? "is-on" : ""));
       const zoom = document.createElement("input");
       zoom.type = "range"; zoom.min = 1; zoom.max = 3; zoom.step = 0.01; zoom.value = item.zoom; zoom.dir = "ltr";
       const zoomLabel = document.createElement("span");
@@ -605,7 +618,8 @@
       const lines = items.map(function (item) {
         const style = mediaStyle(item);
         const media = `<${item.tag} class="project-images__image"${attrsHtml(item.attrs)}${style ? ` style="${style}"` : ""}>${item.tag === "video" ? "</video>" : ""}`;
-        return `      <figure class="tile" data-span="${item.span}" data-shape="${item.shape}"${item.newRow ? ' data-break="1"' : ""} style="--span: ${item.span}">${media}</figure>`;
+        const orig = item.shape === "orig" ? round(boxRatioOf(item)) : 0;
+        return `      <figure class="tile" data-span="${item.span}" data-shape="${item.shape}"${orig ? ` data-ratio="${orig}"` : ""}${item.newRow ? ' data-break="1"' : ""} style="--span: ${item.span}${orig ? `; --ratio: ${orig}` : ""}">${media}</figure>`;
       });
       return html.replace(SECTION, () => `<section class="project-images project-grid">\n${lines.join("\n")}\n    </section>`);
     }
